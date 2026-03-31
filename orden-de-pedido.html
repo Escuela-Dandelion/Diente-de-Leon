@@ -30,6 +30,7 @@
     padding: 10px 12px; font-size: 15px; font-family: inherit;
     background: #f9fafb; color: #2d2d2d;
     -webkit-appearance: none; appearance: none;
+    min-height: 44px; box-sizing: border-box;
   }
   .field input:focus, .field textarea:focus {
     outline: none; border-color: #3a7d44; background: #fff;
@@ -122,14 +123,14 @@
         </tr>
       </thead>
       <tbody id="tbody-productos">
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
       </tbody>
     </table>
     </div>
@@ -189,9 +190,9 @@
     nombres.forEach(function(nombre, i) {
       if (i >= filasProd.length) return;
       document.querySelectorAll('.p-nombre')[i].value = nombre || '';
-      document.querySelectorAll('.p-unid')[i].value   = unidades[i]   || '';
-      document.querySelectorAll('.p-cant')[i].value   = cantidades[i] || '';
-      document.querySelectorAll('.p-precio')[i].value = precios[i]    || '';
+      document.querySelectorAll('.p-unid')[i].value   = unidades[i] || '';
+      document.querySelectorAll('.p-cant')[i].value   = '';  // FGP define la cantidad a pedir
+      document.querySelectorAll('.p-precio')[i].value = precios[i]  || '';
     });
   })();
 
@@ -216,23 +217,29 @@
       const u  = fila.querySelector('.p-unid').value.trim();
       const c  = fila.querySelector('.p-cant').value.trim();
       const pr = fila.querySelector('.p-precio').value.trim();
-      lineasProd += `• ${n}${u ? ' (' + u + ')' : ''}${c ? ' — Cant: ' + c : ''}${pr ? ' — $' + pr : ''}\n`;
+      const detalle = [c ? '📦 Cant: ' + c : null, pr ? '💲 $' + pr : null].filter(Boolean).join('  ·  ');
+      lineasProd += `• *${n}*${u ? ' (' + u + ')' : ''}\n${detalle ? '   ' + detalle + '\n' : ''}`;
     });
 
     if (!lineasProd) { alert('Agregá al menos un producto antes de enviar.'); return; }
 
+    // Formatear fecha dd/mm/aaaa
+    const fechaFmt = fecha ? fecha.split('-').reverse().join('/') : fecha;
+
     const partes = [
-      `🌼 *Orden de Pedido — Escuela Dandelion / Diente de León*`,
-      norden ? `N° Orden: ${norden}` : null,
-      `📅 Fecha: ${fecha}`,
+      `🌼 *Orden de Pedido — Diente de León*`,
+      `━━━━━━━━━━━━━━━━━━━`,
+      norden    ? `🔢 N° ${norden}` : null,
+      `📅 Fecha: ${fechaFmt}`,
+      proveedor ? `🏪 Proveedor: ${proveedor}` : null,
       ``,
-      `*Productos solicitados:*`,
+      `📦 *Productos solicitados:*`,
       lineasProd.trimEnd(),
-      pago ? `\n💳 *Forma de pago:* ${pago}` : null,
-      obs  ? `📝 *Observaciones:* ${obs}` : null,
-      ``,
-      `_Responsable: ${fgp || 'FGP Diente de León'}_`,
-      `_Escuela Dandelion · Pedagogía Waldorf · Córdoba_`
+      pago      ? `\n💳 Forma de pago: ${pago}` : null,
+      obs       ? `📝 ${obs}` : null,
+      `━━━━━━━━━━━━━━━━━━━`,
+      `✍️ Responsable: ${fgp || 'FGP Diente de León'}`,
+      `🌻 Escuela Dandelion · Waldorf · Córdoba`
     ].filter(function(l) { return l !== null; }).join('\n');
 
     const numFinal = tel.startsWith('549') ? tel : '549' + tel;
