@@ -178,11 +178,20 @@
     if (p.get('norden'))    document.getElementById('f-norden').value    = p.get('norden');
     if (p.get('obs'))       document.getElementById('f-obs').value       = p.get('obs');
 
-    // Primer producto de la URL → fila 1
-    if (p.get('producto')) document.querySelectorAll('.p-nombre')[0].value = p.get('producto');
-    if (p.get('unidad'))   document.querySelectorAll('.p-unid')[0].value   = p.get('unidad');
-    if (p.get('cantidad')) document.querySelectorAll('.p-cant')[0].value   = p.get('cantidad');
-    if (p.get('precio'))   document.querySelectorAll('.p-precio')[0].value = p.get('precio');
+    // Productos de la URL → una fila por producto (separados por |)
+    const nombres    = p.get('producto') ? p.get('producto').split('|') : [];
+    const cantidades = p.get('cantidad') ? p.get('cantidad').split('|') : [];
+    const precios    = p.get('precio')   ? p.get('precio').split('|')   : [];
+    const unidades   = p.get('unidad')   ? p.get('unidad').split('|')   : [];
+
+    const filasProd  = document.querySelectorAll('.p-nombre');
+    nombres.forEach(function(nombre, i) {
+      if (i >= filasProd.length) return;
+      document.querySelectorAll('.p-nombre')[i].value = nombre || '';
+      document.querySelectorAll('.p-unid')[i].value   = unidades[i]   || '';
+      document.querySelectorAll('.p-cant')[i].value   = cantidades[i] || '';
+      document.querySelectorAll('.p-precio')[i].value = precios[i]    || '';
+    });
   })();
 
   // ── GENERAR WHATSAPP ───────────────────────────────────────────────────────
