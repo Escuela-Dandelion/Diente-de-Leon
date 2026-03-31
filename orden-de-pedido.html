@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orden de Pedido — Diente de León</title>
+<title>Orden de Pedido — Escuela Dandelion / Diente de León</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; color: #2d2d2d; background: #f9fafb; padding: 20px 16px; max-width: 800px; margin: 0 auto; }
@@ -81,7 +81,7 @@
     </div>
     <div class="header-right">
       <h1>Orden de Pedido</h1>
-      <p>Tienda Diente de León</p>
+      <p>Escuela Dandelion / Diente de León</p>
       <p>dientedeleon-admin@googlegroups.com</p>
     </div>
   </div>
@@ -90,9 +90,9 @@
   <div class="section">
     <div class="section-title">Datos del Pedido</div>
     <div class="grid grid-3">
-      <div class="field"><label>Fecha del pedido</label><input type="date"></div>
-      <div class="field"><label>Fecha de entrega solicitada</label><input type="date"></div>
-      <div class="field"><label>N° de Orden</label><input type="text" inputmode="numeric" placeholder="ej: 001"></div>
+      <div class="field"><label>Fecha del pedido</label><input id="f-fecha" type="date"></div>
+      <div class="field"><label>Fecha de entrega solicitada</label><input id="f-entrega" type="date"></div>
+      <div class="field"><label>N° de Orden</label><input id="f-norden" type="text" inputmode="numeric" placeholder="ej: 001"></div>
     </div>
   </div>
 
@@ -100,10 +100,10 @@
   <div class="section">
     <div class="section-title">Proveedor y Responsable</div>
     <div class="grid grid-2">
-      <div class="field"><label>Proveedor</label><input type="text"></div>
-      <div class="field"><label>Responsable (FGP)</label><input type="text"></div>
-      <div class="field"><label>Teléfono / Contacto del proveedor</label><input type="text"></div>
-      <div class="field"><label>Forma de pago acordada</label><input type="text"></div>
+      <div class="field"><label>Proveedor</label><input id="f-proveedor" type="text"></div>
+      <div class="field"><label>Responsable (FGP)</label><input id="f-fgp" type="text"></div>
+      <div class="field"><label>Teléfono del proveedor</label><input id="f-tel" type="tel" inputmode="numeric"></div>
+      <div class="field"><label>Forma de pago acordada</label><input id="f-pago" type="text"></div>
     </div>
   </div>
 
@@ -120,15 +120,15 @@
           <th style="width:30%">Precio acordado</th>
         </tr>
       </thead>
-      <tbody>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
-        <tr><td><input type="text" placeholder="Producto"></td><td><input type="text" placeholder="Unid."></td><td><input type="text" placeholder="Cant." inputmode="numeric"></td><td><input type="text" placeholder="$ precio"></td></tr>
+      <tbody id="tbody-productos">
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
       </tbody>
     </table>
     </div>
@@ -137,7 +137,19 @@
   <!-- OBSERVACIONES -->
   <div class="section">
     <div class="section-title">Observaciones</div>
-    <div class="field"><textarea rows="3" placeholder="Notas, aclaraciones, condiciones especiales..."></textarea></div>
+    <div class="field"><textarea id="f-obs" rows="3" placeholder="Notas, aclaraciones, condiciones especiales..."></textarea></div>
+  </div>
+
+  <!-- BOTÓN WHATSAPP -->
+  <div style="margin: 20px 0 8px; display:flex; justify-content:center;">
+    <button onclick="enviarPedido()" style="
+      background: #25d366; color: #fff; border: none; border-radius: 12px;
+      padding: 16px 32px; font-size: 17px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 10px; box-shadow: 0 3px 12px rgba(37,211,102,.35);
+      width: 100%; justify-content: center; max-width: 400px; margin: 0 auto;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviar pedido al proveedor
+    </button>
   </div>
 
   <!-- FIRMAS -->
@@ -150,6 +162,73 @@
   <div class="footer">
     Diente de León · Escuela Dandelión Pedagogía Waldorf · Córdoba, Argentina
   </div>
+
+<script>
+  // ── PRE-LLENADO DESDE URL PARAMS ──────────────────────────────────────────
+  (function() {
+    const p = new URLSearchParams(window.location.search);
+
+    // Fecha de hoy por defecto
+    document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
+
+    if (p.get('proveedor')) document.getElementById('f-proveedor').value = p.get('proveedor');
+    if (p.get('tel'))       document.getElementById('f-tel').value       = p.get('tel');
+    if (p.get('fgp'))       document.getElementById('f-fgp').value       = p.get('fgp');
+    if (p.get('pago'))      document.getElementById('f-pago').value      = p.get('pago');
+    if (p.get('norden'))    document.getElementById('f-norden').value    = p.get('norden');
+    if (p.get('obs'))       document.getElementById('f-obs').value       = p.get('obs');
+
+    // Primer producto de la URL → fila 1
+    if (p.get('producto')) document.querySelectorAll('.p-nombre')[0].value = p.get('producto');
+    if (p.get('unidad'))   document.querySelectorAll('.p-unid')[0].value   = p.get('unidad');
+    if (p.get('cantidad')) document.querySelectorAll('.p-cant')[0].value   = p.get('cantidad');
+    if (p.get('precio'))   document.querySelectorAll('.p-precio')[0].value = p.get('precio');
+  })();
+
+  // ── GENERAR WHATSAPP ───────────────────────────────────────────────────────
+  function enviarPedido() {
+    const tel       = document.getElementById('f-tel').value.trim().replace(/\D/g, '');
+    const proveedor = document.getElementById('f-proveedor').value.trim();
+    const fgp       = document.getElementById('f-fgp').value.trim();
+    const fecha     = document.getElementById('f-fecha').value;
+    const norden    = document.getElementById('f-norden').value.trim();
+    const pago      = document.getElementById('f-pago').value.trim();
+    const obs       = document.getElementById('f-obs').value.trim();
+
+    if (!tel) { alert('Completá el teléfono del proveedor antes de enviar.'); return; }
+
+    // Armar líneas de productos
+    let lineasProd = '';
+    const filas = document.querySelectorAll('#tbody-productos tr');
+    filas.forEach(function(fila) {
+      const n  = fila.querySelector('.p-nombre').value.trim();
+      if (!n) return;
+      const u  = fila.querySelector('.p-unid').value.trim();
+      const c  = fila.querySelector('.p-cant').value.trim();
+      const pr = fila.querySelector('.p-precio').value.trim();
+      lineasProd += `• ${n}${u ? ' (' + u + ')' : ''}${c ? ' — Cant: ' + c : ''}${pr ? ' — $' + pr : ''}\n`;
+    });
+
+    if (!lineasProd) { alert('Agregá al menos un producto antes de enviar.'); return; }
+
+    const partes = [
+      `🌼 *Orden de Pedido — Escuela Dandelion / Diente de León*`,
+      norden ? `N° Orden: ${norden}` : null,
+      `📅 Fecha: ${fecha}`,
+      ``,
+      `*Productos solicitados:*`,
+      lineasProd.trimEnd(),
+      pago ? `\n💳 *Forma de pago:* ${pago}` : null,
+      obs  ? `📝 *Observaciones:* ${obs}` : null,
+      ``,
+      `_Responsable: ${fgp || 'FGP Diente de León'}_`,
+      `_Escuela Dandelion · Pedagogía Waldorf · Córdoba_`
+    ].filter(function(l) { return l !== null; }).join('\n');
+
+    const numFinal = tel.startsWith('549') ? tel : '549' + tel;
+    window.open('https://wa.me/' + numFinal + '?text=' + encodeURIComponent(partes), '_blank');
+  }
+</script>
 
 </body>
 </html>
