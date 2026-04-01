@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamiento de Retiro — Diente de León</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; color: #2d2d2d; background: #f9fafb; padding: 20px 16px; max-width: 800px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #fff; border-radius: 10px; border-bottom: 3px solid #3a7d44; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .logo-text { font-size: 28px; line-height: 1; }
+  .header-right { text-align: right; flex: 1; padding-left: 12px; }
+  .header-right h1 { font-size: 20px; font-weight: 800; color: #3a7d44; letter-spacing: 0.5px; }
+  .header-right p { font-size: 11px; color: #6b7280; margin-top: 4px; }
+
+  /* SECCIÓN */
+  .section { margin-bottom: 16px; background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3a7d44; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #c8e6c9; }
+
+  /* GRILLA */
+  .grid { display: grid; gap: 12px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+
+  .field label { display: block; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .field input, .field textarea, .field select {
+    width: 100%; border: 1px solid #d1d5db; border-radius: 8px;
+    padding: 10px 12px; font-size: 15px; font-family: inherit;
+    background: #f9fafb; color: #2d2d2d;
+    -webkit-appearance: none; appearance: none;
+    min-height: 44px; box-sizing: border-box;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none; border-color: #3a7d44; background: #fff;
+    box-shadow: 0 0 0 3px rgba(58,125,68,0.12);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+  .field input[readonly] { background: #f0fdf4; color: #3a7d44; font-weight: 600; cursor: default; }
+
+  /* BOTÓN */
+  .btn-enviar {
+    width: 100%; padding: 16px; background: #3a7d44; color: #fff;
+    border: none; border-radius: 10px; font-size: 17px; font-weight: 700;
+    cursor: pointer; margin-top: 8px; letter-spacing: 0.3px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 0.15s;
+  }
+  .btn-enviar:hover { background: #2d6235; }
+  .btn-enviar:active { background: #245228; transform: scale(0.99); }
+  .btn-enviar:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
+
+  /* ESTADOS */
+  .estado { display: none; border-radius: 10px; padding: 20px; text-align: center; margin-top: 16px; }
+  .estado.success { display: block; background: #f0fdf4; border: 2px solid #86efac; }
+  .estado.error   { display: block; background: #fef2f2; border: 2px solid #fca5a5; }
+  .estado-icon { font-size: 40px; margin-bottom: 10px; }
+  .estado h2 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .estado.success h2 { color: #16a34a; }
+  .estado.error   h2 { color: #dc2626; }
+  .estado p { font-size: 14px; color: #6b7280; }
+
+  /* SPINNER */
+  .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 480px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    body { padding: 12px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-text">🌼</div>
+  <div class="header-right">
+    <h1>Agendamiento de Retiro</h1>
+    <p>Diente de León — Comisión de Recursos</p>
+  </div>
+</div>
+
+<form id="formRetiro">
+
+  <!-- DATOS DEL PEDIDO -->
+  <div class="section">
+    <div class="section-title">Datos del pedido</div>
+    <div class="grid">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Proveedor</label>
+          <input type="text" id="proveedor" name="proveedor" placeholder="Nombre del proveedor" required>
+        </div>
+        <div class="field">
+          <label>N° de Orden</label>
+          <input type="text" id="norden" name="norden" placeholder="ORD-…" readonly>
+        </div>
+      </div>
+      <div class="field">
+        <label>Producto(s)</label>
+        <textarea id="producto" name="producto" placeholder="Descripción del/los producto(s) a retirar" rows="3" required></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGÍSTICA -->
+  <div class="section">
+    <div class="section-title">Logística del retiro</div>
+    <div class="grid">
+      <div class="field">
+        <label>¿Quién retira?</label>
+        <select id="retira" name="retira" required>
+          <option value="" disabled selected>Seleccioná un colaborador…</option>
+          <option>Ines Robertson</option>
+          <option>Jose Carranza</option>
+          <option>Maxi Contreras</option>
+          <option>Esteban Prospero</option>
+          <option>Yuliana Longhi</option>
+          <option>Lucas Di Stefano</option>
+          <option>Maria Martini</option>
+          <option>A coordinar con pool</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Lugar de retiro</label>
+        <input type="text" id="lugar" name="lugar" placeholder="Dirección del proveedor">
+      </div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Fecha de retiro</label>
+          <input type="date" id="fecha_retiro" name="fecha_retiro" required>
+        </div>
+        <div class="field">
+          <label>Entrega en escuela</label>
+          <input type="date" id="fecha_escuela" name="fecha_escuela">
+        </div>
+      </div>
+      <div class="field">
+        <label>Notas</label>
+        <textarea id="notas" name="notas" placeholder="Llamar antes de ir, traer bolsas, etc." rows="2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FGP (oculto, se pre-llena por URL) -->
+  <input type="hidden" id="fgp" name="fgp">
+
+  <button type="submit" class="btn-enviar" id="btnEnviar">
+    <span>📅</span> <span>Agendar retiro</span>
+  </button>
+
+</form>
+
+<!-- ESTADO SUCCESS -->
+<div class="estado success" id="estadoOk">
+  <div class="estado-icon">✅</div>
+  <h2>¡Retiro agendado!</h2>
+  <p id="msgOk">El evento se creó en el calendario y se envió WhatsApp al colaborador.</p>
+</div>
+
+<!-- ESTADO ERROR -->
+<div class="estado error" id="estadoError">
+  <div class="estado-icon">❌</div>
+  <h2>Algo salió mal</h2>
+  <p id="msgError">No se pudo agendar el retiro. Intentá de nuevo o avisá a Ines.</p>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+// Reemplazá con la URL de tu web app de Apps Script desplegada
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+
+// ── PRE-LLENADO POR URL ─────────────────────────────────────
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const set = (id, val) => { if (val) document.getElementById(id).value = val; };
+
+  set('proveedor',    p.get('proveedor'));
+  set('producto',     p.get('producto'));
+  set('norden',       p.get('norden'));
+  set('lugar',        p.get('lugar'));
+  set('fecha_retiro', p.get('fecha_retiro'));
+  set('fecha_escuela',p.get('fecha_escuela'));
+  set('notas',        p.get('notas'));
+  set('fgp',          p.get('fgp'));
+
+  // Seleccionar "retira" si viene por URL
+  const retira = p.get('retira');
+  if (retira) {
+    const sel = document.getElementById('retira');
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].text === retira) { sel.selectedIndex = i; break; }
+    }
+  }
+})();
+
+// ── SUBMIT ───────────────────────────────────────────────────
+document.getElementById('formRetiro').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Agendando…</span>';
+
+  const data = {
+    proveedor:     document.getElementById('proveedor').value.trim(),
+    producto:      document.getElementById('producto').value.trim(),
+    retira:        document.getElementById('retira').value,
+    lugar:         document.getElementById('lugar').value.trim(),
+    fecha_retiro:  document.getElementById('fecha_retiro').value,
+    fecha_escuela: document.getElementById('fecha_escuela').value,
+    norden:        document.getElementById('norden').value.trim(),
+    notas:         document.getElementById('notas').value.trim(),
+    fgp:           document.getElementById('fgp').value.trim()
+  };
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data)
+    });
+
+    const json = await resp.json();
+
+    if (json.ok) {
+      document.getElementById('formRetiro').style.display = 'none';
+      const retiraNombre = data.retira.split(' ')[0];
+      document.getElementById('msgOk').textContent =
+        'Evento creado en el calendario' +
+        (data.retira !== 'A coordinar con pool' ? ' y WhatsApp enviado a ' + retiraNombre + '.' : '. Recordá coordinar con el pool.');
+      document.getElementById('estadoOk').style.display = 'block';
+    } else {
+      throw new Error(json.error || 'Error desconocido');
+    }
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('msgError').textContent = 'Error: ' + err.message;
+    document.getElementById('estadoError').style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '<span>📅</span><span>Reintentar</span>';
+  }
+});
+</script>
+</body>
+</html>
