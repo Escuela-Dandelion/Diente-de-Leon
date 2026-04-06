@@ -326,7 +326,11 @@ function esc(s) {
 // ── LOGIN ──
 function ingresar() {
   var pin = document.getElementById('pin-input').value.trim();
-  if (!pin) return;
+  if (!pin) {
+    var err = document.getElementById('login-error');
+    err.textContent = 'Ingresá tu PIN.'; err.style.display = 'block';
+    return;
+  }
   var btn = document.getElementById('btn-login');
   var err = document.getElementById('login-error');
   btn.textContent = 'Verificando…'; btn.disabled = true; err.style.display = 'none';
