@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Ventas — Diente de León</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a1a; }
+
+    /* ── LOGIN ── */
+    #login {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    .login-card {
+      background: #fff; border-radius: 20px; padding: 40px 32px;
+      width: 100%; max-width: 360px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center;
+    }
+    .login-card img { max-width: 140px; margin-bottom: 28px; }
+    .login-card h2 { font-size: 20px; color: #1a1a6e; margin-bottom: 6px; }
+    .login-card p  { font-size: 14px; color: #888; margin-bottom: 28px; }
+    .login-card input {
+      width: 100%; padding: 16px; border: 1.5px solid #e0e0e0; border-radius: 12px;
+      font-size: 22px; text-align: center; letter-spacing: 6px; margin-bottom: 12px;
+      outline: none; transition: border-color .2s;
+    }
+    .login-card input:focus { border-color: #1a1a6e; }
+    .login-card button {
+      width: 100%; padding: 16px; background: #1a1a6e; color: #fff;
+      border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    .login-card button:hover  { background: #2d2d8e; }
+    .login-card button:disabled { background: #aaa; cursor: not-allowed; }
+    #login-error {
+      color: #e63946; font-size: 13px; margin-top: 10px; display: none;
+    }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; }
+
+    .topbar {
+      background: #fff; border-bottom: 1px solid #eee;
+      padding: 12px 24px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 20;
+    }
+    .topbar img    { height: 36px; }
+    .topbar-info h1 { font-size: 16px; color: #1a1a6e; font-weight: 700; }
+    .topbar-info p  { font-size: 11px; color: #aaa; }
+    .topbar-btn {
+      background: none; border: 1px solid #ddd; border-radius: 8px;
+      padding: 6px 14px; font-size: 13px; cursor: pointer; color: #555;
+    }
+    .topbar-btn:hover { background: #f5f5f5; }
+
+    .content { padding: 24px; max-width: 960px; margin: auto; }
+
+    #loading-dash { text-align: center; padding: 80px; color: #aaa; font-size: 15px; }
+
+    /* ── CARDS ── */
+    .cards {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
+    .card {
+      background: #fff; border-radius: 14px; padding: 20px 18px;
+      border: 1px solid #eee;
+    }
+    .card-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+    .card-value { font-size: 30px; font-weight: 700; color: #1a1a6e; line-height: 1; }
+    .card-sub   { font-size: 12px; color: #bbb; margin-top: 6px; }
+
+    /* ── CHART ── */
+    .section-card {
+      background: #fff; border-radius: 14px; border: 1px solid #eee;
+      padding: 24px; margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 15px; font-weight: 700; color: #1a1a6e;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    .section-title span { font-size: 12px; font-weight: 400; color: #aaa; }
+
+    /* ── PIVOT TABLE ── */
+    .pivot-wrap { overflow: hidden; }
+
+    .marca-row {
+      padding: 13px 20px; background: #f0f2ff;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; border-bottom: 1px solid #e8eaff;
+      user-select: none;
+    }
+    .marca-row:hover { background: #e8eaff; }
+    .marca-label { font-weight: 700; color: #1a1a6e; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+    .marca-label .arrow { font-size: 10px; transition: transform .2s; display: inline-block; }
+    .marca-label .arrow.open { transform: rotate(90deg); }
+    .marca-total { background: #1a1a6e; color: #fff; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 600; }
+
+    .marca-body { display: none; }
+    .marca-body.open { display: block; }
+
+    .prod-row {
+      padding: 11px 20px 11px 36px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #f0f0f0; cursor: pointer;
+      background: #fff;
+    }
+    .prod-row:hover { background: #fafafa; }
+    .prod-label { font-size: 14px; color: #333; display: flex; align-items: center; gap: 8px; }
+    .prod-label .arrow { font-size: 10px; color: #aaa; transition: transform .2s; display: inline-block; }
+    .prod-label .arrow.open { transform: rotate(90deg); }
+    .prod-right { display: flex; align-items: center; gap: 16px; }
+    .badge-green {
+      background: #e6f7ee; color: #00A650; border-radius: 20px;
+      padding: 3px 12px; font-size: 12px; font-weight: 700;
+    }
+
+    .buyers-section { display: none; background: #fafafa; border-bottom: 1px solid #eee; overflow-x: auto; }
+    .buyers-section.open { display: block; }
+
+    table.t-buyers { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table.t-buyers th {
+      padding: 8px 16px 8px 48px; text-align: left;
+      font-size: 11px; text-transform: uppercase; color: #bbb;
+      border-bottom: 1px solid #eee; font-weight: 500; white-space: nowrap;
+    }
+    table.t-buyers td {
+      padding: 10px 16px 10px 48px; border-bottom: 1px solid #f0f0f0; color: #333;
+      vertical-align: top;
+    }
+    table.t-buyers tr:last-child td { border-bottom: none; }
+    table.t-buyers tr:hover td { background: #f5f5f5; }
+
+    .buyer-name  { font-weight: 600; }
+    .buyer-email { font-size: 11px; color: #aaa; }
+    .buyer-nota  { font-size: 12px; color: #777; background: #f5f5f5; border-radius: 6px; padding: 4px 8px; display: inline-block; margin-top: 2px; }
+
+    .empty-row { text-align: center; padding: 32px; color: #ccc; font-size: 13px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .content  { padding: 12px; }
+      .cards    { grid-template-columns: 1fr 1fr; }
+      table.t-buyers th, table.t-buyers td { padding: 8px 10px 8px 16px; }
+      .prod-row  { padding-left: 20px; }
+      .marca-row { padding: 11px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login">
+  <div class="login-card">
+    <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Diente de León">
+    <h2>Dashboard de Ventas</h2>
+    <p>Ingresá tu PIN para acceder</p>
+    <input type="password" id="pin-input" placeholder="••••" maxlength="8"
+           onkeydown="if(event.key==='Enter') ingresar()">
+    <button id="btn-login" onclick="ingresar()">Ingresar</button>
+    <p id="login-error"></p>
+  </div>
+</div>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="dashboard">
+
+  <div class="topbar">
+    <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Diente de León">
+    <div class="topbar-info">
+      <h1>Dashboard de Ventas</h1>
+      <p id="txt-actualizado">—</p>
+    </div>
+    <button class="topbar-btn" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+
+  <div class="content">
+    <div id="loading-dash">Cargando datos…</div>
+
+    <!-- Tarjetas -->
+    <div class="cards" id="cards" style="display:none">
+      <div class="card">
+        <div class="card-label">Productos únicos</div>
+        <div class="card-value" id="c-productos">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Unidades vendidas</div>
+        <div class="card-value" id="c-unidades">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Pedidos</div>
+        <div class="card-value" id="c-pedidos">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Marcas</div>
+        <div class="card-value" id="c-marcas">—</div>
+      </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="section-card" id="chart-card" style="display:none">
+      <div class="section-title">
+        Unidades vendidas por mes
+        <span>agrupado por marca</span>
+      </div>
+      <canvas id="chart" style="max-height:280px"></canvas>
+    </div>
+
+    <!-- Tabla pivot -->
+    <div class="section-card" id="table-card" style="display:none; padding:0; overflow:hidden;">
+      <div style="padding:18px 20px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between;">
+        <div class="section-title" style="margin:0">Detalle por marca y producto</div>
+        <span style="font-size:12px;color:#aaa">Clic en producto para ver compradores</span>
+      </div>
+      <div class="pivot-wrap" id="pivot-table"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var APPS_URL = 'https://script.google.com/macros/s/AKfycbwt8mRYjjFZtsmFPw0JYcMpCkZcOt9J7ALFVkPByqQ8NM2NvCaYF1onagU_ag0a2ziksg/exec';
+var PALETTE  = ['#1a1a6e','#3483FA','#00A650','#e63946','#f4a261','#2a9d8f','#e9c46a','#8b5cf6'];
+var chartInst = null;
+
+// ── LOGIN ──
+function ingresar() {
+  var pin = document.getElementById('pin-input').value.trim();
+  if (!pin) return;
+  var btn = document.getElementById('btn-login');
+  btn.textContent = 'Verificando…'; btn.disabled = true;
+  var errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  fetch(APPS_URL + '?action=api_dashboard&pin=' + encodeURIComponent(pin), { redirect: 'follow' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.textContent = 'Ingresar'; btn.disabled = false;
+      if (data.ok) {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        renderDashboard(data);
+      } else {
+        errEl.textContent = data.error || 'PIN incorrecto.';
+        errEl.style.display = 'block';
+      }
+    })
+    .catch(function() {
+      btn.textContent = 'Ingresar'; btn.disabled = false;
+      errEl.textContent = 'Error de conexión. Intentá de nuevo.';
+      errEl.style.display = 'block';
+    });
+}
+
+function cerrarSesion() {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('pin-input').value = '';
+}
+
+// ── RENDER ──
+function renderDashboard(data) {
+  document.getElementById('loading-dash').style.display = 'none';
+  document.getElementById('txt-actualizado').textContent = 'Actualizado: ' + (data.actualizado || '');
+
+  var resumen = data.resumen || [];
+  var meses   = data.meses_todos || [];
+
+  // Cards
+  var totalUn = 0, marcasSet = {};
+  resumen.forEach(function(r) {
+    totalUn += r.total_unidades;
+    if (r.marca) marcasSet[r.marca] = true;
+  });
+  document.getElementById('c-productos').textContent = resumen.length;
+  document.getElementById('c-unidades').textContent  = totalUn;
+  document.getElementById('c-pedidos').textContent   = data.total_pedidos || '—';
+  document.getElementById('c-marcas').textContent    = Object.keys(marcasSet).length || '—';
+  document.getElementById('cards').style.display     = 'grid';
+
+  // Chart
+  if (meses.length) {
+    renderChart(resumen, meses);
+    document.getElementById('chart-card').style.display = 'block';
+  }
+
+  // Pivot
+  renderPivot(resumen, meses);
+  document.getElementById('table-card').style.display = 'block';
+}
+
+function mesLabel(m) {
+  var p = m.split('-');
+  var nombres = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return nombres[parseInt(p[1])] + ' ' + p[0].slice(2);
+}
+
+function renderChart(resumen, meses) {
+  // Agrupar por marca
+  var marcaData = {}, marcaOrder = [];
+  resumen.forEach(function(r) {
+    var m = r.marca || r.producto;
+    if (!marcaData[m]) { marcaData[m] = {}; marcaOrder.push(m); meses.forEach(function(mes){ marcaData[m][mes] = 0; }); }
+    meses.forEach(function(mes) { marcaData[m][mes] = (marcaData[m][mes]||0) + (r.meses[mes]||0); });
+  });
+
+  var datasets = marcaOrder.map(function(marca, i) {
+    return {
+      label: marca || '(sin marca)',
+      data: meses.map(function(mes){ return marcaData[marca][mes]||0; }),
+      backgroundColor: PALETTE[i % PALETTE.length],
+      borderRadius: 6,
+      borderSkipped: false
+    };
+  });
+
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(document.getElementById('chart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: meses.map(mesLabel), datasets: datasets },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } }
+      }
+    }
+  });
+}
+
+function renderPivot(resumen, meses) {
+  if (!resumen.length) {
+    document.getElementById('pivot-table').innerHTML = '<div class="empty-row">Sin datos de ventas aún.</div>';
+    return;
+  }
+
+  // Agrupar por marca
+  var marcaMap = {}, marcaOrder = [];
+  resumen.forEach(function(r) {
+    var marca = r.marca || '(sin marca)';
+    if (!marcaMap[marca]) { marcaMap[marca] = []; marcaOrder.push(marca); }
+    marcaMap[marca].push(r);
+  });
+  marcaOrder.sort();
+
+  var html = '';
+  marcaOrder.forEach(function(marca, mi) {
+    var prods      = marcaMap[marca];
+    var totalMarca = prods.reduce(function(s,p){ return s + p.total_unidades; }, 0);
+    var marcaBodyId = 'mb-' + mi;
+
+    html += '<div class="marca-row" onclick="toggleMarca(\'' + marcaBodyId + '\', this)">';
+    html += '<span class="marca-label"><span class="arrow" id="arr-' + marcaBodyId + '">&#9654;</span>' + esc(marca) + '</span>';
+    html += '<span class="marca-total">' + totalMarca + ' un.</span>';
+    html += '</div>';
+    html += '<div class="marca-body" id="' + marcaBodyId + '">';
+
+    prods.forEach(function(prod, pi) {
+      var buyId = marcaBodyId + '-p' + pi;
+      // Resumen de meses para este producto
+      var mesSummary = meses.map(function(m){ return prod.meses[m] ? mesLabel(m) + ':&nbsp;' + prod.meses[m] : ''; }).filter(Boolean).join('&ensp;·&ensp;');
+
+      html += '<div class="prod-row" onclick="toggleProd(\'' + buyId + '\', this)">';
+      html += '<span class="prod-label"><span class="arrow" id="arr-' + buyId + '">&#9654;</span>' + esc(prod.producto) + '</span>';
+      html += '<div class="prod-right">';
+      if (mesSummary) html += '<span style="font-size:11px;color:#aaa">' + mesSummary + '</span>';
+      html += '<span class="badge-green">' + prod.total_unidades + ' un.</span>';
+      html += '</div></div>';
+
+      html += '<div class="buyers-section" id="' + buyId + '">';
+      if (!prod.compradores.length) {
+        html += '<div class="empty-row">Sin compradores registrados.</div>';
+      } else {
+        html += '<table class="t-buyers"><thead><tr>';
+        html += '<th>Comprador</th><th>Pedido</th><th>Fecha</th><th style="text-align:center">Cant.</th><th>Observaciones</th>';
+        html += '</tr></thead><tbody>';
+        prod.compradores.forEach(function(c) {
+          html += '<tr>';
+          html += '<td><div class="buyer-name">' + esc(c.nombre||'—') + '</div><div class="buyer-email">' + esc(c.email||'') + '</div></td>';
+          html += '<td>#' + esc(String(c.pedido||'—')) + '</td>';
+          html += '<td style="white-space:nowrap">' + esc(c.fecha||'—') + '</td>';
+          html += '<td style="text-align:center;font-weight:700">' + (c.cantidad||1) + '</td>';
+          html += '<td>' + (c.comentarios ? '<span class="buyer-nota">' + esc(c.comentarios) + '</span>' : '<span style="color:#ddd">—</span>') + '</td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+      }
+      html += '</div>'; // buyers-section
+    });
+
+    html += '</div>'; // marca-body
+  });
+
+  document.getElementById('pivot-table').innerHTML = html;
+}
+
+function toggleMarca(id, row) {
+  var body = document.getElementById(id);
+  var arr  = document.getElementById('arr-' + id);
+  var open = !body.classList.contains('open');
+  body.classList.toggle('open', open);
+  if (arr) arr.classList.toggle('open', open);
+}
+
+function toggleProd(id, row) {
+  var sec = document.getElementById(id);
+  var arr = document.getElementById('arr-' + id);
+  var open = !sec.classList.contains('open');
+  sec.classList.toggle('open', open);
+  if (arr) arr.classList.toggle('open', open);
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
