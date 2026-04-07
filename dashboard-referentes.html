@@ -294,15 +294,39 @@ function normalizarGrado(g) {
   var s = String(g).trim().toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (s.indexOf('jard') !== -1) return 'Jardín';
-  return String(g).trim();
+  // Grados escritos en letras
+  var GRADOS_TEXTO = {
+    'primer': '1ro', 'primero': '1ro',
+    'segundo': '2do',
+    'tercer': '3er', 'tercero': '3er',
+    'cuarto': '4to',
+    'quinto': '5to',
+    'sexto': '6to',
+    'septimo': '7mo', 'setimo': '7mo',
+    'octavo': '8vo',
+    'noveno': '9no',
+    'decimo': '10mo',
+    'undecimo': '11vo', 'decimoprimero': '11vo',
+    'duodecimo': '12vo', 'decimosegundo': '12vo'
+  };
+  for (var key in GRADOS_TEXTO) {
+    if (s.indexOf(key) !== -1) return GRADOS_TEXTO[key];
+  }
+  // Si ya tiene número al inicio, devolver tal cual
+  var original = String(g).trim();
+  if (/^\d/.test(original)) return original;
+  // Cualquier otra cosa (Tutor, Profesor, vacío, etc.) → Otros
+  if (!original || original === '(Sin observaciones)') return 'Otros';
+  return 'Otros';
 }
 function gradoIdx(g) {
   var s = String(g).trim().toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (s.indexOf('jard') !== -1) return 0;
+  if (g === 'Otros') return 100;
   var m = s.match(/^(\d+)/);
   if (m) return parseInt(m[1]);
-  return 99;
+  return 100;
 }
 function sortGrados(arr) {
   return arr.slice().sort(function(a, b) {
