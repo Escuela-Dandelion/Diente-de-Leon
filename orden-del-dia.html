@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orden del Día — Comisión de Recursos</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f7f5; color: #1a1a1a; min-height: 100vh; }
+
+    /* LOGIN */
+    #login {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    .login-card {
+      background: #fff; border-radius: 16px; padding: 40px 32px;
+      max-width: 360px; width: 100%; text-align: center;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    }
+    .login-card img { max-width: 160px; margin-bottom: 24px; }
+    .login-card h2 { font-size: 20px; margin-bottom: 6px; }
+    .login-card p { color: #888; font-size: 14px; margin-bottom: 24px; }
+    .login-card input {
+      width: 100%; padding: 14px; font-size: 16px; text-align: center;
+      border: 1px solid #ddd; border-radius: 10px; margin-bottom: 12px;
+      letter-spacing: 3px; text-transform: uppercase;
+    }
+    .login-card button {
+      width: 100%; padding: 14px; background: #2d6a4f; color: #fff;
+      border: none; border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer;
+    }
+    .login-card button:hover { background: #1b4332; }
+    #login-error { color: #c0392b; font-size: 14px; margin-top: 10px; display: none; }
+
+    /* PAGE */
+    #page { display: none; max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .doc-header { margin-bottom: 32px; }
+    .doc-header h1 { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+    .doc-header .meta {
+      margin-top: 6px; font-size: 15px; color: #666;
+      display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    }
+    .doc-header .meta span::before { content: '· '; }
+    .doc-header .meta span:first-child::before { content: ''; }
+
+    .borrador-notice {
+      background: #fff8e1; border-left: 4px solid #f9a825;
+      padding: 14px 18px; border-radius: 0 8px 8px 0;
+      font-size: 14px; color: #5d4037; margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .agenda-item {
+      background: #fff; border-radius: 12px; padding: 24px;
+      margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .agenda-item-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 14px; gap: 12px;
+    }
+    .agenda-item-title {
+      font-size: 16px; font-weight: 600; color: #1a1a1a; line-height: 1.4;
+    }
+    .agenda-item-num {
+      font-size: 13px; font-weight: 700; color: #888; min-width: 20px;
+      margin-right: 4px;
+    }
+    .agenda-item-time {
+      font-size: 13px; color: #fff; background: #2d6a4f;
+      padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+      font-weight: 600; flex-shrink: 0;
+    }
+    .agenda-item ul {
+      list-style: none; padding: 0;
+    }
+    .agenda-item ul li {
+      font-size: 14px; color: #444; padding: 5px 0 5px 18px;
+      position: relative; line-height: 1.5;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .agenda-item ul li:last-child { border-bottom: none; }
+    .agenda-item ul li::before {
+      content: '›'; position: absolute; left: 0; color: #2d6a4f; font-weight: bold;
+    }
+
+    /* TIME TABLE */
+    .time-table-section { margin-top: 40px; }
+    .time-table-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    thead { background: #2d6a4f; color: #fff; }
+    th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; }
+    td { padding: 11px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
+    tr:last-child td { border-bottom: none; }
+    td:last-child, th:last-child { text-align: right; }
+    .total-row td { font-weight: 700; background: #f0f7f4; color: #1b4332; }
+
+    .footer-btn {
+      margin-top: 40px; text-align: center;
+    }
+    .footer-btn button {
+      background: none; border: 1px solid #ccc; padding: 10px 24px;
+      border-radius: 8px; font-size: 14px; color: #888; cursor: pointer;
+    }
+    .footer-btn button:hover { color: #333; border-color: #999; }
+
+    @media (max-width: 480px) {
+      #page { padding: 24px 16px 60px; }
+      .agenda-item { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Diente de León">
+    <h2>Comisión de Recursos</h2>
+    <p>Ingresá tu PIN para acceder</p>
+    <input type="password" id="pin-input" placeholder="PIN" maxlength="10"
+      onkeydown="if(event.key==='Enter') verificarPin()">
+    <button onclick="verificarPin()">Ingresar</button>
+    <div id="login-error">PIN incorrecto. Intentá de nuevo.</div>
+  </div>
+</div>
+
+<!-- PÁGINA -->
+<div id="page">
+
+  <div class="doc-header">
+    <h1>Orden del Día</h1>
+    <div class="meta">
+      <span>Reunión semanal</span>
+      <span>Martes</span>
+      <span>90 minutos</span>
+    </div>
+  </div>
+
+  <div class="borrador-notice">
+    📝 Este documento es un borrador para editar. Sumá o modificá lo que creas necesario antes de la reunión.
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">0.</span><span class="agenda-item-title">Apertura y formato de trabajo</span></div>
+      <span class="agenda-item-time">5 min</span>
+    </div>
+    <ul>
+      <li>Propuesta: sistematizar el orden del día como práctica permanente, con cierre de temario los lunes.</li>
+      <li>Propuesta: incorporar a la wiki una sección para proponer temas (plazo: lunes antes de cada reunión) y otra para redactar y consultar minutas de cada reunión.</li>
+      <li>Consensuar el formato con el equipo.</li>
+    </ul>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">1.</span><span class="agenda-item-title">Informe reunión intercomisiones</span></div>
+      <span class="agenda-item-time">10 min</span>
+    </div>
+    <ul>
+      <li>Resumen de lo presentado: propuesta de consolidación y Marketplace.</li>
+      <li>Devoluciones recibidas de otras comisiones.</li>
+      <li>Compromisos asumidos o consultas pendientes.</li>
+    </ul>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">2.</span><span class="agenda-item-title">Diente de León — Estado del piloto</span></div>
+      <span class="agenda-item-time">20 min</span>
+    </div>
+    <ul>
+      <li>Avance sobre Etapa 3: primer ciclo completo (pedido → retiro → recepción → armado → entrega). ¿Qué falta para cerrarla?</li>
+      <li>Definición de fecha para Etapa 4 (retrospectiva y ajuste de procesos).</li>
+      <li>Próximos pasos hacia TiendaNube pública.</li>
+    </ul>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">3.</span><span class="agenda-item-title">Presentación de proveedor: Alfajores El Nazareno</span></div>
+      <span class="agenda-item-time">15 min</span>
+    </div>
+    <ul>
+      <li>Presentación del proveedor: características del producto, condiciones comerciales, alineación con la filosofía de la escuela.</li>
+      <li>Evaluación inicial: ¿es viable incorporarlo al catálogo? ¿En qué etapa?</li>
+      <li>Próximos pasos si hay interés: condiciones, logística, integración a TiendaNube.</li>
+    </ul>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">4.</span><span class="agenda-item-title">SEF — Integración o rediseño</span></div>
+      <span class="agenda-item-time">15 min</span>
+    </div>
+    <ul>
+      <li>¿Es viable integrar SEF al Marketplace unificado? ¿Qué cambiaría en su modelo operativo?</li>
+      <li>Alternativa: mejora del proceso actual de SEF para que sea más fluido y consistente con los nuevos procesos de la comisión.</li>
+      <li>Definir dirección: integración, rediseño independiente, o postergación. Asignar responsable y próximo hito.</li>
+    </ul>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">5.</span><span class="agenda-item-title">Encuadre legal e impositivo del Marketplace</span></div>
+      <span class="agenda-item-time">10 min</span>
+    </div>
+    <ul>
+      <li>Resumen de conclusiones del análisis elaborado (documento disponible por separado).</li>
+      <li>Recomendación: avanzar en dos fases, comenzando con monotributista de confianza (Fase 1, 6 meses).</li>
+      <li>Identificar al candidato para la Fase 1.</li>
+    </ul>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">6.</span><span class="agenda-item-title">Participación de miembros activos no presenciales</span></div>
+      <span class="agenda-item-time">10 min</span>
+    </div>
+    <ul>
+      <li>Analizar cómo integrar a quienes no pueden asistir los martes pero quieren participar activamente.</li>
+      <li>Opciones a considerar: seguimiento por actas/minutas, participación remota por videollamada, asignación de tareas asincrónicas con reporte semanal.</li>
+      <li>Definir un mecanismo mínimo viable para esta reunión y revisarlo en la próxima.</li>
+    </ul>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-item-header">
+      <div><span class="agenda-item-num">7.</span><span class="agenda-item-title">Varios y próxima reunión</span></div>
+      <span class="agenda-item-time">5 min</span>
+    </div>
+    <ul>
+      <li>Temas no previstos.</li>
+      <li>Propuesta de temario para la reunión del próximo martes.</li>
+      <li>Redacción breve de la minuta de hoy.</li>
+    </ul>
+  </div>
+
+  <div class="time-table-section">
+    <h3>Distribución del tiempo</h3>
+    <table>
+      <thead>
+        <tr><th>Bloque</th><th>Min.</th><th>Acum.</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0. Apertura y formato</td><td>5</td><td>5</td></tr>
+        <tr><td>1. Intercomisiones</td><td>10</td><td>15</td></tr>
+        <tr><td>2. Diente de León</td><td>20</td><td>35</td></tr>
+        <tr><td>3. Alfajores El Nazareno</td><td>15</td><td>50</td></tr>
+        <tr><td>4. SEF</td><td>15</td><td>65</td></tr>
+        <tr><td>5. Encuadre legal</td><td>10</td><td>75</td></tr>
+        <tr><td>6. Participación no presencial</td><td>10</td><td>85</td></tr>
+        <tr><td>7. Varios y próxima reunión</td><td>5</td><td>90</td></tr>
+        <tr class="total-row"><td>Total</td><td>90</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer-btn">
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+
+</div>
+
+<script>
+var PIN_COMISION = 'COMISION26';  // ← cambiá este PIN
+
+function verificarPin() {
+  var val = document.getElementById('pin-input').value.trim().toUpperCase();
+  var err = document.getElementById('login-error');
+  if (!val) { err.style.display = 'block'; err.textContent = 'Ingresá tu PIN.'; return; }
+  if (val === PIN_COMISION) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('page').style.display = 'block';
+    err.style.display = 'none';
+  } else {
+    err.style.display = 'block';
+    err.textContent = 'PIN incorrecto. Intentá de nuevo.';
+    document.getElementById('pin-input').value = '';
+  }
+}
+
+function cerrarSesion() {
+  document.getElementById('page').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('pin-input').value = '';
+}
+</script>
+
+</body>
+</html>
