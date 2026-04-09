@@ -73,33 +73,26 @@
       padding: 3px 10px; border-radius: 20px; white-space: nowrap;
       font-weight: 600; flex-shrink: 0;
     }
-    .agenda-item ul {
-      list-style: none; padding: 0;
-    }
+    .agenda-item ul { list-style: none; padding: 0; }
     .agenda-item ul li {
       font-size: 14px; color: #444; padding: 5px 0 5px 18px;
       position: relative; line-height: 1.5;
       border-bottom: 1px solid #f0f0f0;
     }
     .agenda-item ul li:last-child { border-bottom: none; }
-    .agenda-item ul li::before {
-      content: '›'; position: absolute; left: 0; color: #2d6a4f; font-weight: bold;
-    }
+    .agenda-item ul li::before { content: '›'; position: absolute; left: 0; color: #2d6a4f; font-weight: bold; }
 
     /* TIME TABLE */
     .time-table-section { margin-top: 40px; }
-    .time-table-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px; }
+    .time-table-section h3 { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
     table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     thead { background: #2d6a4f; color: #fff; }
     th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; }
     td { padding: 11px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
     tr:last-child td { border-bottom: none; }
-    td:last-child, th:last-child { text-align: right; }
     .total-row td { font-weight: 700; background: #f0f7f4; color: #1b4332; }
 
-    .footer-btn {
-      margin-top: 40px; text-align: center;
-    }
+    .footer-btn { margin-top: 40px; text-align: center; }
     .footer-btn button {
       background: none; border: 1px solid #ccc; padding: 10px 24px;
       border-radius: 8px; font-size: 14px; color: #888; cursor: pointer;
@@ -131,111 +124,118 @@
 <div id="page">
 
   <div class="doc-header">
-    <h1>Orden del Día</h1>
+    <h1>Orden del Día — Estado del Proyecto</h1>
     <div class="meta">
-      <span>Reunión semanal</span>
-      <span>Martes</span>
-      <span>90 minutos</span>
+      <span>Comisión de Recursos · Diente de León</span>
+      <span>Abril 2026</span>
+      <span>60 minutos</span>
     </div>
   </div>
 
   <div class="borrador-notice">
-    📝 Este documento es un borrador para editar. Sumá o modificá lo que creas necesario antes de la reunión.
+    📝 <strong>Antes de la reunión:</strong> completar la sección de ventas del mes (bloque 1) con los datos reales del dashboard de TiendaNube. El resto del contenido está listo para presentar.
   </div>
 
+  <!-- 0. APERTURA -->
   <div class="agenda-item">
     <div class="agenda-item-header">
-      <div><span class="agenda-item-num">0.</span><span class="agenda-item-title">Apertura y formato de trabajo</span></div>
+      <div><span class="agenda-item-num">0.</span><span class="agenda-item-title">Apertura</span></div>
       <span class="agenda-item-time">5 min</span>
     </div>
     <ul>
-      <li>Propuesta: sistematizar el orden del día como práctica permanente, con cierre de temario los lunes.</li>
-      <li>Propuesta: incorporar a la wiki una sección para proponer temas (plazo: lunes antes de cada reunión) y otra para redactar y consultar minutas de cada reunión.</li>
-      <li>Consensuar el formato con el equipo.</li>
+      <li>Objetivo de la reunión: revisar el estado completo del sistema digital Diente de León y definir próximos pasos.</li>
+      <li>El sistema entró en funcionamiento pleno en abril 2026 — esta es la primera revisión formal del equipo.</li>
     </ul>
   </div>
 
+  <!-- 1. VENTAS DEL MES -->
   <div class="agenda-item">
     <div class="agenda-item-header">
-      <div><span class="agenda-item-num">1.</span><span class="agenda-item-title">Informe reunión intercomisiones</span></div>
+      <div><span class="agenda-item-num">1.</span><span class="agenda-item-title">Ventas del mes — Diente de León</span></div>
       <span class="agenda-item-time">10 min</span>
     </div>
     <ul>
-      <li>Resumen de lo presentado: propuesta de consolidación y Marketplace.</li>
-      <li>Devoluciones recibidas de otras comisiones.</li>
-      <li>Compromisos asumidos o consultas pendientes.</li>
+      <li>⚠️ <strong>Completar antes de la reunión</strong> con datos del dashboard de TiendaNube.</li>
+      <li>Referencia: <a href="https://ine-robertson.github.io/dandelion-tienda-dashboard/" target="_blank" style="color:#2d6a4f;font-weight:600">Dashboard de ventas →</a></li>
     </ul>
+    <table style="margin-top:14px">
+      <thead><tr><th>Mes</th><th>Órdenes</th><th>Productos vendidos</th><th>Monto total</th></tr></thead>
+      <tbody>
+        <tr><td>Febrero 2026</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>Marzo 2026</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td><strong>Abril 2026</strong></td><td><strong>—</strong></td><td><strong>—</strong></td><td><strong>—</strong></td></tr>
+        <tr class="total-row"><td>Acumulado 2026</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
   </div>
 
+  <!-- 2. LO QUE LOGRAMOS -->
   <div class="agenda-item">
     <div class="agenda-item-header">
-      <div><span class="agenda-item-num">2.</span><span class="agenda-item-title">Diente de León — Estado del piloto</span></div>
+      <div><span class="agenda-item-num">2.</span><span class="agenda-item-title">Lo que logramos construir — Sistema de gestión de proveedores</span></div>
       <span class="agenda-item-time">20 min</span>
     </div>
     <ul>
-      <li>Avance sobre Etapa 3: primer ciclo completo (pedido → retiro → recepción → armado → entrega). ¿Qué falta para cerrarla?</li>
-      <li>Definición de fecha para Etapa 4 (retrospectiva y ajuste de procesos).</li>
-      <li>Próximos pasos hacia TiendaNube pública.</li>
+      <li><strong>Orden de Pedido digital</strong> — la FGP completa la orden desde el celular con productos, cantidades, precios y total calculado en tiempo real. Al enviar, el WhatsApp al proveedor se abre listo para mandar y el pedido queda registrado automáticamente en Google Sheets con número correlativo propio (ORD-YYYY-NNN).</li>
+      <li><strong>Seguimiento de pedidos (pedidos.html)</strong> — vista de todos los pedidos en curso como tarjetas, con filtros por mes. Acceso con PIN para la FGP y Yuli; acceso directo sin PIN para el colaborador del pool mediante link recibido por WhatsApp.</li>
+      <li><strong>Máquina de estados</strong> — cada pedido avanza por: Solicitado → Confirmado → En Proceso → Listo para retirar → Recibido → Pagado. Cualquier estado puede cancelarse. Cada cambio queda registrado con fecha en el Sheet.</li>
+      <li><strong>Agendamiento del Pool de Colaboradores</strong> — desde el detalle del pedido, la FGP elige colaborador, fecha y lugar. El sistema envía WhatsApp automático al colaborador y crea el evento en Google Calendar con el rango retiro–entrega en escuela.</li>
+      <li><strong>Wiki de gestión con proveedores</strong> — documentación completa del proceso con diagrama de estados, mensajes de ejemplo y checklist operativo. Accesible desde cualquier dispositivo.</li>
     </ul>
   </div>
 
+  <!-- 3. AUTOMATIZADO VS. MANUAL -->
   <div class="agenda-item">
     <div class="agenda-item-header">
-      <div><span class="agenda-item-num">3.</span><span class="agenda-item-title">Presentación de proveedor: Alfajores El Nazareno</span></div>
-      <span class="agenda-item-time">15 min</span>
-    </div>
-    <ul>
-      <li>Presentación del proveedor: características del producto, condiciones comerciales, alineación con la filosofía de la escuela.</li>
-      <li>Evaluación inicial: ¿es viable incorporarlo al catálogo? ¿En qué etapa?</li>
-      <li>Próximos pasos si hay interés: condiciones, logística, integración a TiendaNube.</li>
-    </ul>
-  </div>
-
-  <div class="agenda-item">
-    <div class="agenda-item-header">
-      <div><span class="agenda-item-num">4.</span><span class="agenda-item-title">SEF — Integración o rediseño</span></div>
-      <span class="agenda-item-time">15 min</span>
-    </div>
-    <ul>
-      <li>¿Es viable integrar SEF al Marketplace unificado? ¿Qué cambiaría en su modelo operativo?</li>
-      <li>Alternativa: mejora del proceso actual de SEF para que sea más fluido y consistente con los nuevos procesos de la comisión.</li>
-      <li>Definir dirección: integración, rediseño independiente, o postergación. Asignar responsable y próximo hito.</li>
-    </ul>
-  </div>
-
-  <div class="agenda-item">
-    <div class="agenda-item-header">
-      <div><span class="agenda-item-num">5.</span><span class="agenda-item-title">Encuadre legal e impositivo del Marketplace</span></div>
+      <div><span class="agenda-item-num">3.</span><span class="agenda-item-title">Qué hace el sistema solo y qué sigue siendo manual</span></div>
       <span class="agenda-item-time">10 min</span>
     </div>
     <ul>
-      <li>Resumen de conclusiones del análisis elaborado (documento disponible por separado).</li>
-      <li>Recomendación: avanzar en dos fases, comenzando con monotributista de confianza (Fase 1, 6 meses).</li>
-      <li>Identificar al candidato para la Fase 1.</li>
+      <li>El objetivo es que el equipo entienda qué ya no tienen que hacer a mano.</li>
     </ul>
+    <table style="margin-top:14px">
+      <thead><tr><th>Tarea</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td>Registrar el pedido en la planilla al enviarlo al proveedor</td><td style="color:#1b4332;font-weight:600">✅ Automático</td></tr>
+        <tr><td>Generar número de orden correlativo (ORD-YYYY-NNN)</td><td style="color:#1b4332;font-weight:600">✅ Automático</td></tr>
+        <tr><td>Calcular el total del pedido (cant × precio por fila)</td><td style="color:#1b4332;font-weight:600">✅ Automático</td></tr>
+        <tr><td>Enviar WhatsApp al colaborador del Pool con datos del retiro</td><td style="color:#1b4332;font-weight:600">✅ Automático</td></tr>
+        <tr><td>Crear evento en Google Calendar al agendar el retiro</td><td style="color:#1b4332;font-weight:600">✅ Automático</td></tr>
+        <tr><td>Registrar cada cambio de estado con fecha en el Sheet</td><td style="color:#1b4332;font-weight:600">✅ Automático</td></tr>
+        <tr><td>Detectar stock bajo y avisar a la FGP</td><td style="color:#b45309;font-weight:600">⏳ En desarrollo</td></tr>
+        <tr><td>Contactar al proveedor (confirmar disponibilidad, precio, fecha)</td><td style="color:#555">Manual — FGP</td></tr>
+        <tr><td>Actualizar stock en TiendaNube al recibir la mercadería</td><td style="color:#555">Manual — Yuli</td></tr>
+        <tr><td>Registrar el comprobante de pago en el Sheet</td><td style="color:#555">Manual — Yuli</td></tr>
+      </tbody>
+    </table>
   </div>
 
+  <!-- 4. PRÓXIMOS PASOS -->
   <div class="agenda-item">
     <div class="agenda-item-header">
-      <div><span class="agenda-item-num">6.</span><span class="agenda-item-title">Participación de miembros activos no presenciales</span></div>
+      <div><span class="agenda-item-num">4.</span><span class="agenda-item-title">Próximos pasos — Qué queremos resolver</span></div>
       <span class="agenda-item-time">10 min</span>
     </div>
     <ul>
-      <li>Analizar cómo integrar a quienes no pueden asistir los martes pero quieren participar activamente.</li>
-      <li>Opciones a considerar: seguimiento por actas/minutas, participación remota por videollamada, asignación de tareas asincrónicas con reporte semanal.</li>
-      <li>Definir un mecanismo mínimo viable para esta reunión y revisarlo en la próxima.</li>
+      <li><strong>Alerta automática de stock bajo</strong> — cuando un producto baja de 10 unidades en TiendaNube, el sistema avisa a la FGP por WhatsApp con la lista de faltantes y link directo a la Orden de Pedido pre-completada.</li>
+      <li><strong>Actualizar disponibilidades del Pool</strong> — cargar los días y horarios disponibles de cada colaborador para asignar turnos con más criterio y respetar la rotación.</li>
+      <li><strong>Definir quién autoriza los pedidos</strong> — ¿la FGP puede hacer pedidos sola o requiere aprobación de otro miembro de la comisión?</li>
+      <li><strong>Formulario de recepción en escuela</strong> — confirmar cantidades recibidas vs. pedidas y registrar incidencias desde el celular al momento de la entrega.</li>
+      <li><strong>Incorporar datos de nuevos proveedores</strong> — agregar teléfono y forma de pago para que la Orden de Pedido se pre-complete automáticamente.</li>
     </ul>
   </div>
 
+  <!-- 5. CIERRE -->
   <div class="agenda-item">
     <div class="agenda-item-header">
-      <div><span class="agenda-item-num">7.</span><span class="agenda-item-title">Varios y próxima reunión</span></div>
+      <div><span class="agenda-item-num">5.</span><span class="agenda-item-title">Compromisos y cierre</span></div>
       <span class="agenda-item-time">5 min</span>
     </div>
     <ul>
-      <li>Temas no previstos.</li>
-      <li>Propuesta de temario para la reunión del próximo martes.</li>
-      <li>Redacción breve de la minuta de hoy.</li>
+      <li>¿Quién se encarga de completar los datos de ventas del mes (bloque 1)?</li>
+      <li>¿Alguien del equipo quiere ver una demo del flujo completo antes del cierre?</li>
+      <li>Definir el próximo hito: ¿primer ciclo completo (pedido → pago) antes de fin de abril?</li>
+      <li>Registrar compromisos y responsables.</li>
     </ul>
   </div>
 
@@ -246,15 +246,13 @@
         <tr><th>Bloque</th><th>Min.</th><th>Acum.</th></tr>
       </thead>
       <tbody>
-        <tr><td>0. Apertura y formato</td><td>5</td><td>5</td></tr>
-        <tr><td>1. Intercomisiones</td><td>10</td><td>15</td></tr>
-        <tr><td>2. Diente de León</td><td>20</td><td>35</td></tr>
-        <tr><td>3. Alfajores El Nazareno</td><td>15</td><td>50</td></tr>
-        <tr><td>4. SEF</td><td>15</td><td>65</td></tr>
-        <tr><td>5. Encuadre legal</td><td>10</td><td>75</td></tr>
-        <tr><td>6. Participación no presencial</td><td>10</td><td>85</td></tr>
-        <tr><td>7. Varios y próxima reunión</td><td>5</td><td>90</td></tr>
-        <tr class="total-row"><td>Total</td><td>90</td><td>—</td></tr>
+        <tr><td>0. Apertura</td><td>5</td><td>5</td></tr>
+        <tr><td>1. Ventas del mes</td><td>10</td><td>15</td></tr>
+        <tr><td>2. Lo que logramos construir</td><td>20</td><td>35</td></tr>
+        <tr><td>3. Automatizado vs. manual</td><td>10</td><td>45</td></tr>
+        <tr><td>4. Próximos pasos</td><td>10</td><td>55</td></tr>
+        <tr><td>5. Compromisos y cierre</td><td>5</td><td>60</td></tr>
+        <tr class="total-row"><td>Total</td><td>60</td><td>—</td></tr>
       </tbody>
     </table>
   </div>
@@ -266,7 +264,7 @@
 </div>
 
 <script>
-var PIN_COMISION = 'COMISION26';  // ← cambiá este PIN
+var PIN_COMISION = 'COMISION26';
 
 function verificarPin() {
   var val = document.getElementById('pin-input').value.trim().toUpperCase();
