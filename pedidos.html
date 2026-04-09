@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos a Proveedor — Diente de León</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; color: #2d2d2d; background: #f9fafb; padding: 20px 16px; max-width: 800px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #fff; border-radius: 10px; border-bottom: 3px solid #3a7d44; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .logo-text { font-size: 28px; line-height: 1; }
+  .header-right { text-align: right; flex: 1; padding-left: 12px; }
+  .header-right h1 { font-size: 20px; font-weight: 800; color: #3a7d44; letter-spacing: 0.5px; }
+  .header-right p { font-size: 11px; color: #6b7280; margin-top: 4px; }
+
+  /* SECTION */
+  .section { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3a7d44; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid #c8e6c9; }
+
+  /* PIN VIEW */
+  #pinView { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; }
+  #pinView .lock-icon { font-size: 48px; margin-bottom: 12px; }
+  #pinView p { color: #6b7280; font-size: 14px; margin-bottom: 20px; text-align: center; }
+  .pin-grid { display: grid; grid-template-columns: repeat(3, 56px); gap: 10px; margin-bottom: 16px; }
+  .pin-key { width: 56px; height: 56px; background: #fff; border: 1.5px solid #d1d5db; border-radius: 12px; font-size: 20px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; color: #2d2d2d; }
+  .pin-key:active { background: #f0fdf4; border-color: #3a7d44; }
+  .pin-key.del { font-size: 16px; color: #6b7280; }
+  .pin-display { display: flex; gap: 8px; margin-bottom: 20px; }
+  .pin-dot { width: 12px; height: 12px; border-radius: 50%; background: #d1d5db; transition: background 0.2s; }
+  .pin-dot.filled { background: #3a7d44; }
+  .pin-error { color: #dc2626; font-size: 13px; margin-top: -12px; margin-bottom: 12px; text-align: center; display: none; }
+
+  /* ESTADO BADGE */
+  .badge-estado { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .est-Solicitado     { background: #fef9c3; color: #854d0e; }
+  .est-Confirmado     { background: #dbeafe; color: #1d4ed8; }
+  .est-Listo          { background: #fef3c7; color: #92400e; }
+  .est-Recibido       { background: #dcfce7; color: #166534; }
+  .est-Pagado         { background: #f0fdf4; color: #3a7d44; border: 1px solid #86efac; }
+
+  /* PEDIDO CARD */
+  .pedido-card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 12px; cursor: pointer; border: 1.5px solid transparent; transition: border-color 0.15s; }
+  .pedido-card:hover { border-color: #86efac; }
+  .pedido-card .row-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .pedido-card .norden { font-size: 12px; font-weight: 700; color: #6b7280; }
+  .pedido-card .proveedor { font-size: 16px; font-weight: 800; color: #2d2d2d; }
+  .pedido-card .productos { font-size: 13px; color: #6b7280; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pedido-card .row-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .pedido-card .fecha { font-size: 12px; color: #9ca3af; }
+
+  /* FILTRO ESTADOS */
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filtro-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #d1d5db; background: #fff; font-size: 13px; cursor: pointer; color: #6b7280; transition: all 0.15s; }
+  .filtro-btn.active { border-color: #3a7d44; color: #3a7d44; background: #f0fdf4; font-weight: 600; }
+
+  /* DETALLE VIEW */
+  #detalleView { display: none; }
+  .back-btn { background: none; border: none; color: #3a7d44; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 0; }
+  .detalle-field { margin-bottom: 14px; }
+  .detalle-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; margin-bottom: 3px; }
+  .detalle-value { font-size: 15px; color: #2d2d2d; font-weight: 500; }
+
+  /* ACCIONES */
+  .acciones { margin-top: 8px; }
+  .acciones-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3a7d44; margin-bottom: 10px; }
+  .btn-accion { width: 100%; padding: 14px 16px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s; }
+  .btn-accion:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-confirmar { background: #dbeafe; color: #1d4ed8; }
+  .btn-listo     { background: #fef3c7; color: #92400e; }
+  .btn-recibido  { background: #dcfce7; color: #166534; }
+  .btn-pagado    { background: #3a7d44; color: #fff; }
+
+  /* CONFIRM MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: flex-end; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 16px 16px 0 0; padding: 24px 20px; width: 100%; max-width: 800px; }
+  .modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .modal p { font-size: 14px; color: #6b7280; margin-bottom: 20px; }
+  .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn-cancel { padding: 14px; background: #f3f4f6; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; color: #6b7280; }
+  .btn-confirm { padding: 14px; background: #3a7d44; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; color: #fff; }
+
+  /* SPINNER */
+  .spinner { width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SUCCESS / ERROR */
+  .flash { border-radius: 10px; padding: 16px; margin-bottom: 16px; font-size: 14px; font-weight: 600; text-align: center; display: none; }
+  .flash.success { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
+  .flash.error   { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+
+  /* LOADING */
+  #loadingSpinner { text-align: center; padding: 40px; color: #9ca3af; }
+
+  @media (max-width: 480px) {
+    body { padding: 12px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-text">🌼</div>
+  <div class="header-right">
+    <h1>Pedidos a Proveedor</h1>
+    <p>Diente de León — Comisión de Recursos</p>
+  </div>
+</div>
+
+<!-- ── PIN VIEW ────────────────────────────────────────── -->
+<div id="pinView" style="display:none">
+  <div class="lock-icon">🔒</div>
+  <p>Ingresá tu PIN para ver todos los pedidos</p>
+  <div class="pin-display" id="pinDisplay">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+    <div class="pin-dot" id="d4"></div>
+  </div>
+  <p class="pin-error" id="pinError">PIN incorrecto. Intentá de nuevo.</p>
+  <div class="pin-grid">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key" style="visibility:hidden"></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
+  </div>
+</div>
+
+<!-- ── LISTA VIEW ───────────────────────────────────────── -->
+<div id="listaView" style="display:none">
+  <div class="flash" id="flash"></div>
+  <div id="loadingSpinner">Cargando pedidos…</div>
+  <div id="listaContent" style="display:none">
+    <div class="filtros" id="filtros">
+      <button class="filtro-btn active" data-estado="Todos" onclick="filtrar(this)">Todos</button>
+      <button class="filtro-btn" data-estado="Solicitado" onclick="filtrar(this)">Solicitado</button>
+      <button class="filtro-btn" data-estado="Confirmado" onclick="filtrar(this)">Confirmado</button>
+      <button class="filtro-btn" data-estado="Listo para retirar" onclick="filtrar(this)">Listo p/retirar</button>
+      <button class="filtro-btn" data-estado="Recibido" onclick="filtrar(this)">Recibido</button>
+      <button class="filtro-btn" data-estado="Pagado" onclick="filtrar(this)">Pagado</button>
+    </div>
+    <div id="pedidosList"></div>
+  </div>
+</div>
+
+<!-- ── DETALLE VIEW ─────────────────────────────────────── -->
+<div id="detalleView" style="display:none">
+  <button class="back-btn" id="backBtn" onclick="volverALista()">← Volver</button>
+  <div class="flash" id="flashDetalle"></div>
+
+  <div class="section">
+    <div class="section-title">Datos del pedido</div>
+    <div class="detalle-field">
+      <div class="detalle-label">N° Orden</div>
+      <div class="detalle-value" id="d-norden"></div>
+    </div>
+    <div class="detalle-field">
+      <div class="detalle-label">Fecha de solicitud</div>
+      <div class="detalle-value" id="d-fecha"></div>
+    </div>
+    <div class="detalle-field">
+      <div class="detalle-label">Proveedor</div>
+      <div class="detalle-value" id="d-proveedor"></div>
+    </div>
+    <div class="detalle-field">
+      <div class="detalle-label">Producto(s)</div>
+      <div class="detalle-value" id="d-productos"></div>
+    </div>
+    <div class="detalle-field">
+      <div class="detalle-label">FGP responsable</div>
+      <div class="detalle-value" id="d-fgp"></div>
+    </div>
+    <div class="detalle-field" id="d-quien-wrap">
+      <div class="detalle-label">Quién retira</div>
+      <div class="detalle-value" id="d-quien"></div>
+    </div>
+    <div class="detalle-field" id="d-notas-wrap" style="display:none">
+      <div class="detalle-label">Notas</div>
+      <div class="detalle-value" id="d-notas"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Estado actual</div>
+    <div style="margin-bottom:6px" id="d-estadoBadge"></div>
+    <div style="font-size:12px;color:#9ca3af" id="d-fechaEstado"></div>
+  </div>
+
+  <div class="section acciones" id="accionesSection">
+    <div class="acciones-title">Avanzar estado</div>
+    <div id="botonesAccion"></div>
+  </div>
+</div>
+
+<!-- ── MODAL CONFIRMACIÓN ──────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">¿Confirmar cambio?</h3>
+    <p id="modalDesc"></p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-confirm" id="modalConfirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+const SHEET_CSV  = 'https://docs.google.com/spreadsheets/d/1NmjnYWllrXrFpJI8GYJOjkGz90lPtvvDi0IQEYZl7-I/export?format=csv&gid=857535467';
+
+// PINs autorizados para vista lista
+const PINS_ADMIN = ['PIR26', 'PYL26', 'PMM26'];
+
+// Próximos estados posibles por estado actual
+const SIGUIENTE_ESTADO = {
+  'Solicitado':        ['Confirmado'],
+  'Confirmado':        ['Listo para retirar'],
+  'Listo para retirar':['Recibido'],
+  'Recibido':          ['Pagado'],
+  'Pagado':            []
+};
+
+const CLASE_BTN = {
+  'Confirmado':        'btn-confirmar',
+  'Listo para retirar':'btn-listo',
+  'Recibido':          'btn-recibido',
+  'Pagado':            'btn-pagado'
+};
+
+const EMOJI_ESTADO = {
+  'Solicitado':'📋','Confirmado':'✅','Listo para retirar':'📦','Recibido':'🏫','Pagado':'💰'
+};
+
+// ── ESTADO GLOBAL ─────────────────────────────────────────────
+let todosLosPedidos = [];
+let pedidoActual   = null;
+let origenDetalle  = 'lista'; // 'lista' | 'directo'
+let pendingAction  = null;
+
+// ── INIT ──────────────────────────────────────────────────────
+(function init() {
+  const params = new URLSearchParams(window.location.search);
+  const idParam = params.get('id');
+
+  if (idParam) {
+    // Acceso directo a un pedido (desde WhatsApp)
+    origenDetalle = 'directo';
+    cargarPedidoDirecto(idParam);
+  } else {
+    // Vista lista — pedir PIN
+    mostrar('pinView');
+  }
+})();
+
+function mostrar(id) {
+  ['pinView','listaView','detalleView'].forEach(v => {
+    document.getElementById(v).style.display = v === id ? '' : 'none';
+  });
+}
+
+// ── PIN ───────────────────────────────────────────────────────
+let pinActual = '';
+
+function pinPress(digit) {
+  if (pinActual.length >= 5) return;
+  pinActual += digit;
+  actualizarDots();
+  if (pinActual.length === 5) validarPin();
+  else if (pinActual.length === 4 && PINS_ADMIN.some(p => p.length === 4)) validarPin();
+}
+
+function pinDel() {
+  pinActual = pinActual.slice(0, -1);
+  actualizarDots();
+  document.getElementById('pinError').style.display = 'none';
+}
+
+function actualizarDots() {
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pinActual.length);
+  }
+}
+
+function validarPin() {
+  if (PINS_ADMIN.includes(pinActual)) {
+    // PIN correcto → cargar lista
+    mostrar('listaView');
+    cargarLista();
+  } else if (pinActual.length >= 4) {
+    // Podría ser un PIN de 4 letras aún en progreso, esperar a 5 o confirmar error
+    if (!PINS_ADMIN.some(p => p.startsWith(pinActual))) {
+      document.getElementById('pinError').style.display = 'block';
+      setTimeout(() => { pinActual = ''; actualizarDots(); }, 800);
+    }
+  }
+}
+
+// ── CARGA DE DATOS ────────────────────────────────────────────
+async function cargarLista() {
+  try {
+    const resp = await fetch(SHEET_CSV + '&t=' + Date.now());
+    const text = await resp.text();
+    todosLosPedidos = csvAObjetos(text);
+    document.getElementById('loadingSpinner').style.display = 'none';
+    document.getElementById('listaContent').style.display = '';
+    renderLista(todosLosPedidos);
+  } catch (err) {
+    document.getElementById('loadingSpinner').textContent = 'Error al cargar. Recargá la página.';
+  }
+}
+
+async function cargarPedidoDirecto(norden) {
+  // Leer CSV y filtrar por N° Orden
+  try {
+    const resp = await fetch(SHEET_CSV + '&t=' + Date.now());
+    const text = await resp.text();
+    const pedidos = csvAObjetos(text);
+    const pedido  = pedidos.find(p => p.norden === norden);
+    if (!pedido) {
+      document.body.innerHTML = '<div style="padding:32px;text-align:center;color:#dc2626;font-size:16px">❌ Pedido no encontrado: ' + norden + '</div>';
+      return;
+    }
+    pedidoActual = pedido;
+    mostrar('detalleView');
+    document.getElementById('backBtn').style.display = 'none'; // Sin botón volver en acceso directo
+    renderDetalle(pedido);
+  } catch (err) {
+    document.body.innerHTML = '<div style="padding:32px;text-align:center;color:#dc2626;font-size:16px">❌ Error al cargar el pedido.</div>';
+  }
+}
+
+// ── CSV PARSER ────────────────────────────────────────────────
+function csvAObjetos(csv) {
+  const lineas = csv.trim().split('\n');
+  const objs = [];
+  for (let i = 1; i < lineas.length; i++) {
+    const cols = parseCsvLine(lineas[i]);
+    if (!cols[0]) continue;
+    objs.push({
+      norden:      cols[0]  || '',
+      fecha:       cols[1]  || '',
+      proveedor:   cols[2]  || '',
+      fgp:         cols[3]  || '',
+      productos:   cols[4]  || '',
+      estado:      cols[5]  || 'Solicitado',
+      fechaEstado: cols[6]  || '',
+      quien:       cols[7]  || '',
+      comprobante: cols[8]  || '',
+      notas:       cols[9]  || ''
+    });
+  }
+  return objs;
+}
+
+function parseCsvLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+// ── RENDER LISTA ──────────────────────────────────────────────
+function renderLista(pedidos) {
+  const container = document.getElementById('pedidosList');
+  if (!pedidos.length) {
+    container.innerHTML = '<div style="text-align:center;padding:32px;color:#9ca3af">No hay pedidos.</div>';
+    return;
+  }
+  container.innerHTML = pedidos.map(p => `
+    <div class="pedido-card" onclick="abrirDetalle('${p.norden}')">
+      <div class="row-top">
+        <div>
+          <div class="norden">${p.norden}</div>
+          <div class="proveedor">${p.proveedor}</div>
+        </div>
+        <span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>
+      </div>
+      <div class="productos">${p.productos}</div>
+      <div class="row-bottom">
+        <span class="fecha">${p.fecha}</span>
+        <span style="font-size:12px;color:#9ca3af">${p.fgp || ''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function claseEstado(estado) {
+  if (estado === 'Solicitado')        return 'est-Solicitado';
+  if (estado === 'Confirmado')        return 'est-Confirmado';
+  if (estado === 'Listo para retirar')return 'est-Listo';
+  if (estado === 'Recibido')          return 'est-Recibido';
+  if (estado === 'Pagado')            return 'est-Pagado';
+  return '';
+}
+
+function filtrar(btn) {
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const est = btn.dataset.estado;
+  const filtrado = est === 'Todos' ? todosLosPedidos : todosLosPedidos.filter(p => p.estado === est);
+  renderLista(filtrado);
+}
+
+// ── RENDER DETALLE ────────────────────────────────────────────
+function abrirDetalle(norden) {
+  pedidoActual = todosLosPedidos.find(p => p.norden === norden);
+  if (!pedidoActual) return;
+  mostrar('detalleView');
+  document.getElementById('backBtn').style.display = '';
+  renderDetalle(pedidoActual);
+}
+
+function renderDetalle(p) {
+  document.getElementById('d-norden').textContent    = p.norden;
+  document.getElementById('d-fecha').textContent     = p.fecha;
+  document.getElementById('d-proveedor').textContent = p.proveedor;
+  document.getElementById('d-productos').textContent = p.productos;
+  document.getElementById('d-fgp').textContent       = p.fgp || '—';
+
+  if (p.quien) {
+    document.getElementById('d-quien').textContent = p.quien;
+    document.getElementById('d-quien-wrap').style.display = '';
+  } else {
+    document.getElementById('d-quien-wrap').style.display = 'none';
+  }
+
+  if (p.notas) {
+    document.getElementById('d-notas').textContent = p.notas;
+    document.getElementById('d-notas-wrap').style.display = '';
+  } else {
+    document.getElementById('d-notas-wrap').style.display = 'none';
+  }
+
+  document.getElementById('d-estadoBadge').innerHTML =
+    `<span class="badge-estado ${claseEstado(p.estado)}" style="font-size:15px;padding:6px 14px">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>`;
+  document.getElementById('d-fechaEstado').textContent = p.fechaEstado ? 'Actualizado: ' + p.fechaEstado : '';
+
+  // Botones de acción
+  const sig = SIGUIENTE_ESTADO[p.estado] || [];
+  const container = document.getElementById('botonesAccion');
+  if (sig.length === 0) {
+    document.getElementById('accionesSection').style.display = 'none';
+  } else {
+    document.getElementById('accionesSection').style.display = '';
+    container.innerHTML = sig.map(estado => `
+      <button class="btn-accion ${CLASE_BTN[estado] || ''}"
+        onclick="confirmarAccion('${p.norden}', '${estado}')">
+        ${EMOJI_ESTADO[estado] || ''} Marcar como "${estado}"
+      </button>
+    `).join('');
+  }
+}
+
+function volverALista() {
+  mostrar('listaView');
+}
+
+// ── ACCIONES DE ESTADO ────────────────────────────────────────
+function confirmarAccion(norden, nuevoEstado) {
+  pendingAction = { norden, nuevoEstado };
+  document.getElementById('modalTitle').textContent  = '¿Confirmar cambio de estado?';
+  document.getElementById('modalDesc').textContent   =
+    `El pedido ${norden} pasará a "${nuevoEstado}".`;
+  document.getElementById('modalConfirm').onclick = ejecutarAccion;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function cerrarModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  pendingAction = null;
+}
+
+async function ejecutarAccion() {
+  if (!pendingAction) return;
+  const { norden, nuevoEstado } = pendingAction;
+  cerrarModal();
+
+  const btn = document.getElementById('botonesAccion').querySelector('button');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Guardando…'; }
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body:    JSON.stringify({ action: 'updateEstado', norden, estado: nuevoEstado })
+    });
+    const json = await resp.json();
+
+    if (json.ok) {
+      // Actualizar estado local
+      pedidoActual.estado = nuevoEstado;
+      pedidoActual.fechaEstado = new Date().toLocaleDateString('es-AR');
+      const idx = todosLosPedidos.findIndex(p => p.norden === norden);
+      if (idx !== -1) todosLosPedidos[idx] = pedidoActual;
+
+      mostrarFlashDetalle('✅ Estado actualizado a "' + nuevoEstado + '"', 'success');
+      renderDetalle(pedidoActual);
+    } else {
+      throw new Error(json.error || 'Error desconocido');
+    }
+  } catch (err) {
+    mostrarFlashDetalle('❌ ' + err.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Reintentar'; }
+  }
+}
+
+function mostrarFlashDetalle(msg, tipo) {
+  const el = document.getElementById('flashDetalle');
+  el.textContent = msg;
+  el.className = 'flash ' + tipo;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+</script>
+</body>
+</html>

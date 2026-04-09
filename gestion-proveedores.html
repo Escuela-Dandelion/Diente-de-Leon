@@ -187,9 +187,13 @@
   <a href="#equipo">Equipo Interno</a>
   <a href="#pool">Pool de Colaboradores</a>
   <a href="#flujo">Flujo de Reposición</a>
-  <a href="#flujo" class="sub">→ Gatillo y solicitud</a>
-  <a href="#flujo" class="sub">→ Pedido al proveedor</a>
+  <a href="#flujo" class="sub">→ Alerta automática</a>
+  <a href="#flujo" class="sub">→ Pista A: Proveedor</a>
+  <a href="#flujo" class="sub">→ Pista B: Pool</a>
   <a href="#flujo" class="sub">→ Retiro y recepción</a>
+  <a href="#estados">Estados del Pedido</a>
+  <a href="#estados" class="sub">→ Máquina de estados</a>
+  <a href="#estados" class="sub">→ Planilla y herramientas</a>
   <a href="#checklists">Checklists Operativos</a>
   <a href="#checklists" class="sub">→ Retiro en proveedor</a>
   <a href="#checklists" class="sub">→ Recepción en escuela</a>
@@ -197,7 +201,7 @@
   <a href="#pendientes">Pendientes / TBD</a>
 
   <div class="sidebar-section" style="margin-top:auto">Proyecto</div>
-  <a href="wiki-diente-de-leon.html">🌱 Wiki Principal</a>
+  <a href="wiki-comision-recursos.html">🌻 Wiki Principal</a>
   <a href="https://escuela-dandelion.github.io/Diente-de-Leon/Tienda.html" target="_blank">🛍️ Tienda</a>
   <a href="https://ine-robertson.github.io/dandelion-tienda-dashboard/" target="_blank">📊 Dashboard</a>
 </nav>
@@ -205,8 +209,8 @@
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <a href="wiki-diente-de-leon.html">Wiki</a><span class="sep">›</span>
-    <a href="wiki-diente-de-leon.html">Diente de León</a><span class="sep">›</span>
+    <a href="wiki-comision-recursos.html">Wiki</a><span class="sep">›</span>
+    <a href="wiki-comision-recursos.html#resumen">Diente de León</a><span class="sep">›</span>
     <span>Gestión con Proveedores</span>
   </div>
 
@@ -342,64 +346,199 @@
     <!-- FLUJO DE REPOSICIÓN -->
     <div class="section" id="flujo">
       <h2><span class="icon">🔄</span> Flujo de Reposición</h2>
-      <p>Proceso completo desde que se detecta la necesidad de reponer stock hasta que el producto está disponible en la escuela.</p>
+      <p>Proceso completo desde que se detecta la necesidad de reponer stock hasta que el producto está disponible en la escuela. Los pasos 1 a 3 son el núcleo del nuevo sistema automatizado; los pasos 4 a 7 corresponden a la ejecución logística.</p>
 
       <div class="steps">
+
+        <!-- PASO 1 -->
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
-            <div class="step-title">Gatillo de reposición</div>
-            <p class="step-desc">La FGP (Maria) detecta que el stock llegó al punto de pedido definido para ese producto, o se activa por calendario (ej: 1 vez al mes). Decide iniciar la reposición.</p>
+            <div class="step-title">Alerta automática de stock bajo <span class="badge badge-active" style="font-size:10px;vertical-align:middle;margin-left:6px">✓ Activo</span></div>
+            <p class="step-desc">Cuando cualquier producto baja de 10 unidades en TiendaNube, el sistema lo detecta automáticamente y envía un <strong>WhatsApp a la FGP (Maria)</strong> con la lista de productos críticos y un link directo a la Orden de Pedido con los faltantes pre-completados.</p>
+            <p class="step-desc" style="margin-top:6px;color:#888"><em>Implementado vía Apps Script con trigger sobre novedades de venta de TiendaNube.</em></p>
           </div>
         </div>
+
         <div class="step-connector"><div></div></div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">Solicitud de reposición</div>
-            <p class="step-desc">La FGP completa el Formulario Google "Solicitud de pedido a proveedor" (qué, cuánto, cuándo, dónde, quién paga). Queda registrado en la planilla de pedidos. <strong>[TBD: ¿quién autoriza?]</strong></p>
+
+        <!-- BIFURCACIÓN: dos procesos en paralelo -->
+        <div style="background:var(--bg);border:1px dashed var(--border);border-radius:10px;padding:14px 16px;margin-bottom:6px;">
+          <p style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:0 0 12px">A partir del WhatsApp al FGP se abren dos procesos en paralelo</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+            <!-- PISTA A: Pedido al proveedor -->
+            <div>
+              <p style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px">📦 Pista A — Pedido al proveedor</p>
+
+              <div class="step" style="margin-bottom:4px">
+                <div class="step-num" style="background:var(--earth)">2A</div>
+                <div class="step-body">
+                  <div class="step-title">FGP revisa y confirma la Orden de Pedido <span class="badge" style="font-size:10px;vertical-align:middle;margin-left:6px;background:#FFF3E0;color:#E65100">⚠ A verificar</span></div>
+                  <p class="step-desc">La FGP abre el link del WhatsApp. La <a href="orden-de-pedido.html" style="color:var(--earth)">Orden de Pedido</a> aparece pre-completada con los productos faltantes y cantidades sugeridas. La FGP ajusta si es necesario y confirma. Al confirmar, el pedido <strong>queda registrado en la planilla de Google Sheets</strong> (fecha, productos, cantidades, responsable).</p>
+                  <p class="step-desc" style="margin-top:6px;color:#888"><em>Implementado. Pendiente de verificar que los parámetros URL se leen correctamente y que el registro llega bien al Sheet con todos los campos.</em></p>
+                </div>
+              </div>
+
+              <div class="step-connector"><div></div></div>
+
+              <div class="step">
+                <div class="step-num" style="background:var(--earth)">3A</div>
+                <div class="step-body">
+                  <div class="step-title">Envío del pedido al proveedor <span class="badge badge-active" style="font-size:10px;vertical-align:middle;margin-left:6px">✓ Activo</span></div>
+                  <p class="step-desc">Desde la Orden de Pedido, la FGP hace clic en <strong>"Enviar WhatsApp al proveedor"</strong>. El proveedor recibe el mensaje con productos, cantidades, precios y ventana horaria de retiro.</p>
+                  <p class="step-desc" style="margin-top:6px;color:#888"><em>WhatsApp al proveedor funcionando. Pendiente: actualizar el estado del pedido en el Sheet a "Solicitado" al momento del envío.</em></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- PISTA B: Agendamiento del pool -->
+            <div>
+              <p style="font-size:11px;font-weight:700;color:#5d7a4a;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px">🚗 Pista B — Agendamiento del pool de colaboradores</p>
+
+              <div class="step" style="margin-bottom:4px">
+                <div class="step-num" style="background:#5d7a4a">2B</div>
+                <div class="step-body">
+                  <div class="step-title">FGP asigna colaborador del pool <span class="badge badge-draft" style="font-size:10px;vertical-align:middle;margin-left:6px">Pendiente</span></div>
+                  <p class="step-desc">La FGP selecciona directamente a una persona del pool para coordinar el retiro en la fecha pactada con el proveedor. La asignación considera disponibilidad y criterio de rotación. Se puede hacer en paralelo al pedido al proveedor.</p>
+                  <p class="step-desc" style="margin-top:6px;color:#888"><em>Pendiente: definir desde dónde hace la asignación la FGP — ¿desde pedidos.html o desde retiro-proveedor.html?</em></p>
+                </div>
+              </div>
+
+              <div class="step-connector"><div></div></div>
+
+              <div class="step">
+                <div class="step-num" style="background:#5d7a4a">3B</div>
+                <div class="step-body">
+                  <div class="step-title">WhatsApp al colaborador cuando el pedido está listo <span class="badge badge-draft" style="font-size:10px;vertical-align:middle;margin-left:6px">Pendiente</span></div>
+                  <p class="step-desc">Cuando el estado pasa a <strong>"Listo para retirar"</strong>, el colaborador asignado recibe un WhatsApp automático con: proveedor, producto, dirección y ventana horaria.</p>
+                  <p class="step-desc" style="margin-top:6px;color:#888"><em>Pendiente: implementar disparo automático al cambiar estado en pedidos.html.</em></p>
+                </div>
+              </div>
+
+              <div class="step-connector"><div></div></div>
+
+              <div class="step">
+                <div class="step-num" style="background:#5d7a4a">4B</div>
+                <div class="step-body">
+                  <div class="step-title">Colaborador entrega en la escuela y actualiza el estado <span class="badge badge-draft" style="font-size:10px;vertical-align:middle;margin-left:6px">Pendiente</span></div>
+                  <p class="step-desc">Una vez que retira y entrega la mercadería en la escuela, el colaborador actualiza el estado del pedido a <strong>"Recibido"</strong> desde <code>pedidos.html</code>. Sin checklists complejos — solo confirmar la entrega.</p>
+                  <p class="step-desc" style="margin-top:6px;color:#888"><em>Pendiente: el colaborador necesita acceso a pedidos.html. Definir si entra con PIN o con link directo al pedido.</em></p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
+
         <div class="step-connector"><div></div></div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <div class="step-title">Pedido estándar al proveedor</div>
-            <p class="step-desc">La FGP envía el pedido por email/WhatsApp usando la plantilla estándar: SKUs, cantidades, precios acordados, fecha y ventana horaria de retiro.</p>
-          </div>
-        </div>
-        <div class="step-connector"><div></div></div>
+
+        <!-- CONVERGEN -->
         <div class="step">
           <div class="step-num">4</div>
           <div class="step-body">
-            <div class="step-title">Asignación logística del pool</div>
-            <p class="step-desc">Yuli asigna a una familia del pool el turno de retiro. Se registra en el Calendario Google y en la Hoja de Turnos. La familia recibe notificación con al menos 7 días de anticipación.</p>
+            <div class="step-title">Retiro y traslado</div>
+            <p class="step-desc">El colaborador asignado retira la mercadería en el proveedor, completa el checklist de retiro, registra evidencia (fotos del remito y los bultos) y traslada directamente a la escuela.</p>
           </div>
         </div>
+
         <div class="step-connector"><div></div></div>
+
         <div class="step">
           <div class="step-num">5</div>
-          <div class="step-body">
-            <div class="step-title">Retiro y traslado</div>
-            <p class="step-desc">El colaborador asignado retira la mercadería, completa el checklist de retiro, registra evidencia (fotos del remito y los bultos) y completa el formulario "Retiro realizado".</p>
-          </div>
-        </div>
-        <div class="step-connector"><div></div></div>
-        <div class="step">
-          <div class="step-num">6</div>
           <div class="step-body">
             <div class="step-title">Recepción y control de calidad</div>
             <p class="step-desc">En la escuela se verifica lo recibido vs. el remito: cantidades, estado, temperatura si aplica. Si hay incidencia, queda abierta en la planilla hasta resolución — el producto no ingresa a stock hasta entonces.</p>
           </div>
         </div>
+
         <div class="step-connector"><div></div></div>
+
         <div class="step">
-          <div class="step-num">7</div>
+          <div class="step-num">6</div>
           <div class="step-body">
             <div class="step-title">Actualización de stock y cierre</div>
             <p class="step-desc">La Gestoría (Ines) actualiza el stock en TiendaNube y cierra el pedido en la planilla como "recibido". Si corresponde: registra el pago y adjunta comprobante.</p>
           </div>
         </div>
+
+      </div>
+    </div>
+
+    <!-- ESTADOS DEL PEDIDO -->
+    <div class="section" id="estados">
+      <h2><span class="icon">📊</span> Estados del Pedido</h2>
+      <p>Todos los pedidos a proveedores se centralizan en la <strong>Planilla de Pedidos a Proveedor</strong>. Cada pedido avanza por estados secuenciales. Los frontends (orden-de-pedido.html y pedidos.html) son las interfaces para actualizar esos estados — la planilla es siempre la fuente de verdad.</p>
+
+      <!-- Máquina de estados -->
+      <h3 style="margin:20px 0 10px">Máquina de estados</h3>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Estado</th>
+              <th>Quién lo setea</th>
+              <th>Desde dónde</th>
+              <th>Qué dispara automáticamente</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge" style="background:#E3F4FC;color:#0077CC">Solicitado</span></td>
+              <td>FGP (automático)</td>
+              <td><a href="orden-de-pedido.html" style="color:var(--earth)">orden-de-pedido.html</a></td>
+              <td>Crea fila en la planilla con fecha y datos del pedido</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#FFF3E0;color:#E65100">Confirmado</span></td>
+              <td>FGP (Maria)</td>
+              <td><span class="badge badge-draft" style="font-size:10px">pedidos.html — pendiente</span></td>
+              <td>Actualiza estado y fecha en planilla</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#F3E5F5;color:#6A1B9A">Listo para retirar</span></td>
+              <td>FGP (Maria)</td>
+              <td><span class="badge badge-draft" style="font-size:10px">pedidos.html — pendiente</span></td>
+              <td>Actualiza planilla + <strong>WhatsApp automático al colaborador del pool asignado</strong></td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#E6F7EE;color:#007A3D">Recibido</span></td>
+              <td>Colaborador del pool</td>
+              <td><span class="badge badge-draft" style="font-size:10px">pedidos.html — pendiente</span></td>
+              <td>Actualiza planilla. Señal para que Yuli gestione el pago.</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#F8F9FA;color:#333">Pagado</span></td>
+              <td>Yuli (administradora)</td>
+              <td><span class="badge badge-draft" style="font-size:10px">pedidos.html — pendiente</span></td>
+              <td>Actualiza planilla con fecha de pago y comprobante. Cierra el pedido.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Planilla -->
+      <h3 style="margin:24px 0 10px">Planilla y herramientas</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📋 Planilla de Pedidos a Proveedor</div>
+          <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Fuente de verdad central. Columnas: <code>N° Orden · Fecha · Marca/Proveedor · FGP · Producto(s) · Cantidad · Unid · Monto · Total · Estado · Fecha Estado · Quien lo busca · Comprobante Pago · Notas</code></p>
+          <p style="font-size:11px;color:var(--muted);margin:0 0 10px;font-style:italic">⚠️ Columnas Cantidad, Unid, Monto y Total todavía no están en el Sheet — agregar antes de construir pedidos.html.</p>
+          <a href="https://docs.google.com/spreadsheets/d/1NmjnYWllrXrFpJI8GYJOjkGz90lPtvvDi0IQEYZl7-I/edit?gid=857535467" target="_blank" style="font-size:12px;color:var(--earth);font-weight:600">Abrir planilla →</a>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📱 pedidos.html <span class="badge badge-draft" style="font-size:10px;vertical-align:middle;margin-left:4px">Pendiente</span></div>
+          <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Frontend mobile-first con acceso por PIN. Muestra todos los pedidos en curso como cards y permite avanzar el estado con un toque. Diseñado para usar desde el celular, desde el link del WhatsApp.</p>
+          <p style="font-size:12px;color:var(--muted);margin:0"><strong>Acceso:</strong> FGP (Maria, Ines) para estados Confirmado → Recibido. Yuli para estado Pagado.</p>
+        </div>
+
+      </div>
+
+      <div class="callout" style="border-left:3px solid var(--earth);background:#fdf6ee">
+        <strong>Todo se gestiona desde las pantallas que llegan por WhatsApp.</strong> Cada pedido tiene su propio link que circula por mensaje — desde ahí se confirma, se avanza el estado y se coordina el retiro. No desde la planilla.
       </div>
     </div>
 
@@ -457,13 +596,34 @@
     <!-- PENDIENTES -->
     <div class="section" id="pendientes">
       <h2><span class="icon">📌</span> Pendientes / TBD</h2>
+
+      <h3 style="font-size:13px;margin:0 0 8px">✅ Resuelto</h3>
+      <ul class="checklist" style="margin-bottom:20px">
+        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Establecer puntos de pedido por producto</span> — umbral definido en 10 unidades, trigger activo en TiendaNube.</li>
+        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Crear formulario Google de solicitud de reposición</span> — reemplazado por alerta automática + Orden de Pedido con URL params.</li>
+      </ul>
+
+      <h3 style="font-size:13px;margin:0 0 8px">🔧 Pista A — Pedido al proveedor</h3>
+      <ul class="checklist" style="margin-bottom:20px">
+        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Lectura de parámetros URL en orden-de-pedido.html</span> — implementado, <strong>verificar que funcione correctamente end-to-end</strong>.</li>
+        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Registro en Google Sheets al confirmar la orden</span> — implementado, <strong>verificar que todos los campos llegan bien al Sheet</strong>.</li>
+        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Botón "Enviar WhatsApp al proveedor"</span> — funcionando.</li>
+        <li><div class="box"></div> Al enviar el WhatsApp al proveedor, actualizar el estado del pedido en el Sheet a "Solicitado".</li>
+        <li><div class="box"></div> Definir qué número de WhatsApp recibe el pedido por proveedor (si hay más de uno).</li>
+      </ul>
+
+      <h3 style="font-size:13px;margin:0 0 8px">🔧 Pista B — Pool de colaboradores</h3>
+      <ul class="checklist" style="margin-bottom:20px">
+        <li><div class="box"></div> Implementar asignación de colaborador desde pedidos.html (FGP elige quién retira al crear/editar el pedido).</li>
+        <li><div class="box"></div> Implementar WhatsApp automático al colaborador cuando el estado cambia a "Listo para retirar" (proveedor, producto, dirección, horario).</li>
+        <li><div class="box"></div> Definir acceso del colaborador a pedidos.html para setear estado "Recibido": ¿PIN propio o link directo al pedido?</li>
+      </ul>
+
+      <h3 style="font-size:13px;margin:0 0 8px">📋 Operativo general</h3>
       <ul class="checklist">
-        <li><div class="box"></div> Definir quién autoriza los pedidos a proveedores (¿FGP sola o requiere aprobación?)</li>
-        <li><div class="box"></div> Nombrar coordinador/a del pool logístico (actualmente Yuli)</li>
-        <li><div class="box"></div> Definir zonas de cobertura y responsables por zona para despacho de mercadería fuera de la comunidad Dandelion (vinculado a la funcionalidad de despacho externo a futuro)</li>
-        <li><div class="box"></div> Crear los 3 formularios Google (solicitud, retiro, recepción)</li>
-        <li><div class="box"></div> Establecer puntos de pedido por producto (cuándo activar reposición)</li>
-        <li><div class="box"></div> Definir plantilla estándar de pedido a proveedor (email/WhatsApp)</li>
+        <li><div class="box"></div> Crear formularios de "Retiro realizado" y "Recepción en escuela" (pasos 4 y 5).</li>
+        <li><div class="box"></div> Definir quién autoriza los pedidos a proveedores (¿FGP sola o requiere aprobación?).</li>
+        <li><div class="box"></div> Definir zonas de cobertura del pool para futura operación de despacho externo.</li>
       </ul>
     </div>
 
