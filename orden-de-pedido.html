@@ -136,6 +136,10 @@
       </tbody>
     </table>
     </div>
+    <div style="display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:10px; padding:4px 2px;">
+      <span style="font-size:12px; font-weight:700; color:#3a7d44; text-transform:uppercase; letter-spacing:0.5px;">Total estimado</span>
+      <input id="f-total" type="text" readonly placeholder="$0" style="width:160px; border:1px solid #c8e6c9; border-radius:8px; padding:10px 12px; font-size:16px; font-weight:800; color:#3a7d44; background:#f0fdf4; text-align:right; cursor:default;">
+    </div>
   </div>
 
   <!-- OBSERVACIONES -->
@@ -168,6 +172,33 @@
   </div>
 
 <script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+
+  // ── TOTAL AUTO-CALCULADO ────────────────────────────────────────────────────
+  function parsePrecio(str) {
+    // Formato argentino: 1.500 o 1.500,50 → punto = miles, coma = decimal
+    const limpio = str.replace(/[^\d.,]/g, '');
+    return parseFloat(limpio.replace(/\./g, '').replace(',', '.')) || 0;
+  }
+
+  function recalcularTotal() {
+    let total = 0;
+    document.querySelectorAll('#tbody-productos tr').forEach(function(fila) {
+      const c  = parseFloat(fila.querySelector('.p-cant').value)  || 0;
+      const pr = parsePrecio(fila.querySelector('.p-precio').value);
+      total += c * pr;
+    });
+    const campo = document.getElementById('f-total');
+    campo.value = total > 0 ? '$ ' + total.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : '';
+    return total;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.p-cant, .p-precio').forEach(function(input) {
+      input.addEventListener('input', recalcularTotal);
+    });
+  });
+
   // ── PRE-LLENADO DESDE URL PARAMS ──────────────────────────────────────────
   (function() {
     const p = new URLSearchParams(window.location.search);
@@ -196,6 +227,7 @@
       document.querySelectorAll('.p-cant')[i].value   = '';  // FGP define la cantidad a pedir
       document.querySelectorAll('.p-precio')[i].value = precios[i]  || '';
     });
+    recalcularTotal();
   })();
 
   // ── GENERAR WHATSAPP ───────────────────────────────────────────────────────
@@ -228,6 +260,11 @@
     // Formatear fecha dd/mm/aaaa
     const fechaFmt = fecha ? fecha.split('-').reverse().join('/') : fecha;
 
+    recalcularTotal(); // asegura que f-total esté actualizado
+    const totalCampo = document.getElementById('f-total').value;
+    const total      = parseFloat(totalCampo.replace(/[^\d.,]/g, '').replace(/\./g,'').replace(',','.')) || 0;
+    const totalStr   = totalCampo ? totalCampo : null;
+
     const partes = [
       `🌼 *Orden de Pedido — Diente de León*`,
       `━━━━━━━━━━━━━━━━━━━`,
@@ -237,6 +274,7 @@
       ``,
       `📦 *Productos solicitados:*`,
       lineasProd.trimEnd(),
+      totalStr  ? `💰 *Total: ${totalStr}*` : null,
       pago      ? `\n💳 Forma de pago: ${pago}` : null,
       obs       ? `📝 ${obs}` : null,
       `━━━━━━━━━━━━━━━━━━━`,
@@ -246,6 +284,46 @@
 
     const numFinal = tel.startsWith('549') ? tel : '549' + tel;
     window.open('https://wa.me/' + numFinal + '?text=' + encodeURIComponent(partes), '_blank');
+
+    // Registrar en Sheet (silent — no bloquea si falla)
+    const filasValidas = Array.from(document.querySelectorAll('#tbody-productos tr')).map(function(fila) {
+      const n = fila.querySelector('.p-nombre').value.trim();
+      if (!n) return null;
+      return {
+        nombre:   n,
+        cantidad: fila.querySelector('.p-cant').value.trim(),
+        unidad:   fila.querySelector('.p-unid').value.trim(),
+        precio:   String(parsePrecio(fila.querySelector('.p-precio').value))
+      };
+    }).filter(Boolean);
+
+    const productosStr = filasValidas.map(function(r) {
+      return r.nombre + (r.cantidad ? ' x' + r.cantidad : '') + (r.unidad ? ' ' + r.unidad : '') + (r.precio ? ' ($' + r.precio + ')' : '');
+    }).join(' | ');
+
+    // Si hay un único producto, mandamos cantidad/unidad/precio separados (para fórmula en Sheet)
+    const esSolo   = filasValidas.length === 1;
+    const soloCant = esSolo ? filasValidas[0].cantidad : '';
+    const soloUnid = esSolo ? filasValidas[0].unidad   : '';
+    const soloPrEC = esSolo ? filasValidas[0].precio    : '';
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action:    'registrarPedido',
+        norden:    norden,
+        fecha:     fechaFmt,
+        proveedor: proveedor,
+        fgp:       fgp,
+        productos: productosStr,
+        cantidad:  soloCant,
+        unidad:    soloUnid,
+        precio:    soloPrEC,
+        total:     total > 0 ? String(total) : '',
+        notas:     obs
+      })
+    }).catch(function() {});
   }
 // ── CORRELATIVO AUTOMÁTICO ──────────────────────────────────
   (async function generarCorrelativo() {
