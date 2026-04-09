@@ -116,7 +116,7 @@
 </div>
 
 <!-- ── PIN VIEW ────────────────────────────────────────── -->
-<div id="pinView" style="display:flex">
+<div id="pinView" style="display:none">
   <div class="lock-icon">🔒</div>
   <p>Ingresá tu PIN para ver todos los pedidos</p>
   <input type="password" id="pinInput" placeholder="PIN" autocomplete="off"
@@ -272,22 +272,20 @@ function mostrar(id) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-(function init() {
-  const params = new URLSearchParams(window.location.search);
+document.addEventListener('DOMContentLoaded', function() {
+  const params  = new URLSearchParams(window.location.search);
   const idParam = params.get('id');
 
   if (idParam) {
-    // Acceso directo — ocultar PIN y cargar pedido
-    document.getElementById('pinView').style.display = 'none';
     origenDetalle = 'directo';
     cargarPedidoDirecto(idParam);
   } else if (sessionStorage.getItem('ddl_auth') === '1') {
-    // Sesión activa — saltar PIN y ir directo a la lista
     mostrar('listaView');
     cargarLista();
+  } else {
+    mostrar('pinView');
   }
-  // Sin sesión ni ?id: pinView visible por defecto
-})();
+});
 
 // ── PIN ───────────────────────────────────────────────────────
 function onPinInput() {
