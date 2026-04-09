@@ -36,13 +36,17 @@
   .badge-estado { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
   .est-Solicitado     { background: #fef9c3; color: #854d0e; }
   .est-Confirmado     { background: #dbeafe; color: #1d4ed8; }
+  .est-EnProceso      { background: #ede9fe; color: #5b21b6; }
   .est-Listo          { background: #fef3c7; color: #92400e; }
   .est-Recibido       { background: #dcfce7; color: #166534; }
   .est-Pagado         { background: #f0fdf4; color: #3a7d44; border: 1px solid #86efac; }
+  .est-Cancelado      { background: #fee2e2; color: #991b1b; }
 
   /* PEDIDO CARD */
-  .pedido-card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 12px; cursor: pointer; border: 1.5px solid transparent; transition: border-color 0.15s; }
+  .pedido-card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 12px; border: 1.5px solid transparent; transition: border-color 0.15s; }
   .pedido-card:hover { border-color: #86efac; }
+  .btn-abrir { margin-top: 12px; width: 100%; padding: 10px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; color: #3a7d44; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+  .btn-abrir:hover { background: #dcfce7; }
   .pedido-card .row-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .pedido-card .norden { font-size: 12px; font-weight: 700; color: #6b7280; user-select: text; cursor: text; }
   .pedido-card .proveedor { font-size: 16px; font-weight: 800; color: #3a7d44; user-select: text; cursor: text; }
@@ -353,19 +357,20 @@ function renderLista(pedidos) {
     return;
   }
   container.innerHTML = pedidos.map(p => `
-    <div class="pedido-card" onclick="abrirDetalle('${p.norden}')">
+    <div class="pedido-card">
       <div class="row-top">
         <div>
-          <div class="norden" onclick="event.stopPropagation()">${p.norden}</div>
-          <div class="proveedor" onclick="event.stopPropagation()">${p.proveedor}</div>
+          <div class="norden">${p.norden}</div>
+          <div class="proveedor">${p.proveedor}</div>
         </div>
         <span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>
       </div>
-      <div class="productos" onclick="event.stopPropagation()">${p.productos}</div>
+      <div class="productos">${p.productos}</div>
       <div class="row-bottom">
-        <span class="fecha" onclick="event.stopPropagation()">${p.fecha}</span>
+        <span class="fecha">${p.fecha}</span>
         <span style="font-size:12px;color:#9ca3af">${p.fgp || ''}</span>
       </div>
+      <button class="btn-abrir" onclick="abrirDetalle('${p.norden}')">Ver detalle →</button>
     </div>
   `).join('');
 }
