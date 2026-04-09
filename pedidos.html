@@ -263,27 +263,26 @@ let pedidoActual   = null;
 let origenDetalle  = 'lista'; // 'lista' | 'directo'
 let pendingAction  = null;
 
-// ── INIT ──────────────────────────────────────────────────────
-(function init() {
-  const params = new URLSearchParams(window.location.search);
-  const idParam = params.get('id');
-
-  if (idParam) {
-    // Acceso directo a un pedido (desde WhatsApp)
-    origenDetalle = 'directo';
-    cargarPedidoDirecto(idParam);
-  } else {
-    // Vista lista — pedir PIN
-    mostrar('pinView');
-  }
-})();
-
+// ── MOSTRAR VISTAS ────────────────────────────────────────────
 const DISPLAY_TYPE = { pinView: 'flex', listaView: 'block', detalleView: 'block' };
 function mostrar(id) {
   ['pinView','listaView','detalleView'].forEach(v => {
     document.getElementById(v).style.display = v === id ? DISPLAY_TYPE[v] : 'none';
   });
 }
+
+// ── INIT ──────────────────────────────────────────────────────
+(function init() {
+  const params = new URLSearchParams(window.location.search);
+  const idParam = params.get('id');
+
+  if (idParam) {
+    origenDetalle = 'directo';
+    cargarPedidoDirecto(idParam);
+  } else {
+    mostrar('pinView');
+  }
+})();
 
 // ── PIN ───────────────────────────────────────────────────────
 function onPinInput() {
