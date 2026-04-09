@@ -113,28 +113,15 @@
 <div id="pinView" style="display:none">
   <div class="lock-icon">🔒</div>
   <p>Ingresá tu PIN para ver todos los pedidos</p>
-  <div class="pin-display" id="pinDisplay">
-    <div class="pin-dot" id="d0"></div>
-    <div class="pin-dot" id="d1"></div>
-    <div class="pin-dot" id="d2"></div>
-    <div class="pin-dot" id="d3"></div>
-    <div class="pin-dot" id="d4"></div>
-  </div>
+  <input type="password" id="pinInput" placeholder="PIN" autocomplete="off"
+    style="width:180px;padding:12px 16px;font-size:18px;text-align:center;border:1.5px solid #d1d5db;border-radius:10px;margin-bottom:12px;letter-spacing:4px;outline:none;"
+    oninput="onPinInput()" onkeydown="if(event.key==='Enter') validarPin()">
+  <br>
+  <button onclick="validarPin()"
+    style="padding:12px 32px;background:#3a7d44;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;">
+    Ingresar
+  </button>
   <p class="pin-error" id="pinError">PIN incorrecto. Intentá de nuevo.</p>
-  <div class="pin-grid">
-    <button class="pin-key" onclick="pinPress('1')">1</button>
-    <button class="pin-key" onclick="pinPress('2')">2</button>
-    <button class="pin-key" onclick="pinPress('3')">3</button>
-    <button class="pin-key" onclick="pinPress('4')">4</button>
-    <button class="pin-key" onclick="pinPress('5')">5</button>
-    <button class="pin-key" onclick="pinPress('6')">6</button>
-    <button class="pin-key" onclick="pinPress('7')">7</button>
-    <button class="pin-key" onclick="pinPress('8')">8</button>
-    <button class="pin-key" onclick="pinPress('9')">9</button>
-    <button class="pin-key" style="visibility:hidden"></button>
-    <button class="pin-key" onclick="pinPress('0')">0</button>
-    <button class="pin-key del" onclick="pinDel()">⌫</button>
-  </div>
 </div>
 
 <!-- ── LISTA VIEW ───────────────────────────────────────── -->
@@ -271,39 +258,20 @@ function mostrar(id) {
 }
 
 // ── PIN ───────────────────────────────────────────────────────
-let pinActual = '';
-
-function pinPress(digit) {
-  if (pinActual.length >= 5) return;
-  pinActual += digit;
-  actualizarDots();
-  if (pinActual.length === 5) validarPin();
-  else if (pinActual.length === 4 && PINS_ADMIN.some(p => p.length === 4)) validarPin();
-}
-
-function pinDel() {
-  pinActual = pinActual.slice(0, -1);
-  actualizarDots();
+function onPinInput() {
   document.getElementById('pinError').style.display = 'none';
 }
 
-function actualizarDots() {
-  for (let i = 0; i < 5; i++) {
-    document.getElementById('d' + i).classList.toggle('filled', i < pinActual.length);
-  }
-}
-
 function validarPin() {
-  if (PINS_ADMIN.includes(pinActual)) {
-    // PIN correcto → cargar lista
+  const input = document.getElementById('pinInput');
+  const pin   = input.value.trim().toUpperCase();
+  if (PINS_ADMIN.includes(pin)) {
     mostrar('listaView');
     cargarLista();
-  } else if (pinActual.length >= 4) {
-    // Podría ser un PIN de 4 letras aún en progreso, esperar a 5 o confirmar error
-    if (!PINS_ADMIN.some(p => p.startsWith(pinActual))) {
-      document.getElementById('pinError').style.display = 'block';
-      setTimeout(() => { pinActual = ''; actualizarDots(); }, 800);
-    }
+  } else {
+    document.getElementById('pinError').style.display = 'block';
+    input.value = '';
+    input.focus();
   }
 }
 
