@@ -44,9 +44,9 @@
   .pedido-card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 12px; cursor: pointer; border: 1.5px solid transparent; transition: border-color 0.15s; }
   .pedido-card:hover { border-color: #86efac; }
   .pedido-card .row-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-  .pedido-card .norden { font-size: 12px; font-weight: 700; color: #6b7280; }
-  .pedido-card .proveedor { font-size: 16px; font-weight: 800; color: #2d2d2d; }
-  .pedido-card .productos { font-size: 13px; color: #6b7280; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pedido-card .norden { font-size: 12px; font-weight: 700; color: #6b7280; user-select: text; cursor: text; }
+  .pedido-card .proveedor { font-size: 16px; font-weight: 800; color: #3a7d44; user-select: text; cursor: text; }
+  .pedido-card .productos { font-size: 13px; color: #6b7280; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; user-select: text; cursor: text; }
   .pedido-card .row-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
   .pedido-card .fecha { font-size: 12px; color: #9ca3af; }
 
@@ -356,14 +356,14 @@ function renderLista(pedidos) {
     <div class="pedido-card" onclick="abrirDetalle('${p.norden}')">
       <div class="row-top">
         <div>
-          <div class="norden">${p.norden}</div>
-          <div class="proveedor">${p.proveedor}</div>
+          <div class="norden" onclick="event.stopPropagation()">${p.norden}</div>
+          <div class="proveedor" onclick="event.stopPropagation()">${p.proveedor}</div>
         </div>
         <span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>
       </div>
-      <div class="productos">${p.productos}</div>
+      <div class="productos" onclick="event.stopPropagation()">${p.productos}</div>
       <div class="row-bottom">
-        <span class="fecha">${p.fecha}</span>
+        <span class="fecha" onclick="event.stopPropagation()">${p.fecha}</span>
         <span style="font-size:12px;color:#9ca3af">${p.fgp || ''}</span>
       </div>
     </div>
