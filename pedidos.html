@@ -116,7 +116,7 @@
 </div>
 
 <!-- ── PIN VIEW ────────────────────────────────────────── -->
-<div id="pinView" style="display:none">
+<div id="pinView" style="display:flex">
   <div class="lock-icon">🔒</div>
   <p>Ingresá tu PIN para ver todos los pedidos</p>
   <input type="password" id="pinInput" placeholder="PIN" autocomplete="off"
@@ -277,11 +277,12 @@ function mostrar(id) {
   const idParam = params.get('id');
 
   if (idParam) {
+    // Acceso directo — ocultar PIN y cargar pedido
+    document.getElementById('pinView').style.display = 'none';
     origenDetalle = 'directo';
     cargarPedidoDirecto(idParam);
-  } else {
-    mostrar('pinView');
   }
+  // Sin ?id: pinView ya está visible en el HTML por defecto
 })();
 
 // ── PIN ───────────────────────────────────────────────────────
