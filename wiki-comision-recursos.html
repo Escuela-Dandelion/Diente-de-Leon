@@ -161,6 +161,38 @@
   .wiki-table tr:last-child td { border-bottom: none; }
   .wiki-table tr:hover td { background: #fafafa; }
 
+  /* ── PIN OVERLAY ── */
+  #pin-overlay {
+    position: fixed; inset: 0; background: rgba(247,248,250,.97);
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+  }
+  #pin-overlay.hidden { display: none; }
+  .pin-box {
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    padding: 40px 36px; max-width: 360px; width: 90%; text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,.10);
+  }
+  .pin-logo  { font-size: 40px; margin-bottom: 8px; }
+  .pin-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .pin-sub   { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .pin-input {
+    width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px;
+    font-size: 20px; letter-spacing: 4px; text-align: center; font-weight: 700;
+    outline: none; margin-bottom: 12px; transition: border-color .2s;
+  }
+  .pin-input:focus { border-color: var(--green); }
+  .pin-btn {
+    width: 100%; padding: 12px; background: var(--green); color: #fff;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .pin-btn:hover { opacity: .88; }
+  .pin-error { color: var(--red); font-size: 12px; min-height: 18px; margin-top: 8px; }
+
+  /* ── PHONE LINK ── */
+  .wa-link { color: var(--green); text-decoration: none; font-size: 12px; }
+  .wa-link:hover { text-decoration: underline; }
+
   /* ── CHECKLIST ── */
   .checklist { list-style: none; margin: 8px 0 12px; padding: 0; }
   .checklist li { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
@@ -289,6 +321,18 @@
 </nav>
 
 <!-- MAIN -->
+<!-- PIN OVERLAY -->
+<div id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-logo">🌼</div>
+    <div class="pin-title">Comisión de Recursos</div>
+    <div class="pin-sub">Ingresá tu PIN personal para acceder</div>
+    <input id="pin-input" class="pin-input" type="password" maxlength="8" placeholder="••••••" autocomplete="off">
+    <button class="pin-btn" onclick="validarPin()">Ingresar</button>
+    <div id="pin-error" class="pin-error"></div>
+  </div>
+</div>
+
 <div class="main">
   <!-- TOP BAR -->
   <div class="topbar">
@@ -540,23 +584,23 @@
       <h3>🛍️ Subcélula Tienda</h3>
       <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Responsable de la operación y gestión de la Tienda Diente de León.</p>
       <table class="wiki-table">
-        <thead><tr><th>Persona</th><th>Rol</th><th>Notas</th></tr></thead>
+        <thead><tr><th>Persona</th><th>Rol</th><th>Teléfono</th><th>Notas</th></tr></thead>
         <tbody>
-          <tr><td><strong>Yuliana Longhi</strong></td><td><span class="badge badge-active">Coordinación General · Ejecución Logística</span></td><td>Referente principal, coordinación de entregas y referentes</td></tr>
-          <tr><td><strong>Maria Martini</strong></td><td><span class="badge badge-active">Gestión del Proveedor (FGP)</span></td><td></td></tr>
-          <tr><td><strong>Ines Robertson</strong></td><td><span class="badge badge-pilot">Soporte Digital</span></td><td>Tienda Virtual, Formularios, Códigos QR, Procesos, Dashboards de métricas, Flyers</td></tr>
-          <tr><td><strong>Anabella Gargiulo</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td>+54 9 3513 91-5935 · Acceso a Wiki y Dashboards</td></tr>
+          <tr><td><strong>Yuliana Longhi</strong></td><td><span class="badge badge-active">Coordinación General · Ejecución Logística</span></td><td><a class="wa-link" href="https://wa.me/5493513645612" target="_blank">+54 9 3513 64-5612</a></td><td>Referente principal, coordinación de entregas y referentes</td></tr>
+          <tr><td><strong>Maria Martini</strong></td><td><span class="badge badge-active">Coordinadora de FGP</span></td><td><a class="wa-link" href="https://wa.me/5493516865078" target="_blank">+54 9 3516 86-5078</a></td><td></td></tr>
+          <tr><td><strong>Ines Robertson</strong></td><td><span class="badge badge-pilot">Soporte Digital</span></td><td><a class="wa-link" href="https://wa.me/5493512112050" target="_blank">+54 9 3512 11-2050</a></td><td>Tienda Virtual, Formularios, Códigos QR, Procesos, Dashboards de métricas, Flyers</td></tr>
+          <tr><td><strong>Anabella Gargiulo</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td><a class="wa-link" href="https://wa.me/5493513915935" target="_blank">+54 9 3513 91-5935</a></td><td>Rol pendiente de acordar</td></tr>
         </tbody>
       </table>
 
       <h3>📦 Comisión de Recursos</h3>
       <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Conjunto de proyectos de recaudación: Diente de León, SEF y Juguetes.</p>
       <table class="wiki-table">
-        <thead><tr><th>Persona</th><th>Rol</th><th>Notas</th></tr></thead>
+        <thead><tr><th>Persona</th><th>Rol</th><th>Teléfono</th><th>Notas</th></tr></thead>
         <tbody>
-          <tr><td><strong>Maximiliano Contreras</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td></td></tr>
-          <tr><td><strong>Lucas Di Stefano</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td></td></tr>
-          <tr><td><strong>Esteban Próspero</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td></td></tr>
+          <tr><td><strong>Maximiliano Contreras</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td></td><td></td></tr>
+          <tr><td><strong>Lucas Di Stefano</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td></td><td></td></tr>
+          <tr><td><strong>Esteban Próspero</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td></td><td></td></tr>
         </tbody>
       </table>
 
@@ -1066,6 +1110,51 @@
 </div>
 
 <script>
+  // ── PIN SESSION ──
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbwt8mRYjjFZtsmFPw0JYcMpCkZcOt9J7ALFVkPByqQ8NM2NvCaYF1onagU_ag0a2ziksg/exec';
+
+  function guardarSesion(pin) {
+    localStorage.setItem('dl_pin', JSON.stringify({ pin: pin, ts: Date.now() }));
+  }
+  function leerSesion() {
+    try {
+      var s = JSON.parse(localStorage.getItem('dl_pin') || 'null');
+      if (!s) return null;
+      if (Date.now() - s.ts > 24 * 3600 * 1000) { localStorage.removeItem('dl_pin'); return null; }
+      return s.pin;
+    } catch(e) { return null; }
+  }
+  function mostrarContenido() {
+    document.getElementById('pin-overlay').classList.add('hidden');
+  }
+  function validarPin() {
+    var pin = document.getElementById('pin-input').value.trim();
+    if (!pin) return;
+    var errEl = document.getElementById('pin-error');
+    errEl.textContent = 'Verificando…';
+    fetch(GAS_URL + '?pin=' + encodeURIComponent(pin))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ok) {
+          guardarSesion(pin);
+          mostrarContenido();
+        } else {
+          errEl.textContent = 'PIN incorrecto. Verificá y reintentá.';
+        }
+      })
+      .catch(function() {
+        errEl.textContent = 'Error de conexión. Intentá de nuevo.';
+      });
+  }
+  // Enter key en el input
+  document.getElementById('pin-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') validarPin();
+  });
+  // Auto-login si hay sesión válida
+  (function() {
+    if (leerSesion()) mostrarContenido();
+  })();
+
   const sidebar  = document.querySelector('.sidebar');
   const overlay  = document.getElementById('sidebarOverlay');
   const toggle   = document.getElementById('menuToggle');
