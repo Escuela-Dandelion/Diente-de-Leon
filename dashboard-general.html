@@ -340,32 +340,56 @@ function mesLabel(m) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function comision(total) { return total * 0.015; }
 
+// ── SESIÓN (24hs en localStorage) ──
+var SESSION_KEY = 'dl_pin';
+var SESSION_TTL = 24 * 60 * 60 * 1000;
+function guardarSesion(pin) { localStorage.setItem(SESSION_KEY, JSON.stringify({pin:pin, ts:Date.now()})); }
+function leerSesion()       { try { var s=JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); return s && (Date.now()-s.ts)<SESSION_TTL ? s.pin : null; } catch(e){ return null; } }
+function borrarSesion()     { localStorage.removeItem(SESSION_KEY); }
+
 // ── LOGIN ──
 function ingresar() {
   var pin = document.getElementById('pin-input').value.trim();
   if (!pin) { showErr('Ingresá tu PIN.'); return; }
+  _doLogin(pin, true);
+}
+function _doLogin(pin, guardar) {
   var btn = document.getElementById('btn-login');
-  btn.textContent = 'Verificando…'; btn.disabled = true;
+  if (btn) { btn.textContent = 'Verificando…'; btn.disabled = true; }
   hideErr();
   fetch(APPS_URL + '?action=api_dashboard&pin=' + encodeURIComponent(pin), { redirect:'follow' })
     .then(function(r){ return r.json(); })
     .then(function(d){
-      btn.textContent = 'Ingresar'; btn.disabled = false;
+      if (btn) { btn.textContent = 'Ingresar'; btn.disabled = false; }
       if (d.ok) {
-        document.getElementById('login').style.display    = 'none';
+        if (guardar) guardarSesion(pin);
+        document.getElementById('login').style.display     = 'none';
         document.getElementById('dashboard').style.display = 'flex';
         initDashboard(d);
-      } else { showErr(d.error || 'PIN incorrecto.'); }
+      } else {
+        borrarSesion();
+        showErr(d.error || 'PIN incorrecto.');
+      }
     })
-    .catch(function(){ btn.textContent='Ingresar'; btn.disabled=false; showErr('Error de conexión.'); });
+    .catch(function(){
+      if (btn) { btn.textContent='Ingresar'; btn.disabled=false; }
+      showErr('Error de conexión.');
+    });
 }
 function cerrarSesion() {
+  borrarSesion();
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
   document.getElementById('pin-input').value = '';
 }
 function showErr(msg) { var e=document.getElementById('login-error'); e.textContent=msg; e.style.display='block'; }
 function hideErr()    { document.getElementById('login-error').style.display='none'; }
+
+// ── AUTO-LOGIN al cargar ──
+window.addEventListener('load', function(){
+  var pin = leerSesion();
+  if (pin) _doLogin(pin, false);
+});
 
 // ── INIT ──
 function initDashboard(d) {
