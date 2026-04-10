@@ -160,7 +160,10 @@
       <h1>Dashboard General — Diente de León</h1>
       <p id="txt-actualizado">—</p>
     </div>
-    <button class="topbar-btn" onclick="cerrarSesion()">Cerrar sesión</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="dashboard-referentes-v2.html" class="topbar-btn" style="background:#1a1a6e;color:#fff;border-color:#1a1a6e;text-decoration:none;display:inline-flex;align-items:center;gap:5px">↗ Ver referentes</a>
+      <button class="topbar-btn" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
   </div>
 
   <div class="body-layout">
@@ -247,7 +250,7 @@
           </div>
           <div class="section-card">
             <div class="section-title">Recaudación por Nivel Escolar <span>$ · % del total</span></div>
-            <canvas id="chart-grados" style="max-height:260px"></canvas>
+            <canvas id="chart-grados"></canvas>
           </div>
         </div>
 
@@ -632,8 +635,13 @@ function renderGrados(rows) {
   var data   = arr.map(function(x){ return Math.round(x.ingresos); });
   var shares = arr.map(function(x){ return totalIngresos > 0 ? (x.ingresos/totalIngresos*100).toFixed(1) : 0; });
 
+  // Altura dinámica: 42px por barra, mínimo 260px
+  var canvasGrad = document.getElementById('chart-grados');
+  canvasGrad.style.height = Math.max(260, arr.length * 42) + 'px';
+  canvasGrad.style.width  = '100%';
+
   if (chartGrad) chartGrad.destroy();
-  chartGrad = new Chart(document.getElementById('chart-grados').getContext('2d'), {
+  chartGrad = new Chart(canvasGrad.getContext('2d'), {
     type: 'bar',
     data: {
       labels: grados,
@@ -670,9 +678,9 @@ function renderGrados(rows) {
           grid: { color:'#f0f0f0' }
         },
         y: {
-          ticks: { font:{size:11} },
+          ticks: { font:{size:11}, padding:4 },
           grid: { display:false },
-          afterFit: function(scale){ scale.width = 72; }
+          afterFit: function(scale){ scale.width = 90; }
         }
       }
     },
