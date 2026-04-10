@@ -199,8 +199,53 @@ function onRetiraChange() {
 }
 
 // ── CONFIG ──────────────────────────────────────────────────
-// Reemplazá con la URL de tu web app de Apps Script desplegada
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+
+const PHONE_MAP = {
+  'Ines Robertson':        '5493512112050',
+  'Jose Carranza':         '5493516529993',
+  'Yuliana Longhi':        '5493513645612',
+  'Maria Martini':         '5493516865078',
+  'Luli del Castillo':     '5493513003789',
+  'Valeria Pierobon':      '5493512389386',
+  'Andrea Truppia':        '5493515640578'
+};
+
+function formatearFecha(fechaStr) {
+  const p = fechaStr.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+function armarMensaje(data) {
+  const nombre     = data.retira.split(' ')[0];
+  const fgpNombre  = data.fgp ? data.fgp.trim() : 'la FGP';
+  const fgpTel     = PHONE_MAP[data.fgp] || '';
+
+  const lineas = [
+    '🌼 *Diente de León — Retiro de Mercadería*',
+    '',
+    'Hola ' + nombre + '! Te asignaron un retiro:',
+    '',
+    '━━━━━━━━━━━━━━━━',
+    '📦 *Proveedor:* '  + data.proveedor,
+    '🛍️ *Producto:* '   + data.producto,
+  ];
+  if (data.cantidad) lineas.push('📏 *Cantidad:* ' + data.cantidad + (data.unidad ? ' ' + data.unidad : ''));
+  lineas.push(
+    '📍 *Lugar de retiro:* ' + (data.lugar || 'A confirmar'),
+    '📅 *Fecha de retiro:* ' + formatearFecha(data.fecha_retiro),
+    '🏫 *Entregar en escuela:* ' + (data.fecha_escuela ? formatearFecha(data.fecha_escuela) : 'A confirmar')
+  );
+  if (data.norden) lineas.push('📋 *N° Orden:* ' + data.norden);
+  if (data.notas)  lineas.push('📝 *Notas:* '    + data.notas);
+  lineas.push(
+    '━━━━━━━━━━━━━━━━',
+    '',
+    '¡Gracias por tu ayuda! 🙏',
+    'Coordiná con *' + fgpNombre + '*' + (fgpTel ? ' al +' + fgpTel : '') + '.'
+  );
+  return lineas.join('\n');
+}
 
 // ── PRE-LLENADO POR URL ─────────────────────────────────────
 (function() {
@@ -262,10 +307,18 @@ document.getElementById('formRetiro').addEventListener('submit', async function(
 
     if (json.ok) {
       document.getElementById('formRetiro').style.display = 'none';
+
+      // Abrir WhatsApp con mensaje pre-armado desde el teléfono del FGP
+      let telefono = PHONE_MAP[data.retira] || data.telefono_manual.replace(/\D/g, '');
+      if (telefono) {
+        const mensaje = armarMensaje(data);
+        window.open('https://wa.me/' + telefono + '?text=' + encodeURIComponent(mensaje), '_blank');
+      }
+
       const retiraNombre = data.retira.split(' ')[0];
       document.getElementById('msgOk').textContent =
-        'Evento creado en el calendario' +
-        (data.retira !== 'A coordinar con pool' ? ' y WhatsApp enviado a ' + retiraNombre + '.' : '. Recordá coordinar con el pool.');
+        'Evento creado en el calendario. ' +
+        (telefono ? 'Se abrió WhatsApp para avisar a ' + retiraNombre + '.' : 'Recordá coordinar con el pool.');
       document.getElementById('estadoOk').style.display = 'block';
     } else {
       throw new Error(json.error || 'Error desconocido');
