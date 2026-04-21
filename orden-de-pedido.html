@@ -300,6 +300,7 @@
         fecha:     fechaFmt,
         proveedor: f.proveedor,
         fgp:       f.fgp,
+        tel:       f.tel,
         productos: productosStr,
         total:     f.total > 0 ? String(f.total) : '',
         notas:     f.obs
@@ -376,6 +377,9 @@
   }
 // ── CORRELATIVO AUTOMÁTICO ──────────────────────────────────
   (async function generarCorrelativo() {
+    // Si el norden ya viene en la URL (generado por el script de alertas), no pisar
+    if (new URLSearchParams(window.location.search).get('norden')) return;
+
     const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1NmjnYWllrXrFpJI8GYJOjkGz90lPtvvDi0IQEYZl7-I/export?format=csv&gid=857535467';
     const input = document.getElementById('f-norden');
     try {
