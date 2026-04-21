@@ -1132,7 +1132,7 @@
     if (!pin) return;
     var errEl = document.getElementById('pin-error');
     errEl.textContent = 'Verificando…';
-    fetch(GAS_URL + '?pin=' + encodeURIComponent(pin))
+    fetch(GAS_URL + '?action=api_dashboard&pin=' + encodeURIComponent(pin))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.ok) {
