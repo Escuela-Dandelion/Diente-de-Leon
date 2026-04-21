@@ -148,22 +148,31 @@
     <div class="field"><textarea id="f-obs" rows="3" placeholder="Notas, aclaraciones, condiciones especiales..."></textarea></div>
   </div>
 
-  <!-- BOTÓN WHATSAPP -->
-  <div style="margin: 20px 0 8px; display:flex; justify-content:center;">
-    <button onclick="enviarPedido()" style="
-      background: #25d366; color: #fff; border: none; border-radius: 12px;
-      padding: 16px 32px; font-size: 17px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; gap: 10px; box-shadow: 0 3px 12px rgba(37,211,102,.35);
-      width: 100%; justify-content: center; max-width: 400px; margin: 0 auto;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      Enviar pedido al proveedor
-    </button>
-  </div>
+  <!-- ACCIONES -->
+  <div style="margin: 20px 0 8px; display:flex; flex-direction:column; align-items:center; gap:12px; max-width:400px; margin-left:auto; margin-right:auto;">
 
-  <!-- FIRMAS -->
-  <div class="firmas">
-    <div class="firma-box">Firma Responsable (FGP)</div>
-    <div class="firma-box">Firma Proveedor</div>
+    <!-- 1. Registrar en Sheet -->
+    <button id="btn-registrar" onclick="registrarPedido()" style="
+      background: #2d5a27; color: #fff; border: none; border-radius: 12px;
+      padding: 16px 32px; font-size: 17px; font-weight: 700; cursor: pointer;
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 3px 12px rgba(45,90,39,.3);">
+      📋 Registrar Pedido
+    </button>
+
+    <!-- Feedback -->
+    <div id="feedback-registro" style="display:none; border-radius:10px; padding:14px 16px; font-size:14px; font-weight:600; text-align:center; width:100%;"></div>
+
+    <!-- 2. WhatsApp — aparece solo tras registro exitoso -->
+    <button id="btn-whatsapp" onclick="abrirWhatsapp()" style="
+      display:none; background: #25d366; color: #fff; border: none; border-radius: 12px;
+      padding: 16px 32px; font-size: 17px; font-weight: 700; cursor: pointer;
+      width: 100%; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 3px 12px rgba(37,211,102,.35);">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviar pedido por WhatsApp
+    </button>
+
   </div>
 
   <!-- FOOTER -->
@@ -230,62 +239,12 @@
     recalcularTotal();
   })();
 
-  // ── GENERAR WHATSAPP ───────────────────────────────────────────────────────
-  function enviarPedido() {
-    const tel       = document.getElementById('f-tel').value.trim().replace(/\D/g, '');
-    const proveedor = document.getElementById('f-proveedor').value.trim();
-    const fgp       = document.getElementById('f-fgp').value.trim();
-    const fecha     = document.getElementById('f-fecha').value;
-    const norden    = document.getElementById('f-norden').value.trim();
-    const pago      = document.getElementById('f-pago').value.trim();
-    const obs       = document.getElementById('f-obs').value.trim();
-
-    if (!tel) { alert('Completá el teléfono del proveedor antes de enviar.'); return; }
-
-    // Armar líneas de productos
-    let lineasProd = '';
-    const filas = document.querySelectorAll('#tbody-productos tr');
-    filas.forEach(function(fila) {
-      const n  = fila.querySelector('.p-nombre').value.trim();
-      if (!n) return;
-      const u  = fila.querySelector('.p-unid').value.trim();
-      const c  = fila.querySelector('.p-cant').value.trim();
-      const pr = fila.querySelector('.p-precio').value.trim();
-      const detalle = [c ? '📦 Cant: ' + c : null, pr ? '💲 $' + pr : null].filter(Boolean).join('  ·  ');
-      lineasProd += `• *${n}*${u ? ' (' + u + ')' : ''}\n${detalle ? '   ' + detalle + '\n' : ''}`;
-    });
-
-    if (!lineasProd) { alert('Agregá al menos un producto antes de enviar.'); return; }
-
-    // Formatear fecha dd/mm/aaaa
-    const fechaFmt = fecha ? fecha.split('-').reverse().join('/') : fecha;
-
-    recalcularTotal(); // asegura que f-total esté actualizado
+  // ── HELPERS ────────────────────────────────────────────────────────────────
+  function leerFormulario() {
+    recalcularTotal();
     const totalCampo = document.getElementById('f-total').value;
     const total      = parseFloat(totalCampo.replace(/[^\d.,]/g, '').replace(/\./g,'').replace(',','.')) || 0;
-    const totalStr   = totalCampo ? totalCampo : null;
 
-    const partes = [
-      `🌼 *Orden de Pedido — Diente de León*`,
-      `━━━━━━━━━━━━━━━━━━━`,
-      norden    ? `🔢 N° ${norden}` : null,
-      `📅 Fecha: ${fechaFmt}`,
-      proveedor ? `🏪 Proveedor: ${proveedor}` : null,
-      ``,
-      `📦 *Productos solicitados:*`,
-      lineasProd.trimEnd(),
-      totalStr  ? `💰 *Total: ${totalStr}*` : null,
-      pago      ? `\n💳 Forma de pago: ${pago}` : null,
-      obs       ? `📝 ${obs}` : null,
-      `━━━━━━━━━━━━━━━━━━━`,
-      `✍️ Responsable: ${fgp || 'FGP Diente de León'}`,
-      `🌻 Escuela Dandelion · Waldorf · Córdoba`
-    ].filter(function(l) { return l !== null; }).join('\n');
-
-    const numFinal = tel.startsWith('549') ? tel : '549' + tel;
-    window.open('https://wa.me/' + numFinal + '?text=' + encodeURIComponent(partes), '_blank');
-
-    // Registrar en Sheet (silent — no bloquea si falla)
     const filasValidas = Array.from(document.querySelectorAll('#tbody-productos tr')).map(function(fila) {
       const n = fila.querySelector('.p-nombre').value.trim();
       if (!n) return null;
@@ -297,33 +256,123 @@
       };
     }).filter(Boolean);
 
-    const productosStr = filasValidas.map(function(r) {
-      return r.nombre + (r.cantidad ? ' x' + r.cantidad : '') + (r.unidad ? ' ' + r.unidad : '') + (r.precio ? ' ($' + r.precio + ')' : '');
-    }).join(' | ');
+    return {
+      norden:    document.getElementById('f-norden').value.trim(),
+      proveedor: document.getElementById('f-proveedor').value.trim(),
+      fgp:       document.getElementById('f-fgp').value.trim(),
+      tel:       document.getElementById('f-tel').value.trim().replace(/\D/g, ''),
+      fecha:     document.getElementById('f-fecha').value,
+      pago:      document.getElementById('f-pago').value.trim(),
+      obs:       document.getElementById('f-obs').value.trim(),
+      filasValidas,
+      total,
+      totalStr:  totalCampo || null
+    };
+  }
 
-    // Si hay un único producto, mandamos cantidad/unidad/precio separados (para fórmula en Sheet)
-    const esSolo   = filasValidas.length === 1;
-    const soloCant = esSolo ? filasValidas[0].cantidad : '';
-    const soloUnid = esSolo ? filasValidas[0].unidad   : '';
-    const soloPrEC = esSolo ? filasValidas[0].precio    : '';
+  // ── 1. REGISTRAR EN SHEET ──────────────────────────────────────────────────
+  function registrarPedido() {
+    var f = leerFormulario();
+
+    if (!f.filasValidas.length) { alert('Agregá al menos un producto antes de registrar.'); return; }
+    if (!f.norden || f.norden.includes('???') || f.norden === 'Generando…') {
+      mostrarFeedback('⚠️ El N° de Orden aún no se generó. Esperá un momento y volvé a intentar.', 'warn');
+      return;
+    }
+
+    var productosStr = f.filasValidas.map(function(r) {
+      return r.nombre + (r.cantidad ? ' x' + r.cantidad : '') + (r.unidad ? ' ' + r.unidad : '') + (r.precio !== '0' ? ' ($' + r.precio + ')' : '');
+    }).join('\n');
+
+    var fechaFmt = f.fecha ? f.fecha.split('-').reverse().join('/') : f.fecha;
+
+    var btn = document.getElementById('btn-registrar');
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    mostrarFeedback('⏳ Registrando orden en el sistema…', 'info');
 
     fetch(SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         action:    'registrarPedido',
-        norden:    norden,
+        norden:    f.norden,
         fecha:     fechaFmt,
-        proveedor: proveedor,
-        fgp:       fgp,
+        proveedor: f.proveedor,
+        fgp:       f.fgp,
         productos: productosStr,
-        cantidad:  soloCant,
-        unidad:    soloUnid,
-        precio:    soloPrEC,
-        total:     total > 0 ? String(total) : '',
-        notas:     obs
+        total:     f.total > 0 ? String(f.total) : '',
+        notas:     f.obs
       })
-    }).catch(function() {});
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      if (data.ok) {
+        mostrarFeedback('✅ Orden ' + f.norden + ' registrada correctamente.', 'ok');
+        var btnWa = document.getElementById('btn-whatsapp');
+        btnWa.style.display = 'flex';
+      } else {
+        mostrarFeedback('❌ Error al registrar: ' + (data.error || 'respuesta inesperada.'), 'error');
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      mostrarFeedback('❌ No se pudo conectar con el servidor. Verificá tu conexión.', 'error');
+    });
+  }
+
+  // ── 2. ABRIR WHATSAPP ──────────────────────────────────────────────────────
+  function abrirWhatsapp() {
+    var f = leerFormulario();
+    if (!f.tel) { alert('Completá el teléfono del proveedor.'); return; }
+
+    var lineasProd = '';
+    f.filasValidas.forEach(function(r) {
+      var detalle = [r.cantidad ? '📦 Cant: ' + r.cantidad : null, r.precio && r.precio !== '0' ? '💲 $' + r.precio : null].filter(Boolean).join('  ·  ');
+      lineasProd += '• *' + r.nombre + '*' + (r.unidad ? ' (' + r.unidad + ')' : '') + '\n' + (detalle ? '   ' + detalle + '\n' : '');
+    });
+
+    var fechaFmt = f.fecha ? f.fecha.split('-').reverse().join('/') : f.fecha;
+
+    var partes = [
+      '🌼 *Orden de Pedido — Diente de León*',
+      '━━━━━━━━━━━━━━━━━━━',
+      f.norden    ? '🔢 N° ' + f.norden : null,
+      '📅 Fecha: ' + fechaFmt,
+      f.proveedor ? '🏪 Proveedor: ' + f.proveedor : null,
+      '',
+      '📦 *Productos solicitados:*',
+      lineasProd.trimEnd(),
+      f.totalStr  ? '💰 *Total: ' + f.totalStr + '*' : null,
+      f.pago      ? '\n💳 Forma de pago: ' + f.pago : null,
+      f.obs       ? '📝 ' + f.obs : null,
+      '━━━━━━━━━━━━━━━━━━━',
+      '✍️ Responsable: ' + (f.fgp || 'FGP Diente de León'),
+      '🌻 Escuela Dandelion · Waldorf · Córdoba'
+    ].filter(function(l) { return l !== null; }).join('\n');
+
+    var numFinal = f.tel.startsWith('549') ? f.tel : '549' + f.tel;
+    window.open('https://wa.me/' + numFinal + '?text=' + encodeURIComponent(partes), '_blank');
+  }
+
+  function mostrarFeedback(msg, tipo) {
+    var el = document.getElementById('feedback-registro');
+    var colores = {
+      ok:    { bg: '#eaf3e6', color: '#166534', border: '#a3c4a8' },
+      error: { bg: '#fef2f2', color: '#dc2626', border: '#fca5a5' },
+      warn:  { bg: '#fff8e1', color: '#b45309', border: '#fcd34d' },
+      info:  { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' }
+    };
+    var c = colores[tipo] || colores.info;
+    el.style.background = c.bg;
+    el.style.color      = c.color;
+    el.style.border     = '1px solid ' + c.border;
+    el.textContent      = msg;
+    el.style.display    = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 // ── CORRELATIVO AUTOMÁTICO ──────────────────────────────────
   (async function generarCorrelativo() {

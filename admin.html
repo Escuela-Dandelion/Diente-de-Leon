@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diente de León — Admin</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  @font-face {
+    font-family: 'Antropos';
+    src: url('antrf___.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  /* ── RESET ── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ── VARIABLES ── */
+  :root {
+    --green:      #2d5a27;
+    --green-dark: #1e3d1a;
+    --green-mid:  #7cb95a;
+    --green-light:#eaf3e6;
+    --sidebar-w:  240px;
+    --header-h:   56px;
+    --red:        #E63946;
+    --muted:      #6B7280;
+    --border:     #E5E7EB;
+    --card:       #FFFFFF;
+    --bg:         #f7f8fa;
+    --text:       #1a1a2e;
+  }
+
+  /* ══════════════════════════════════════
+     LOGIN SCREEN
+  ══════════════════════════════════════ */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3d1a 0%, #2d5a27 100%);
+    padding: 24px;
+  }
+  .login-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    text-align: center;
+  }
+  .login-logo { margin-bottom: 12px; }
+  .login-logo img { width: 160px; height: auto; object-fit: contain; }
+  .login-title { font-size: 28px; font-family: 'Antropos', sans-serif; color: var(--green-dark); margin-bottom: 4px; letter-spacing: 1px; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+  .login-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+  .login-divider::before, .login-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .login-divider span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* Google button container */
+  #google-btn-container { display: flex; justify-content: center; margin-bottom: 4px; }
+
+  /* WhatsApp OTP */
+  .otp-section { text-align: left; }
+  .otp-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
+  .otp-input {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 15px; outline: none; transition: border .2s;
+  }
+  .otp-input:focus { border-color: var(--green); }
+  .btn-wa {
+    width: 100%; margin-top: 10px; padding: 12px;
+    background: #25D366; color: #fff; border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 700; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-wa:hover { background: #1ebe5d; }
+  .btn-wa:disabled { background: #9CA3AF; cursor: not-allowed; }
+  .otp-code-row { display: none; margin-top: 12px; gap: 8px; }
+  .otp-code-row.visible { display: flex; }
+  .otp-code-input {
+    flex: 1; padding: 11px 14px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 18px; font-weight: 700; text-align: center;
+    letter-spacing: 6px; outline: none;
+  }
+  .otp-code-input:focus { border-color: var(--green); }
+  .btn-verify {
+    padding: 11px 18px; background: var(--green); color: #fff;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .btn-verify:hover { background: var(--green-dark); }
+  .login-error { color: var(--red); font-size: 13px; margin-top: 8px; display: none; }
+  .login-info  { color: var(--green); font-size: 13px; margin-top: 8px; display: none; }
+
+  /* ══════════════════════════════════════
+     APP SHELL
+  ══════════════════════════════════════ */
+  #app { display: none; min-height: 100vh; }
+
+  /* Header */
+  .app-header {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+    background: #fff; color: var(--text);
+    display: flex; align-items: center; padding: 0 16px;
+    z-index: 100; gap: 12px; border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .header-logo img { width: 140px; height: 44px; object-fit: contain; }
+  .header-spacer { flex: 1; }
+  .header-user { font-size: 12px; color: var(--muted); text-align: right; }
+  .header-user strong { display: block; font-size: 13px; color: var(--text); }
+  .btn-logout {
+    background: var(--green-light); border: none; color: var(--green);
+    padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+  }
+  .btn-logout:hover { background: var(--green); color: #fff; }
+  .btn-hamburger {
+    display: none; background: none; border: none; color: var(--text);
+    font-size: 22px; cursor: pointer; padding: 4px;
+  }
+
+  /* Sidebar */
+  .app-sidebar {
+    position: fixed; top: var(--header-h); left: 0; bottom: 0;
+    width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 90; transition: transform .25s ease;
+  }
+  .sidebar-nav { padding: 12px 0; }
+  .nav-section-label {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    padding: 16px 20px 6px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 20px; color: var(--text); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: background .15s, color .15s; border: none;
+    background: none; width: 100%; text-align: left; border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--green-light); color: var(--green); border-left-color: var(--green); }
+  .nav-item.active { background: var(--green-light); color: var(--green); border-left-color: var(--green); font-weight: 700; }
+  .nav-item .nav-icon { font-size: 18px; width: 24px; text-align: center; color: var(--green-mid); }
+  .nav-item[data-role-required] { display: none; }
+
+  /* Overlay mobile */
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 80;
+  }
+  .sidebar-overlay.visible { display: block; }
+
+  /* Main content */
+  .app-main {
+    margin-left: var(--sidebar-w);
+    margin-top: var(--header-h);
+    padding: 24px;
+    min-height: calc(100vh - var(--header-h));
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+  .view-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; }
+
+  /* Cards de bienvenida */
+  .welcome-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+  .welcome-card {
+    background: var(--card); border-radius: 12px; padding: 20px;
+    border: 1px solid var(--border); text-align: center; cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .welcome-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .welcome-card .wc-icon { font-size: 32px; margin-bottom: 8px; }
+  .welcome-card .wc-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .welcome-card .wc-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* Iframe views */
+  .view-iframe {
+    width: 100%; border: none; border-radius: 12px;
+    min-height: calc(100vh - var(--header-h) - 80px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .btn-hamburger { display: block; }
+    .app-sidebar { transform: translateX(-100%); }
+    .app-sidebar.open { transform: translateX(0); }
+    .app-main { margin-left: 0; padding: 16px; }
+    .header-user { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><img src="Logo_Diente_de_Leon_transparent.png" alt="Diente de León"></div>
+    <div class="login-title">Diente de León</div>
+    <div class="login-sub">Panel de administración</div>
+
+    <!-- Google Sign-In -->
+    <div id="google-btn-container"></div>
+    <p style="font-size:12px;color:var(--muted);margin-top:6px">Para Staff, FGP y Administradores</p>
+
+    <div class="login-divider"><span>o si sos Referente</span></div>
+
+    <!-- WhatsApp OTP -->
+    <div class="otp-section">
+      <label class="otp-label">Tu número de WhatsApp</label>
+      <input id="otp-tel" class="otp-input" type="tel" placeholder="Ej: 3512112050" maxlength="12">
+      <button class="btn-wa" id="btn-send-otp" onclick="enviarOTP()">
+        <span>💬</span> Recibir código por WhatsApp
+      </button>
+      <div class="otp-code-row" id="otp-code-row">
+        <input id="otp-code" class="otp-code-input" type="number" placeholder="000000" maxlength="6">
+        <button class="btn-verify" onclick="verificarOTP()">Ingresar</button>
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <div class="login-info"  id="login-info"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════ -->
+<div id="app">
+
+  <!-- Header -->
+  <header class="app-header">
+    <button class="btn-hamburger" onclick="toggleSidebar()">☰</button>
+    <span class="header-logo"><img src="Logo_Diente_de_Leon_transparent.png" alt="Diente de León"></span>
+    <span style="font-family:'Antropos',sans-serif; font-size:20px; color:var(--green); letter-spacing:1px;">Diente de León</span>
+    <div class="header-spacer"></div>
+    <div class="header-user">
+      <strong id="header-name">—</strong>
+      <span id="header-role">—</span>
+    </div>
+    <button class="btn-logout" onclick="logout()">Salir</button>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="app-sidebar" id="sidebar">
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <button class="nav-item active" data-view="inicio" onclick="showView('inicio', this)">
+        <span class="nav-icon">🏠</span> Inicio
+      </button>
+
+      <div class="nav-section-label">Gestión</div>
+      <button class="nav-item" data-view="pedidos" data-roles="admin,staff,fgp" onclick="showView('pedidos', this)">
+        <span class="nav-icon">📦</span> Pedidos
+      </button>
+      <button class="nav-item" data-view="qr" data-roles="admin,staff,referente" onclick="showView('qr', this)">
+        <span class="nav-icon">📷</span> Escanear QR
+      </button>
+      <button class="nav-item" data-view="ordenes" data-roles="admin,staff" onclick="showView('ordenes', this)">
+        <span class="nav-icon">🗒️</span> Órdenes a Proveedor
+      </button>
+      <button class="nav-item" data-view="comprobantes" data-roles="admin" onclick="showView('comprobantes', this)">
+        <span class="nav-icon">📎</span> Comprobantes
+      </button>
+
+      <div class="nav-section-label">Reportes</div>
+      <button class="nav-item" data-view="dashboard-general" data-roles="admin,staff,fgp" onclick="showView('dashboard-general', this)">
+        <span class="nav-icon">📊</span> Dashboard General
+      </button>
+      <button class="nav-item" data-view="dashboard-referentes" data-roles="admin,staff,fgp,referente" onclick="showView('dashboard-referentes', this)">
+        <span class="nav-icon">📈</span> Dashboard Referentes
+      </button>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Main content -->
+  <main class="app-main">
+
+    <!-- INICIO -->
+    <div class="view active" id="view-inicio">
+      <div class="view-title">Bienvenido/a 👋</div>
+      <div class="welcome-grid" id="welcome-grid">
+        <!-- Cards generadas dinámicamente según rol -->
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="view" id="view-pedidos">
+      <div class="view-title">📦 Órdenes de Pedido Proveedores</div>
+      <iframe class="view-iframe" src="pedidos.html?auth=1" id="iframe-pedidos"></iframe>
+    </div>
+
+    <!-- QR -->
+    <div class="view" id="view-qr">
+      <div class="view-title">📷 Escanear QR</div>
+      <div style="padding:40px 0; text-align:center;">
+        <div style="font-size:64px; margin-bottom:16px;">📷</div>
+        <p style="font-size:15px; color:var(--muted); margin-bottom:24px;">El escáner QR se abre en una nueva pestaña.</p>
+        <a id="btn-abrir-qr" href="#" target="_blank"
+          style="display:inline-block; background:var(--green); color:#fff; padding:14px 32px;
+                 border-radius:10px; font-size:15px; font-weight:700; text-decoration:none; letter-spacing:.5px;">
+          Abrir escáner QR
+        </a>
+      </div>
+    </div>
+
+    <!-- ÓRDENES -->
+    <div class="view" id="view-ordenes">
+      <div class="view-title">🗒️ Órdenes a Proveedor</div>
+      <iframe class="view-iframe" src="orden-de-pedido.html" id="iframe-ordenes"></iframe>
+    </div>
+
+    <!-- COMPROBANTES -->
+    <div class="view" id="view-comprobantes">
+      <div class="view-title">📎 Comprobantes de Pago</div>
+      <p style="color:var(--muted);font-size:14px">Próximamente — subir comprobantes a Drive por orden.</p>
+    </div>
+
+    <!-- DASHBOARD GENERAL -->
+    <div class="view" id="view-dashboard-general">
+      <div class="view-title">📊 Dashboard General</div>
+      <iframe class="view-iframe" src="dashboard-general.html" id="iframe-dash-general"></iframe>
+    </div>
+
+    <!-- DASHBOARD REFERENTES -->
+    <div class="view" id="view-dashboard-referentes">
+      <div class="view-title">📈 Dashboard Referentes</div>
+      <iframe class="view-iframe" src="dashboard-referentes.html" id="iframe-dash-ref"></iframe>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════
+var GOOGLE_CLIENT_ID = '308208183848-61d09u9u2vlb6852hqi1rspevi2r2qbk.apps.googleusercontent.com';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwt8mRYjjFZtsmFPw0JYcMpCkZcOt9J7ALFVkPByqQ8NM2NvCaYF1onagU_ag0a2ziksg/exec';
+
+// Roles: admin, staff, fgp, referente
+var ROLE_LABELS = { admin: 'Administrador', staff: 'Staff', fgp: 'FGP', referente: 'Referente' };
+
+var SESSION_KEY = 'dl_admin_session';
+var currentUser = null;
+
+// ══════════════════════════════════════
+// SESSION
+// ══════════════════════════════════════
+function getSession() {
+  try {
+    var s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!s) return null;
+    if (Date.now() > s.expires) { localStorage.removeItem(SESSION_KEY); return null; }
+    return s;
+  } catch(e) { return null; }
+}
+
+function saveSession(user) {
+  var ttl = user.role === 'referente' ? 30 : 7; // días
+  user.expires = Date.now() + ttl * 24 * 60 * 60 * 1000;
+  localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+}
+
+function logout() {
+  localStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  // Revocar Google session
+  if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
+}
+
+// ══════════════════════════════════════
+// GOOGLE SIGN-IN
+// ══════════════════════════════════════
+window.onload = function() {
+  var session = getSession();
+  if (session) { iniciarApp(session); return; }
+
+  if (typeof google !== 'undefined') {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: onGoogleLogin
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('google-btn-container'),
+      { theme: 'outline', size: 'large', width: 280, text: 'signin_with', locale: 'es' }
+    );
+  }
+};
+
+function onGoogleLogin(response) {
+  // Decodificar JWT del token de Google
+  var payload = JSON.parse(atob(response.credential.split('.')[1]));
+  var email = payload.email;
+  var name  = payload.name;
+
+  // Verificar email contra GAS
+  fetch(GAS_URL + '?action=verificarEmail&email=' + encodeURIComponent(email))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.ok) { mostrarError('Tu cuenta no tiene acceso. Contactá al administrador.'); return; }
+      var user = { name: name, email: email, role: data.role, method: 'google' };
+      saveSession(user);
+      iniciarApp(user);
+    })
+    .catch(function() { mostrarError('Error de conexión. Intentá de nuevo.'); });
+}
+
+// ══════════════════════════════════════
+// WHATSAPP OTP
+// ══════════════════════════════════════
+function enviarOTP() {
+  var tel = document.getElementById('otp-tel').value.replace(/\D/g, '');
+  if (tel.length < 8) { mostrarError('Ingresá tu número de WhatsApp.'); return; }
+  // Normalizar: agregar 549 si no lo tiene
+  if (!tel.startsWith('549')) tel = '549' + tel;
+
+  var btn = document.getElementById('btn-send-otp');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  ocultarMensajes();
+
+  fetch(GAS_URL + '?action=sendOTP&tel=' + tel)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false; btn.innerHTML = '<span>💬</span> Reenviar código';
+      if (!data.ok) { mostrarError(data.error || 'Número no registrado.'); return; }
+      mostrarInfo('Código enviado por WhatsApp ✅');
+      document.getElementById('otp-code-row').classList.add('visible');
+      document.getElementById('otp-code').focus();
+      // Guardar tel para verificación
+      btn.dataset.tel = tel;
+    })
+    .catch(function() { btn.disabled = false; mostrarError('Error de conexión.'); });
+}
+
+function verificarOTP() {
+  var tel  = document.getElementById('btn-send-otp').dataset.tel;
+  var code = document.getElementById('otp-code').value.trim();
+  if (!code) { mostrarError('Ingresá el código.'); return; }
+  ocultarMensajes();
+
+  fetch(GAS_URL + '?action=verifyOTP&tel=' + tel + '&code=' + code)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.ok) { mostrarError(data.error || 'Código incorrecto.'); return; }
+      var user = { name: data.name, tel: tel, role: data.role, method: 'whatsapp' };
+      saveSession(user);
+      iniciarApp(user);
+    })
+    .catch(function() { mostrarError('Error de conexión.'); });
+}
+
+// ══════════════════════════════════════
+// APP
+// ══════════════════════════════════════
+function iniciarApp(user) {
+  currentUser = user;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('header-name').textContent = user.name;
+  document.getElementById('header-role').textContent = ROLE_LABELS[user.role] || user.role;
+  aplicarPermisos(user.role);
+  renderWelcomeCards(user.role);
+  restaurarDesdeUrl();
+}
+
+function aplicarPermisos(role) {
+  var roleLower = role.toLowerCase();
+  document.querySelectorAll('.nav-item[data-roles]').forEach(function(btn) {
+    var roles = btn.getAttribute('data-roles').split(',');
+    btn.style.display = roles.indexOf(roleLower) !== -1 ? 'flex' : 'none';
+  });
+}
+
+function renderWelcomeCards(role) {
+  var cards = [
+    { view:'pedidos',              icon:'📦', name:'Órdenes de Pedido Proveedores',             desc:'Ver y gestionar pedidos',       roles:['admin','staff','fgp'] },
+    { view:'qr',                   icon:'📷', name:'Escanear QR',         desc:'Confirmar entregas',            roles:['admin','staff','referente'] },
+    { view:'ordenes',              icon:'🗒️', name:'Órdenes a Proveedor', desc:'Pedidos a proveedores',         roles:['admin','staff'] },
+    { view:'comprobantes',         icon:'📎', name:'Comprobantes',        desc:'Adjuntar comprobantes de pago', roles:['admin'] },
+    { view:'dashboard-general',    icon:'📊', name:'Dashboard General',   desc:'Ventas y métricas globales',    roles:['admin','staff','fgp'] },
+    { view:'dashboard-referentes', icon:'📈', name:'Mis ventas',          desc:'Dashboard de tu grado',        roles:['admin','staff','fgp','referente'] },
+  ];
+
+  var html = cards
+    .filter(function(c) { return c.roles.indexOf(role.toLowerCase()) !== -1; })
+    .map(function(c) {
+      return '<div class="welcome-card" onclick="showView(\'' + c.view + '\')">' +
+        '<div class="wc-icon">' + c.icon + '</div>' +
+        '<div class="wc-name">' + c.name + '</div>' +
+        '<div class="wc-desc">' + c.desc + '</div>' +
+        '</div>';
+    }).join('');
+
+  document.getElementById('welcome-grid').innerHTML = html;
+}
+
+function showView(viewId, navBtn, opts) {
+  opts = opts || {};
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
+  var view = document.getElementById('view-' + viewId);
+  if (view) view.classList.add('active');
+  if (navBtn) {
+    navBtn.classList.add('active');
+  } else {
+    var btn = document.querySelector('.nav-item[data-view="' + viewId + '"]');
+    if (btn) btn.classList.add('active');
+  }
+
+  // Conectar botón QR con URL del GAS
+  if (viewId === 'qr') {
+    var qrBtn = document.getElementById('btn-abrir-qr');
+    if (qrBtn) qrBtn.href = GAS_URL + '?action=portal&pass=test';
+  }
+
+  // Actualizar URL del navegador
+  if (!opts.skipHistory) {
+    var params = new URLSearchParams();
+    params.set('view', viewId);
+    if (opts.id) params.set('id', opts.id);
+    history.pushState({ view: viewId, id: opts.id || null }, '', '?' + params.toString());
+  }
+
+  // Si hay id de orden pendiente, pasárselo al iframe de pedidos
+  if (viewId === 'pedidos' && opts.id) {
+    var iframe = document.getElementById('iframe-pedidos');
+    if (iframe) iframe.src = 'pedidos.html?auth=1&id=' + opts.id;
+  }
+
+  // Cerrar sidebar en mobile
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+}
+
+// Escuchar navegación desde el iframe de pedidos
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.type !== 'ddl-nav') return;
+  var params = new URLSearchParams();
+  params.set('view', e.data.view || 'pedidos');
+  if (e.data.id) params.set('id', e.data.id);
+  history.pushState({ view: e.data.view, id: e.data.id || null }, '', '?' + params.toString());
+});
+
+// Restaurar vista desde la URL al cargar
+function restaurarDesdeUrl() {
+  var params = new URLSearchParams(window.location.search);
+  var view   = params.get('view');
+  var id     = params.get('id');
+  if (view) showView(view, null, { skipHistory: true, id: id });
+}
+
+// Manejar botón atrás/adelante del navegador
+window.addEventListener('popstate', function(e) {
+  var state = e.state || {};
+  if (state.view) showView(state.view, null, { skipHistory: true, id: state.id });
+});
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('visible');
+}
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function mostrarError(msg) {
+  var el = document.getElementById('login-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+function mostrarInfo(msg) {
+  var el = document.getElementById('login-info');
+  el.textContent = msg; el.style.display = 'block';
+}
+function ocultarMensajes() {
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-info').style.display  = 'none';
+}
+</script>
+</body>
+</html>
