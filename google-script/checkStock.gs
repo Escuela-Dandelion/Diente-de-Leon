@@ -7,12 +7,12 @@ const CONFIG_STOCK = {
   API_TOKEN:      'e3d744d94ddbf13317bef0082c53e2c46fb50631',
   GREEN_INSTANCE: '7107556439',
   GREEN_TOKEN:    '7f7e2a357d2a4f0faa7edc4729f4c89f491b1420ef19462783',
-  STOCK_UMBRAL:   999,
+  STOCK_UMBRAL:   10,
   FORM_URL:       'https://escuela-dandelion.github.io/Comision-Recursos/orden-de-pedido.html',
   RETIRO_URL:     'https://escuela-dandelion.github.io/Comision-Recursos/retiro-proveedor.html',
   SHEET_ID:       '1NmjnYWllrXrFpJI8GYJOjkGz90lPtvvDi0IQEYZl7-I',
-  TEST_MODE:      true,                   // ← ACTIVAR PARA PRUEBAS
-  TEST_TELEFONO:  '5493512112050'         // ← Tu número (Ines)
+  TEST_MODE:      false,
+  TEST_TELEFONO:  '5493512112050'         // ← usado solo si TEST_MODE: true
 };
 
 const FGP_POR_MARCA = {
