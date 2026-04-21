@@ -188,6 +188,13 @@
   }
   .pin-btn:hover { opacity: .88; }
   .pin-error { color: var(--red); font-size: 12px; min-height: 18px; margin-top: 8px; }
+  .sidebar-logout {
+    margin: auto 12px 16px; padding: 8px 12px; background: none;
+    border: 1px solid var(--border); border-radius: 8px; color: var(--muted);
+    font-size: 12px; cursor: pointer; width: calc(100% - 24px); text-align: left;
+    transition: background .15s;
+  }
+  .sidebar-logout:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
 
   /* ── PHONE LINK ── */
   .wa-link { color: var(--green); text-decoration: none; font-size: 12px; }
@@ -318,6 +325,7 @@
 
   <div class="sidebar-section">🧸 Juguetes</div>
   <a href="#juguetes">Próximamente</a>
+  <button class="sidebar-logout" onclick="cerrarSesion()">🔒 Cerrar sesión</button>
 </nav>
 
 <!-- MAIN -->
@@ -1127,6 +1135,7 @@
   function mostrarContenido() {
     document.getElementById('pin-overlay').classList.add('hidden');
   }
+  function cerrarSesion() { localStorage.removeItem('dl_pin'); document.getElementById('pin-overlay').classList.remove('hidden'); document.getElementById('pin-input').value = ''; }
   function validarPin() {
     var pin = document.getElementById('pin-input').value.trim();
     if (!pin) return;

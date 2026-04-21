@@ -61,6 +61,41 @@
   }
   .sidebar-overlay.visible { display: block; }
 
+  /* ── PIN OVERLAY ── */
+  #pin-overlay {
+    position: fixed; inset: 0; background: rgba(247,248,250,.97);
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+  }
+  #pin-overlay.hidden { display: none; }
+  .pin-box {
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    padding: 40px 36px; max-width: 360px; width: 90%; text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,.10);
+  }
+  .pin-logo  { font-size: 40px; margin-bottom: 8px; }
+  .pin-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .pin-sub   { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .pin-input {
+    width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px;
+    font-size: 20px; letter-spacing: 4px; text-align: center; font-weight: 700;
+    outline: none; margin-bottom: 12px; transition: border-color .2s;
+  }
+  .pin-input:focus { border-color: var(--green); }
+  .pin-btn {
+    width: 100%; padding: 12px; background: var(--green); color: #fff;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .pin-btn:hover { opacity: .88; }
+  .pin-error { color: var(--red); font-size: 12px; min-height: 18px; margin-top: 8px; }
+  .sidebar-logout {
+    margin: auto 12px 16px; padding: 8px 12px; background: none;
+    border: 1px solid var(--border); border-radius: 8px; color: var(--muted);
+    font-size: 12px; cursor: pointer; width: calc(100% - 24px); text-align: left;
+    transition: background .15s;
+  }
+  .sidebar-logout:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+
   /* ── MAIN ── */
   .main { margin-left: var(--sidebar-w); min-height: 100vh; }
 
@@ -213,8 +248,21 @@
   <div class="sidebar-section" style="margin-top:auto">Proyecto</div>
   <a href="wiki-comision-recursos.html">🌻 Wiki Principal</a>
   <a href="https://escuela-dandelion.github.io/Diente-de-Leon/Tienda.html" target="_blank">🛍️ Tienda</a>
-  <a href="https://ine-robertson.github.io/dandelion-tienda-dashboard/" target="_blank">📊 Dashboard</a>
+  <a href="https://escuela-dandelion.github.io/Comision-Recursos/dashboard-general.html" target="_blank">📊 Dashboard</a>
+  <button class="sidebar-logout" onclick="cerrarSesion()">🔒 Cerrar sesión</button>
 </nav>
+
+<!-- PIN OVERLAY -->
+<div id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-logo">📦</div>
+    <div class="pin-title">Gestión con Proveedores</div>
+    <div class="pin-sub">Ingresá tu PIN personal para acceder</div>
+    <input id="pin-input" class="pin-input" type="password" maxlength="8" placeholder="••••••" autocomplete="off">
+    <button class="pin-btn" onclick="validarPin()">Ingresar</button>
+    <div id="pin-error" class="pin-error"></div>
+  </div>
+</div>
 
 <!-- MAIN -->
 <div class="main">
@@ -812,6 +860,36 @@ Cualquier cosa podés coordinar con <strong>Maria Martini</strong> al 5493516865
 </div>
 
 <script>
+  // ── PIN / SESIÓN ──
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbwt8mRYjjFZtsmFPw0JYcMpCkZcOt9J7ALFVkPByqQ8NM2NvCaYF1onagU_ag0a2ziksg/exec';
+  var SESSION_TTL = 24 * 3600 * 1000;
+  function guardarSesion(pin) { localStorage.setItem('dl_pin', JSON.stringify({ pin: pin, ts: Date.now() })); }
+  function leerSesion() {
+    try {
+      var s = JSON.parse(localStorage.getItem('dl_pin') || 'null');
+      if (!s) return null;
+      if (Date.now() - s.ts > SESSION_TTL) { localStorage.removeItem('dl_pin'); return null; }
+      return s.pin;
+    } catch(e) { return null; }
+  }
+  function cerrarSesion() { localStorage.removeItem('dl_pin'); document.getElementById('pin-overlay').classList.remove('hidden'); document.getElementById('pin-input').value = ''; }
+  function mostrarContenido() { document.getElementById('pin-overlay').classList.add('hidden'); }
+  function validarPin() {
+    var pin = document.getElementById('pin-input').value.trim();
+    if (!pin) return;
+    var errEl = document.getElementById('pin-error');
+    errEl.textContent = 'Verificando…';
+    fetch(GAS_URL + '?action=api_dashboard&pin=' + encodeURIComponent(pin))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ok) { guardarSesion(pin); mostrarContenido(); }
+        else { errEl.textContent = 'PIN incorrecto. Verificá y reintentá.'; }
+      })
+      .catch(function() { errEl.textContent = 'Error de conexión. Intentá de nuevo.'; });
+  }
+  document.getElementById('pin-input').addEventListener('keydown', function(e) { if (e.key === 'Enter') validarPin(); });
+  (function() { if (leerSesion()) mostrarContenido(); })();
+
   const sidebar  = document.querySelector('.sidebar');
   const overlay  = document.getElementById('sidebarOverlay');
   const toggle   = document.getElementById('menuToggle');
