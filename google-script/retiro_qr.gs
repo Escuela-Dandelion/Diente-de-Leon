@@ -1258,7 +1258,8 @@ function apiDashboard(pin, email) {
 // Lista blanca de emails con su rol
 var AUTH_EMAILS = {
   'robertson.ine@gmail.com':    { role: 'ADMIN', name: 'Inés' },
-  'longhi.yuliana@gmail.com':   { role: 'ADMIN', name: 'Yuliana' },
+  'longhi.yuliana@gmail.com':        { role: 'ADMIN', name: 'Yuliana' },
+  'yuliana.longhi@dandelion.edu.ar': { role: 'ADMIN', name: 'Yuliana' },
   'martinimaria39@gmail.com':   { role: 'FGP',   name: 'Maria' }
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
