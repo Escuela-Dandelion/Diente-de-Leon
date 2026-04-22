@@ -1065,10 +1065,18 @@ function confirmarAccion(norden, nuevoEstado) {
   // Bloquear "Confirmado" si no tiene precio
   if (nuevoEstado === 'Confirmado') {
     const pedido = todosLosPedidos.find(p => p.norden === norden) || pedidoActual;
-    if (!pedido || !pedido.total || parseFloat(String(pedido.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) === 0) {
-      if (pedidoActual) mostrarFlashDetalle('⚠️ Completá el precio del pedido antes de confirmar.', 'error');
-      else mostrarFlash('⚠️ Completá el precio del pedido antes de confirmar.', 'error');
-      editarTotal();
+    const sinPrecio = !pedido || !pedido.total || parseFloat(String(pedido.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) === 0;
+    if (sinPrecio) {
+      const msg = '⚠️ Completá el precio del pedido antes de confirmar.';
+      if (pedidoActual && pedidoActual.norden === norden) {
+        // Estamos en el detalle → mostrar mensaje y abrir editor inline
+        mostrarFlashDetalle(msg, 'error');
+        editarTotal();
+      } else {
+        // Estamos en el listado → mostrar mensaje y abrir el detalle
+        mostrarFlash(msg, 'error');
+        abrirDetalle(norden);
+      }
       return;
     }
   }
