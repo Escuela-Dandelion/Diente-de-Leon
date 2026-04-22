@@ -282,9 +282,35 @@
 
   <!-- Cabecera del pedido -->
   <div class="det-card">
+    <div class="det-card-header">
+      <span class="det-card-title">Proveedor</span>
+      <button class="btn-edit-small" id="btn-toggle-proveedor" onclick="toggleEditProveedor()">✏️ Editar</button>
+    </div>
     <div class="det-card-body">
-      <div class="det-proveedor" id="d-proveedor"></div>
-      <div class="det-meta">
+      <!-- Vista lectura -->
+      <div id="d-proveedor-view">
+        <div class="det-proveedor" id="d-proveedor"></div>
+        <div class="det-meta" style="margin-top:6px">
+          <span id="d-tel-wrap" style="display:none">📞 <span id="d-tel"></span></span>
+        </div>
+      </div>
+      <!-- Vista edición -->
+      <div id="d-proveedor-edit" style="display:none">
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Nombre del proveedor</div>
+          <input id="input-proveedor" type="text" placeholder="Nombre del proveedor"
+            style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:600;">
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Teléfono (se guarda para próximas órdenes)</div>
+          <input id="input-tel-proveedor" type="tel" inputmode="numeric" placeholder="Ej: 3516123456"
+            style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:15px;">
+        </div>
+        <button onclick="guardarProveedor()" style="width:100%;padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">💾 Guardar</button>
+        <div id="d-proveedor-feedback" style="font-size:12px;margin-top:6px;display:none;font-weight:600;text-align:center;"></div>
+      </div>
+      <!-- Meta -->
+      <div class="det-meta" id="d-meta-row" style="margin-top:8px">
         <span>📋 <span id="d-norden"></span></span>
         <span>📅 <span id="d-fecha"></span></span>
         <span>👤 FGP: <span id="d-fgp"></span></span>
@@ -1041,6 +1067,57 @@ function renderProdEdit(productosStr) {
 
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
+// ── EDITAR PROVEEDOR ──────────────────────────────────────────
+function toggleEditProveedor() {
+  var view = document.getElementById('d-proveedor-view');
+  var edit = document.getElementById('d-proveedor-edit');
+  var btn  = document.getElementById('btn-toggle-proveedor');
+  if (edit.style.display === 'none') {
+    document.getElementById('input-proveedor').value = pedidoActual.proveedor || '';
+    document.getElementById('input-tel-proveedor').value = pedidoActual.tel || '';
+    view.style.display = 'none';
+    edit.style.display = 'block';
+    btn.textContent = '✕ Cancelar';
+    document.getElementById('input-proveedor').focus();
+  } else {
+    edit.style.display = 'none';
+    view.style.display = 'block';
+    btn.textContent = '✏️ Editar';
+    document.getElementById('d-proveedor-feedback').style.display = 'none';
+  }
+}
+
+function guardarProveedor() {
+  var nombre = document.getElementById('input-proveedor').value.trim();
+  var tel    = document.getElementById('input-tel-proveedor').value.trim().replace(/\D/g,'');
+  if (!nombre) {
+    var fb = document.getElementById('d-proveedor-feedback');
+    fb.textContent = '⚠️ El nombre del proveedor es obligatorio.'; fb.style.color = '#b45309'; fb.style.display = 'block';
+    return;
+  }
+  var fb = document.getElementById('d-proveedor-feedback');
+  fb.textContent = '⏳ Guardando…'; fb.style.color = '#6b7280'; fb.style.display = 'block';
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'updateProveedor', norden: pedidoActual.norden, proveedor: nombre, tel: tel })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (!data.ok) { fb.textContent = '❌ ' + (data.error||'Error.'); fb.style.color='#dc2626'; return; }
+    pedidoActual.proveedor = nombre;
+    pedidoActual.tel = tel;
+    var idx = todosLosPedidos.findIndex(function(p){ return p.norden===pedidoActual.norden; });
+    if (idx !== -1) { todosLosPedidos[idx].proveedor = nombre; todosLosPedidos[idx].tel = tel; }
+    document.getElementById('d-proveedor').textContent = nombre;
+    if (tel) { document.getElementById('d-tel').textContent = tel; document.getElementById('d-tel-wrap').style.display=''; }
+    toggleEditProveedor();
+    mostrarFlashDetalle('✅ Proveedor actualizado.', 'success');
+  })
+  .catch(function(){ fb.textContent = '❌ Error de conexión.'; fb.style.color='#dc2626'; });
+}
+
 function toggleEditProductos() {
   var view = document.getElementById('d-prod-view');
   var edit = document.getElementById('d-prod-edit');
@@ -1112,6 +1189,11 @@ function renderDetalle(p) {
   document.getElementById('d-norden-top').textContent = p.norden;
   document.getElementById('d-fecha').textContent      = p.fecha;
   document.getElementById('d-proveedor').textContent  = p.proveedor;
+  document.getElementById('d-proveedor-view').style.display = 'block';
+  document.getElementById('d-proveedor-edit').style.display = 'none';
+  document.getElementById('btn-toggle-proveedor').textContent = '✏️ Editar';
+  if (p.tel) { document.getElementById('d-tel').textContent = p.tel; document.getElementById('d-tel-wrap').style.display = ''; }
+  else { document.getElementById('d-tel-wrap').style.display = 'none'; }
   document.getElementById('d-fgp').textContent        = p.fgp || '—';
 
   if (p.quien) {

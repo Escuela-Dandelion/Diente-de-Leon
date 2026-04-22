@@ -45,6 +45,8 @@ function doPost(e) {
       resultado = updateTotalPedido(data);
     } else if (action === 'updateProductos') {
       resultado = updateProductosPedido(data);
+    } else if (action === 'updateProveedor') {
+      resultado = updateProveedorPedido(data);
     } else {
       throw new Error('Acción no reconocida: ' + action);
     }
@@ -342,6 +344,21 @@ function updateProductosPedido(data) {
   if (data.total) sheet.getRange(resultado.fila, COL.TOTAL + 1).setValue(parseFloat(data.total) || 0);
   Logger.log('Productos actualizados: ' + norden);
   return 'Productos actualizados: ' + norden;
+}
+
+// data: { action:'updateProveedor', norden, proveedor, tel }
+function updateProveedorPedido(data) {
+  const { norden, proveedor, tel } = data;
+  if (!norden) throw new Error('Falta norden');
+  if (!proveedor) throw new Error('El nombre del proveedor es obligatorio');
+  const resultado = leerPedidoPorId(norden);
+  if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
+  const sheet = getPedidosSheet();
+  sheet.getRange(resultado.fila, COL.PROVEEDOR + 1).setValue(proveedor);
+  Logger.log('Proveedor actualizado: ' + norden + ' → ' + proveedor);
+  // Guardar tel en tab Proveedores para reusar en futuras alertas
+  if (tel) guardarTelProveedor(proveedor, tel);
+  return 'Proveedor actualizado: ' + norden;
 }
 
 // data: { action:'eliminarPedido', norden }
