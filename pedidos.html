@@ -568,6 +568,32 @@ function parseCsvLine(line) {
   return result;
 }
 
+// ── ADMIN ROLE ────────────────────────────────────────────────
+function esAdmin() {
+  try {
+    var s = JSON.parse(localStorage.getItem('dl_admin_session') || 'null');
+    return s && s.role && s.role.toLowerCase() === 'admin';
+  } catch(e) { return false; }
+}
+
+// ── ELIMINAR PEDIDO ───────────────────────────────────────────
+function eliminarPedido(norden) {
+  if (!confirm('¿Eliminar el pedido ' + norden + '? Esta acción no se puede deshacer.')) return;
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'eliminarPedido', norden: norden })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok) { alert('Error al eliminar: ' + (data.error || 'respuesta inesperada')); return; }
+    pedidos = pedidos.filter(function(p) { return p.norden !== norden; });
+    volverALista();
+    renderLista();
+  })
+  .catch(function() { alert('Error de conexión al eliminar.'); });
+}
+
 // ── DOTS MENU ─────────────────────────────────────────────────
 function toggleMenu(e, norden) {
   e.stopPropagation();
@@ -683,6 +709,10 @@ function renderLista(pedidos) {
               ${(SIGUIENTE_ESTADO[p.estado] || []).includes('Cancelado')
                 ? `<div class="dots-menu-sep"></div>
                    <button class="dots-menu-item danger" onclick="closeMenus(); confirmarAccion('${p.norden}', 'Cancelado')">✕ Cancelar orden</button>`
+                : ''}
+              ${p.estado === 'Solicitado' && esAdmin()
+                ? `<div class="dots-menu-sep"></div>
+                   <button class="dots-menu-item danger" onclick="closeMenus(); eliminarPedido('${p.norden}')">🗑️ Eliminar pedido</button>`
                 : ''}
             </div>
           </div>
@@ -935,6 +965,9 @@ function renderDetalle(p) {
 
   if (sig.includes('Cancelado')) {
     botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="confirmarAccion('${p.norden}','Cancelado')">Cancelar Pedido</button>`;
+  }
+  if (p.estado === 'Solicitado' && esAdmin()) {
+    botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="eliminarPedido('${p.norden}')">🗑️ Eliminar</button>`;
   }
 
   document.getElementById('d-acciones-top').innerHTML = botonesTop;

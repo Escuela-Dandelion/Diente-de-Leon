@@ -39,6 +39,8 @@ function doPost(e) {
       resultado = registrarPedidoEnSheet(data);
     } else if (action === 'subirComprobante') {
       resultado = subirComprobanteEnDrive(data);
+    } else if (action === 'eliminarPedido') {
+      resultado = eliminarPedidoDeSheet(data);
     } else {
       throw new Error('Acción no reconocida: ' + action);
     }
@@ -311,6 +313,24 @@ function guardarTelProveedor(proveedor, tel) {
   }
   sheet.appendRow([proveedor, tel]);
   Logger.log('Tel nuevo guardado: ' + proveedor + ' → ' + tel);
+}
+
+// data: { action:'eliminarPedido', norden }
+// Solo elimina si el estado es 'Solicitado'
+function eliminarPedidoDeSheet(data) {
+  const { norden } = data;
+  if (!norden) throw new Error('Falta norden');
+
+  const resultado = leerPedidoPorId(norden);
+  if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
+
+  const sheet = getPedidosSheet();
+  const estadoActual = sheet.getRange(resultado.fila, COL.ESTADO + 1).getValue();
+  if (estadoActual !== 'Solicitado') throw new Error('Solo se pueden eliminar pedidos en estado Solicitado');
+
+  sheet.deleteRow(resultado.fila);
+  Logger.log('Pedido eliminado: ' + norden);
+  return 'Pedido eliminado: ' + norden;
 }
 
 // data: { action:'subirComprobante', norden, filename, mimeType, base64 }
