@@ -134,7 +134,7 @@ function doGetInterno(e) {
   }
 
   if (action === 'api_dashboard') {
-    var res = apiDashboard(pin);
+    var res = apiDashboard(pin, e.parameter.email || '');
     return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -1164,17 +1164,27 @@ function _enviarPinDashboard(nombre, pin, tel) {
 // DASHBOARD API
 // ──────────────────────────────────────────────────────────
 
-function apiDashboard(pin) {
-  // Validar PIN contra STAFF_PINS (referentes) y DASHBOARD_PINS (comisión, solo lectura)
+function apiDashboard(pin, email) {
   var pinValido = false;
-  var allPins = [CONFIG.STAFF_PINS, CONFIG.DASHBOARD_PINS];
-  for (var g = 0; g < allPins.length; g++) {
-    var keys = Object.keys(allPins[g]);
-    for (var i = 0; i < keys.length; i++) {
-      if (allPins[g][keys[i]] === pin) { pinValido = true; break; }
-    }
-    if (pinValido) break;
+
+  // Bypass por email (sesión Google del admin)
+  if (email) {
+    var authUser = AUTH_EMAILS[email.toLowerCase().trim()];
+    if (authUser) pinValido = true;
   }
+
+  // Validar PIN contra STAFF_PINS y DASHBOARD_PINS
+  if (!pinValido) {
+    var allPins = [CONFIG.STAFF_PINS, CONFIG.DASHBOARD_PINS];
+    for (var g = 0; g < allPins.length; g++) {
+      var keys = Object.keys(allPins[g]);
+      for (var i = 0; i < keys.length; i++) {
+        if (allPins[g][keys[i]] === pin) { pinValido = true; break; }
+      }
+      if (pinValido) break;
+    }
+  }
+
   if (!pinValido) return { ok: false, error: 'PIN incorrecto.' };
 
   var sheet = getVentasSheet();

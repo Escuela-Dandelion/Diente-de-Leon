@@ -436,6 +436,23 @@ function hideErr()    { document.getElementById('login-error').style.display='no
 
 // ── AUTO-LOGIN al cargar ──
 window.addEventListener('load', function(){
+  // Si hay sesión Google del admin, bypasear PIN
+  try {
+    var adminSession = JSON.parse(localStorage.getItem('dl_admin_session') || 'null');
+    if (adminSession && adminSession.email && Date.now() < adminSession.expires) {
+      fetch(APPS_URL + '?action=api_dashboard&email=' + encodeURIComponent(adminSession.email), { redirect:'follow' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (d.ok) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'flex';
+            initDashboard(d);
+          }
+        }).catch(function(){});
+      return;
+    }
+  } catch(e) {}
+  // Fallback: PIN session
   var pin = leerSesion();
   if (pin) _doLogin(pin, false);
 });
