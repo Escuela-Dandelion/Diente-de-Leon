@@ -325,8 +325,8 @@ function eliminarPedidoDeSheet(data) {
   if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
 
   const sheet = getPedidosSheet();
-  const estadoActual = sheet.getRange(resultado.fila, COL.ESTADO + 1).getValue();
-  if (estadoActual !== 'Solicitado') throw new Error('Solo se pueden eliminar pedidos en estado Solicitado');
+  const estadoActual = String(sheet.getRange(resultado.fila, COL.ESTADO + 1).getValue()).trim();
+  if (estadoActual.toLowerCase() !== 'solicitado') throw new Error('Solo se pueden eliminar pedidos en estado Solicitado (estado actual: ' + estadoActual + ')');
 
   sheet.deleteRow(resultado.fila);
   Logger.log('Pedido eliminado: ' + norden);

@@ -578,20 +578,49 @@ function esAdmin() {
 
 // ── ELIMINAR PEDIDO ───────────────────────────────────────────
 function eliminarPedido(norden) {
-  if (!confirm('¿Eliminar el pedido ' + norden + '? Esta acción no se puede deshacer.')) return;
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'eliminarPedido', norden: norden })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (!data.ok) { alert('Error al eliminar: ' + (data.error || 'respuesta inesperada')); return; }
-    pedidos = pedidos.filter(function(p) { return p.norden !== norden; });
-    volverALista();
-    renderLista();
-  })
-  .catch(function() { alert('Error de conexión al eliminar.'); });
+  document.getElementById('modal-norden-tag').textContent = norden;
+  document.getElementById('modal-emoji').textContent = '🗑️';
+  document.getElementById('modal-title').textContent = 'Eliminar pedido';
+  document.getElementById('modal-transicion').innerHTML = '<span style="font-size:13px;color:#6b7280">Esta acción borra el pedido permanentemente y no se puede deshacer.</span>';
+  document.getElementById('modal-desc').textContent = '';
+  const btn = document.getElementById('modalConfirm');
+  btn.textContent = 'Sí, eliminar';
+  btn.style.background = '#dc2626';
+  btn.onclick = function() {
+    cerrarModal();
+    btn.disabled = true;
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'eliminarPedido', norden: norden })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      if (!data.ok) {
+        document.getElementById('modal-emoji').textContent = '❌';
+        document.getElementById('modal-title').textContent = 'No se pudo eliminar';
+        document.getElementById('modal-transicion').innerHTML = '<span style="font-size:13px;color:#dc2626">' + (data.error || 'Intentá de nuevo o contactá a Inés.') + '</span>';
+        btn.textContent = 'Cerrar'; btn.style.background = '#6b7280';
+        btn.onclick = cerrarModal;
+        document.getElementById('modalOverlay').classList.add('open');
+        return;
+      }
+      todosLosPedidos = todosLosPedidos.filter(function(p) { return p.norden !== norden; });
+      volverALista();
+      renderLista();
+    })
+    .catch(function() {
+      btn.disabled = false;
+      document.getElementById('modal-emoji').textContent = '❌';
+      document.getElementById('modal-title').textContent = 'Error de conexión';
+      document.getElementById('modal-transicion').innerHTML = '<span style="font-size:13px;color:#dc2626">No se pudo conectar. Intentá de nuevo.</span>';
+      btn.textContent = 'Cerrar'; btn.style.background = '#6b7280';
+      btn.onclick = cerrarModal;
+      document.getElementById('modalOverlay').classList.add('open');
+    });
+  };
+  document.getElementById('modalOverlay').classList.add('open');
 }
 
 // ── DOTS MENU ─────────────────────────────────────────────────
