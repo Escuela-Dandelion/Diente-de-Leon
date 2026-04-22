@@ -587,8 +587,8 @@ function eliminarPedido(norden) {
   btn.textContent = 'Sí, eliminar';
   btn.style.background = '#dc2626';
   btn.onclick = function() {
-    cerrarModal();
     btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px"></div> Eliminando…';
     fetch(SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -596,28 +596,26 @@ function eliminarPedido(norden) {
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      btn.disabled = false;
       if (!data.ok) {
         document.getElementById('modal-emoji').textContent = '❌';
         document.getElementById('modal-title').textContent = 'No se pudo eliminar';
         document.getElementById('modal-transicion').innerHTML = '<span style="font-size:13px;color:#dc2626">' + (data.error || 'Intentá de nuevo o contactá a Inés.') + '</span>';
-        btn.textContent = 'Cerrar'; btn.style.background = '#6b7280';
+        btn.disabled = false; btn.textContent = 'Cerrar'; btn.style.background = '#6b7280';
         btn.onclick = cerrarModal;
-        document.getElementById('modalOverlay').classList.add('open');
         return;
       }
+      cerrarModal();
       todosLosPedidos = todosLosPedidos.filter(function(p) { return p.norden !== norden; });
       volverALista();
       renderLista();
+      mostrarFlash('🗑️ Pedido ' + norden + ' eliminado.', 'success');
     })
     .catch(function() {
-      btn.disabled = false;
       document.getElementById('modal-emoji').textContent = '❌';
       document.getElementById('modal-title').textContent = 'Error de conexión';
       document.getElementById('modal-transicion').innerHTML = '<span style="font-size:13px;color:#dc2626">No se pudo conectar. Intentá de nuevo.</span>';
-      btn.textContent = 'Cerrar'; btn.style.background = '#6b7280';
+      btn.disabled = false; btn.textContent = 'Cerrar'; btn.style.background = '#6b7280';
       btn.onclick = cerrarModal;
-      document.getElementById('modalOverlay').classList.add('open');
     });
   };
   document.getElementById('modalOverlay').classList.add('open');
