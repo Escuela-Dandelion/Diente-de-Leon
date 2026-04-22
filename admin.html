@@ -254,7 +254,10 @@
         <span class="nav-icon">📦</span> Pedidos
       </button>
       <button class="nav-item" data-view="qr" data-roles="admin,staff,referente" onclick="showView('qr', this)">
-        <span class="nav-icon">📷</span> Escanear QR
+        <span class="nav-icon">📷</span> Registrar Entrega QR
+      </button>
+      <button class="nav-item" data-view="ventas" data-roles="admin,staff,fgp" onclick="showView('ventas', this)">
+        <span class="nav-icon">🛍️</span> Ventas
       </button>
 
       <div class="nav-section-label">Reportes</div>
@@ -298,6 +301,12 @@
           Abrir escáner QR
         </a>
       </div>
+    </div>
+
+    <!-- VENTAS -->
+    <div class="view" id="view-ventas">
+      <div class="view-title">🛍️ Ventas</div>
+      <p style="color:var(--muted);font-size:14px;padding:20px">Próximamente — vista de ventas por período.</p>
     </div>
 
     <!-- DASHBOARD GENERAL -->
@@ -476,7 +485,8 @@ function aplicarPermisos(role) {
 function renderWelcomeCards(role) {
   var cards = [
     { view:'pedidos',              icon:'📦', name:'Órdenes de Pedido Proveedores',             desc:'Ver y gestionar pedidos',       roles:['admin','staff','fgp'] },
-    { view:'qr',                   icon:'📷', name:'Escanear QR',         desc:'Confirmar entregas',            roles:['admin','staff','referente'] },
+    { view:'qr',                   icon:'📷', name:'Registrar Entrega QR', desc:'Confirmar entregas con QR',     roles:['admin','staff','referente'] },
+    { view:'ventas',               icon:'🛍️', name:'Ventas',              desc:'Historial de ventas',            roles:['admin','staff','fgp'] },
     { view:'dashboard-general',    icon:'📊', name:'Dashboard General',   desc:'Ventas y métricas globales',    roles:['admin','staff','fgp'] },
     { view:'dashboard-referentes', icon:'📈', name:'Mis ventas',          desc:'Dashboard de tu grado',        roles:['admin','staff','fgp','referente'] },
   ];
