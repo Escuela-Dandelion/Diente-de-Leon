@@ -218,23 +218,8 @@
       <p style="font-size:13px; color:var(--muted); margin-top:8px;">Verificando acceso…</p>
     </div>
 
-    <div class="login-divider"><span>solo para Referentes de grado</span></div>
-
-    <!-- WhatsApp OTP -->
-    <div class="otp-section">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Recibís un código por WhatsApp para ingresar. Esta opción es exclusiva para <strong>Referentes</strong> — si sos FGP o Administrador usá Google arriba.</p>
-      <label class="otp-label">Tu número de WhatsApp</label>
-      <input id="otp-tel" class="otp-input" type="tel" placeholder="Ej: 3512112050" maxlength="12">
-      <button class="btn-wa" id="btn-send-otp" onclick="enviarOTP()">
-        <span>💬</span> Recibir código por WhatsApp
-      </button>
-      <div class="otp-code-row" id="otp-code-row">
-        <input id="otp-code" class="otp-code-input" type="number" placeholder="000000" maxlength="6">
-        <button class="btn-verify" onclick="verificarOTP()">Ingresar</button>
-      </div>
-      <div class="login-error" id="login-error"></div>
-      <div class="login-info"  id="login-info"></div>
-    </div>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-info"  id="login-info"></div>
   </div>
 </div>
 
