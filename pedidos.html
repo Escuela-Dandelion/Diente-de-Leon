@@ -1095,8 +1095,10 @@ function guardarProveedor() {
     fb.textContent = '⚠️ El nombre del proveedor es obligatorio.'; fb.style.color = '#b45309'; fb.style.display = 'block';
     return;
   }
-  var fb = document.getElementById('d-proveedor-feedback');
+  var fb  = document.getElementById('d-proveedor-feedback');
+  var btn = document.querySelector('#d-proveedor-edit button[onclick*="guardarProveedor"]');
   fb.textContent = '⏳ Guardando…'; fb.style.color = '#6b7280'; fb.style.display = 'block';
+  btn.disabled = true; btn.style.opacity = '0.6';
 
   fetch(SCRIPT_URL, {
     method: 'POST',
@@ -1105,6 +1107,7 @@ function guardarProveedor() {
   })
   .then(function(r){ return r.json(); })
   .then(function(data){
+    btn.disabled = false; btn.style.opacity = '';
     if (!data.ok) { fb.textContent = '❌ ' + (data.error||'Error.'); fb.style.color='#dc2626'; return; }
     pedidoActual.proveedor = nombre;
     pedidoActual.tel = tel;
@@ -1115,7 +1118,7 @@ function guardarProveedor() {
     toggleEditProveedor();
     mostrarFlashDetalle('✅ Proveedor actualizado.', 'success');
   })
-  .catch(function(){ fb.textContent = '❌ Error de conexión.'; fb.style.color='#dc2626'; });
+  .catch(function(){ btn.disabled=false; btn.style.opacity=''; fb.textContent = '❌ Error de conexión.'; fb.style.color='#dc2626'; });
 }
 
 function toggleEditProductos() {
@@ -1148,6 +1151,8 @@ function guardarProductos() {
     totalCalc += cant * prec;
   });
 
+  var btnProds = document.querySelector('.btn-save-prods');
+  btnProds.disabled = true; btnProds.style.opacity = '0.6';
   mostrarProdFeedback('⏳ Guardando…', '#6b7280');
   fetch(SCRIPT_URL, {
     method: 'POST',
@@ -1156,6 +1161,7 @@ function guardarProductos() {
   })
   .then(function(r){ return r.json(); })
   .then(function(data){
+    btnProds.disabled = false; btnProds.style.opacity = '';
     if (!data.ok) { mostrarProdFeedback('❌ ' + (data.error||'Error.'), '#dc2626'); return; }
     pedidoActual.productos = productosStr;
     if (totalCalc > 0) pedidoActual.total = String(totalCalc);
@@ -1166,7 +1172,7 @@ function guardarProductos() {
     toggleEditProductos();
     mostrarFlashDetalle('✅ Productos guardados.', 'success');
   })
-  .catch(function(){ mostrarProdFeedback('❌ Error de conexión.', '#dc2626'); });
+  .catch(function(){ btnProds.disabled=false; btnProds.style.opacity=''; mostrarProdFeedback('❌ Error de conexión.', '#dc2626'); });
 }
 
 function mostrarProdFeedback(msg, color) {
@@ -1276,6 +1282,8 @@ function guardarTotal() {
   var valor = parseFloat(raw.replace(/\./g,'').replace(',','.')) || 0;
   if (!valor) { mostrarTotalFeedback('⚠️ Ingresá un monto válido.', '#b45309'); return; }
 
+  var btnTotal = document.querySelector('#d-total-edit button[onclick*="guardarTotal"]');
+  btnTotal.disabled = true; btnTotal.style.opacity = '0.6';
   mostrarTotalFeedback('⏳ Guardando…', '#6b7280');
   fetch(SCRIPT_URL, {
     method: 'POST',
@@ -1284,6 +1292,7 @@ function guardarTotal() {
   })
   .then(function(r){ return r.json(); })
   .then(function(data){
+    btnTotal.disabled = false; btnTotal.style.opacity = '';
     if (!data.ok) { mostrarTotalFeedback('❌ ' + (data.error || 'Error al guardar.'), '#dc2626'); return; }
     pedidoActual.total = String(valor);
     const idx = todosLosPedidos.findIndex(function(p){ return p.norden === pedidoActual.norden; });
@@ -1293,7 +1302,7 @@ function guardarTotal() {
     document.getElementById('btn-editar-total').style.display = '';
     mostrarTotalFeedback('✅ Total guardado.', '#166534');
   })
-  .catch(function(){ mostrarTotalFeedback('❌ Error de conexión.', '#dc2626'); });
+  .catch(function(){ btnTotal.disabled=false; btnTotal.style.opacity=''; mostrarTotalFeedback('❌ Error de conexión.', '#dc2626'); });
 }
 
 function mostrarTotalFeedback(msg, color) {
