@@ -285,7 +285,7 @@
   function registrarPedido() {
     var f = leerFormulario();
 
-    if (!f.filasValidas.length) { alert('Agregá al menos un producto antes de registrar.'); return; }
+    if (!f.filasValidas.length) { mostrarFeedback('⚠️ Agregá al menos un producto antes de registrar.', 'warn'); return; }
     if (!f.norden || f.norden.includes('???') || f.norden === 'Generando…') {
       mostrarFeedback('⚠️ El N° de Orden aún no se generó. Esperá un momento y volvé a intentar.', 'warn');
       return;
@@ -339,7 +339,7 @@
   // ── 2. ABRIR WHATSAPP ──────────────────────────────────────────────────────
   function abrirWhatsapp() {
     var f = leerFormulario();
-    if (!f.tel) { alert('Completá el teléfono del proveedor.'); return; }
+    if (!f.tel) { mostrarFeedback('⚠️ Completá el teléfono del proveedor antes de enviar.', 'warn'); return; }
 
     var lineasProd = '';
     f.filasValidas.forEach(function(r) {
