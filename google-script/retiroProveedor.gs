@@ -324,7 +324,8 @@ function eliminarPedidoDeSheet(data) {
   const resultado = leerPedidoPorId(norden);
   if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
 
-  const estadoActual = String(resultado.pedido.estado || '').trim();
+  // Estado vacío se trata como 'Solicitado' (igual que el frontend)
+  const estadoActual = String(resultado.pedido.estado || 'Solicitado').trim();
   Logger.log('Eliminar pedido ' + norden + ' | estado: "' + estadoActual + '" | fila: ' + resultado.fila);
 
   if (estadoActual.toLowerCase() !== 'solicitado') {
