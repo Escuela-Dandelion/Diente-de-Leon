@@ -95,6 +95,7 @@
   .btn-verify:hover { background: var(--green-dark); }
   .login-error { color: var(--red); font-size: 13px; margin-top: 8px; display: none; }
   .login-info  { color: var(--green); font-size: 13px; margin-top: 8px; display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ══════════════════════════════════════
      APP SHELL
@@ -210,6 +211,12 @@
     <div id="google-btn-container"></div>
     <p style="font-size:12px;color:var(--muted);margin-top:6px">Para Staff, FGP y Administradores</p>
 
+    <!-- Loading state (oculto por defecto) -->
+    <div id="login-loading" style="display:none; margin-top:16px; text-align:center;">
+      <div style="display:inline-block; width:28px; height:28px; border:3px solid #c8e6c9; border-top-color:var(--green); border-radius:50%; animation:spin .7s linear infinite;"></div>
+      <p style="font-size:13px; color:var(--muted); margin-top:8px;">Verificando acceso…</p>
+    </div>
+
     <div class="login-divider"><span>o si sos Referente</span></div>
 
     <!-- WhatsApp OTP -->
@@ -262,7 +269,7 @@
       <button class="nav-item" data-view="qr" data-roles="admin,staff,referente" onclick="showView('qr', this)">
         <span class="nav-icon">📷</span> Escanear QR
       </button>
-      <button class="nav-item" data-view="ordenes" data-roles="admin,staff" onclick="showView('ordenes', this)">
+      <button class="nav-item" data-view="ordenes" data-roles="admin,staff,fgp" onclick="showView('ordenes', this)">
         <span class="nav-icon">🗒️</span> Órdenes a Proveedor
       </button>
       <button class="nav-item" data-view="comprobantes" data-roles="admin" onclick="showView('comprobantes', this)">
@@ -399,21 +406,32 @@ window.onload = function() {
 };
 
 function onGoogleLogin(response) {
-  // Decodificar JWT del token de Google
   var payload = JSON.parse(atob(response.credential.split('.')[1]));
   var email = payload.email;
   var name  = payload.name;
 
-  // Verificar email contra GAS
+  // Mostrar loading inmediatamente
+  document.getElementById('google-btn-container').style.display = 'none';
+  document.getElementById('login-loading').style.display = 'block';
+
   fetch(GAS_URL + '?action=verificarEmail&email=' + encodeURIComponent(email))
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (!data.ok) { mostrarError('Tu cuenta no tiene acceso. Contactá al administrador.'); return; }
+      if (!data.ok) {
+        document.getElementById('login-loading').style.display = 'none';
+        document.getElementById('google-btn-container').style.display = 'block';
+        mostrarError('Tu cuenta no tiene acceso. Contactá al administrador.');
+        return;
+      }
       var user = { name: name, email: email, role: data.role, method: 'google' };
       saveSession(user);
       iniciarApp(user);
     })
-    .catch(function() { mostrarError('Error de conexión. Intentá de nuevo.'); });
+    .catch(function() {
+      document.getElementById('login-loading').style.display = 'none';
+      document.getElementById('google-btn-container').style.display = 'block';
+      mostrarError('Error de conexión. Intentá de nuevo.');
+    });
 }
 
 // ══════════════════════════════════════
@@ -486,7 +504,7 @@ function renderWelcomeCards(role) {
   var cards = [
     { view:'pedidos',              icon:'📦', name:'Órdenes de Pedido Proveedores',             desc:'Ver y gestionar pedidos',       roles:['admin','staff','fgp'] },
     { view:'qr',                   icon:'📷', name:'Escanear QR',         desc:'Confirmar entregas',            roles:['admin','staff','referente'] },
-    { view:'ordenes',              icon:'🗒️', name:'Órdenes a Proveedor', desc:'Pedidos a proveedores',         roles:['admin','staff'] },
+    { view:'ordenes',              icon:'🗒️', name:'Órdenes a Proveedor', desc:'Pedidos a proveedores',         roles:['admin','staff','fgp'] },
     { view:'comprobantes',         icon:'📎', name:'Comprobantes',        desc:'Adjuntar comprobantes de pago', roles:['admin'] },
     { view:'dashboard-general',    icon:'📊', name:'Dashboard General',   desc:'Ventas y métricas globales',    roles:['admin','staff','fgp'] },
     { view:'dashboard-referentes', icon:'📈', name:'Mis ventas',          desc:'Dashboard de tu grado',        roles:['admin','staff','fgp','referente'] },
