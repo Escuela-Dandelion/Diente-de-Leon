@@ -117,6 +117,34 @@
   .btn-accion-top.btn-cancelar-ord { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
   .btn-accion-top.btn-nueva-orden  { background: #d4edd8; color: #2d5a27; border: 1px solid #2d5a27; text-decoration: none; }
 
+  /* DETALLE REDISEÑADO */
+  .det-card { background:#fff; border-radius:12px; border:1px solid #e5e7eb; margin-bottom:12px; overflow:hidden; }
+  .det-card-header { padding:12px 16px; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between; }
+  .det-card-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; }
+  .det-card-body { padding:16px; }
+  .det-proveedor { font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:4px; }
+  .det-meta { font-size:13px; color:#6b7280; display:flex; flex-wrap:wrap; gap:8px; }
+  .det-meta span { display:flex; align-items:center; gap:4px; }
+  .det-prod-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .det-prod-table th { background:#f0fdf4; color:#2d5a27; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.5px; padding:7px 6px; text-align:left; border-bottom:2px solid #c8e6c9; }
+  .det-prod-table td { padding:0; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+  .det-prod-table td input, .det-prod-table td select { width:100%; border:none; background:transparent; padding:8px 6px; font-size:13px; font-family:inherit; color:#2d2d2d; }
+  .det-prod-table td input:focus, .det-prod-table td select:focus { outline:none; background:#f0fdf4; }
+  .det-prod-table td select { appearance:none; -webkit-appearance:none; cursor:pointer; }
+  .det-prod-view { display:flex; flex-direction:column; gap:6px; }
+  .det-prod-item { display:flex; align-items:baseline; gap:6px; padding:6px 0; border-bottom:1px solid #f9fafb; font-size:14px; }
+  .det-prod-item:last-child { border-bottom:none; }
+  .det-prod-nombre { flex:1; font-weight:600; color:#1a1a2e; }
+  .det-prod-qty { font-size:12px; color:#6b7280; white-space:nowrap; }
+  .det-prod-precio { font-size:12px; font-weight:700; color:#2d5a27; white-space:nowrap; }
+  .det-total-row { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#f0fdf4; border-top:2px solid #c8e6c9; }
+  .det-total-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; }
+  .det-total-value { font-size:22px; font-weight:800; color:#2d5a27; }
+  .btn-edit-small { font-size:11px; padding:3px 10px; border:1px solid #d1d5db; border-radius:6px; background:#fff; cursor:pointer; color:#6b7280; font-weight:600; transition:all .15s; }
+  .btn-edit-small:hover { border-color:#2d5a27; color:#2d5a27; }
+  .btn-save-prods { width:100%; margin-top:10px; padding:11px; background:#2d5a27; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; }
+  .btn-save-prods:hover { background:#1e3d1a; }
+
   /* MODALS */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.open { display: flex; }
@@ -240,7 +268,7 @@
 <!-- ── DETALLE VIEW ─────────────────────────────────────── -->
 <div id="detalleView" style="display:none">
 
-  <!-- Barra superior sticky: volver + estado + CTAs -->
+  <!-- Topbar sticky -->
   <div class="detalle-topbar">
     <button class="back-btn" id="backBtn" onclick="volverALista()" style="margin:0;flex-shrink:0;">← Volver</button>
     <div class="detalle-topbar-info">
@@ -252,55 +280,76 @@
 
   <div class="flash" id="flashDetalle"></div>
 
-  <div class="section">
-    <div class="section-title">Datos del pedido</div>
-    <div class="detalle-field">
-      <div class="detalle-label">N° Orden</div>
-      <div class="detalle-value" id="d-norden"></div>
-    </div>
-    <div class="detalle-field">
-      <div class="detalle-label">Fecha de solicitud</div>
-      <div class="detalle-value" id="d-fecha"></div>
-    </div>
-    <div class="detalle-field">
-      <div class="detalle-label">Proveedor</div>
-      <div class="detalle-value" id="d-proveedor"></div>
-    </div>
-    <div class="detalle-field">
-      <div class="detalle-label">Producto(s)</div>
-      <div class="detalle-value" id="d-productos"></div>
-    </div>
-    <div class="detalle-field">
-      <div class="detalle-label">FGP responsable</div>
-      <div class="detalle-value" id="d-fgp"></div>
-    </div>
-    <div class="detalle-field" id="d-quien-wrap">
-      <div class="detalle-label">Quién retira</div>
-      <div class="detalle-value" id="d-quien"></div>
-    </div>
-    <div class="detalle-field" id="d-total-wrap">
-      <div class="detalle-label" style="display:flex;align-items:center;justify-content:space-between;">
-        Total del pedido
-        <button id="btn-editar-total" onclick="editarTotal()" style="font-size:11px;padding:2px 8px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#6b7280;">✏️ Editar</button>
+  <!-- Cabecera del pedido -->
+  <div class="det-card">
+    <div class="det-card-body">
+      <div class="det-proveedor" id="d-proveedor"></div>
+      <div class="det-meta">
+        <span>📋 <span id="d-norden"></span></span>
+        <span>📅 <span id="d-fecha"></span></span>
+        <span>👤 FGP: <span id="d-fgp"></span></span>
+        <span id="d-quien-wrap" style="display:none">🚗 Retira: <span id="d-quien"></span></span>
       </div>
-      <div class="detalle-value" id="d-total" style="font-size:20px;font-weight:800;color:#2d5a27;"></div>
-      <div id="d-total-edit" style="display:none;margin-top:8px;gap:8px;align-items:center;">
-        <input id="input-total" type="text" placeholder="Ej: 1500" inputmode="decimal"
-          style="flex:1;padding:8px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:700;width:100%">
-        <button onclick="guardarTotal()" style="margin-top:6px;width:100%;padding:9px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Guardar</button>
-      </div>
-      <div id="d-total-feedback" style="font-size:12px;margin-top:4px;display:none;"></div>
-    </div>
-    <div class="detalle-field" id="d-notas-wrap" style="display:none">
-      <div class="detalle-label">Notas</div>
-      <div class="detalle-value" id="d-notas"></div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-title">Estado actual</div>
-    <div style="margin-bottom:4px" id="d-estadoBadge"></div>
-    <div style="font-size:12px;color:#9ca3af" id="d-fechaEstado"></div>
+  <!-- Productos -->
+  <div class="det-card">
+    <div class="det-card-header">
+      <span class="det-card-title">Productos</span>
+      <button class="btn-edit-small" id="btn-toggle-prods" onclick="toggleEditProductos()">✏️ Editar</button>
+    </div>
+    <div class="det-card-body" style="padding:12px 16px">
+
+      <!-- Vista de solo lectura -->
+      <div id="d-prod-view" class="det-prod-view"></div>
+
+      <!-- Vista de edición -->
+      <div id="d-prod-edit" style="display:none">
+        <div style="overflow-x:auto;">
+          <table class="det-prod-table">
+            <thead><tr>
+              <th style="min-width:120px">Producto</th>
+              <th style="width:80px">Unid.</th>
+              <th style="width:60px">Cant.</th>
+              <th style="width:80px">Precio $</th>
+            </tr></thead>
+            <tbody id="det-tbody-productos"></tbody>
+          </table>
+        </div>
+        <button class="btn-save-prods" onclick="guardarProductos()">💾 Guardar productos</button>
+        <div id="d-prod-feedback" style="font-size:12px;margin-top:6px;display:none;text-align:center;font-weight:600;"></div>
+      </div>
+
+    </div>
+
+    <!-- Total -->
+    <div class="det-total-row">
+      <span class="det-total-label">Total</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="det-total-value" id="d-total">—</span>
+        <button class="btn-edit-small" id="btn-editar-total" onclick="editarTotal()">✏️</button>
+      </div>
+    </div>
+    <div id="d-total-edit" style="display:none;padding:12px 16px;gap:8px;flex-direction:column;">
+      <input id="input-total" type="text" placeholder="Ej: 1500" inputmode="decimal"
+        style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:700;">
+      <button onclick="guardarTotal()" style="padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Guardar total</button>
+    </div>
+    <div id="d-total-feedback" style="font-size:12px;padding:0 16px 8px;display:none;font-weight:600;"></div>
+  </div>
+
+  <!-- Estado + notas -->
+  <div class="det-card">
+    <div class="det-card-header"><span class="det-card-title">Estado</span></div>
+    <div class="det-card-body">
+      <div style="margin-bottom:6px" id="d-estadoBadge"></div>
+      <div style="font-size:12px;color:#9ca3af" id="d-fechaEstado"></div>
+      <div id="d-notas-wrap" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Notas</div>
+        <div style="font-size:14px;color:#374151" id="d-notas"></div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -933,6 +982,121 @@ function filtrarMes(btn, mesKey) {
   aplicarFiltros();
 }
 
+// ── PARSEAR PRODUCTOS ─────────────────────────────────────────
+function parseProductos(str) {
+  if (!str) return [{ nombre:'', cantidad:'', unidad:'Unidades', precio:'' }];
+  var rows = str.split('\n').map(function(line) {
+    line = line.trim(); if (!line) return null;
+    var m = line.match(/^(.+?)\s+x(\d+(?:[.,]\d+)?)\s*(Unidades|Kg|Cajas|unidades|kg|cajas)?(?:\s+\(\$([0-9.,]+)\))?$/i);
+    if (m) return { nombre: m[1].trim(), cantidad: m[2], unidad: m[3] ? (m[3].charAt(0).toUpperCase()+m[3].slice(1).toLowerCase()) : 'Unidades', precio: m[4] || '' };
+    m = line.match(/^(.+?)\s+\(\$([0-9.,]+)\)$/);
+    if (m) return { nombre: m[1].trim(), cantidad: '', unidad: 'Unidades', precio: m[2] };
+    return { nombre: line, cantidad: '', unidad: 'Unidades', precio: '' };
+  }).filter(Boolean);
+  // Asegurar al menos 4 filas editables
+  while (rows.length < 4) rows.push({ nombre:'', cantidad:'', unidad:'Unidades', precio:'' });
+  return rows;
+}
+
+function productosToStr(tbody) {
+  var rows = [];
+  tbody.querySelectorAll('tr').forEach(function(tr) {
+    var nombre = tr.querySelector('.dp-nombre').value.trim();
+    if (!nombre) return;
+    var cant  = tr.querySelector('.dp-cant').value.trim();
+    var unid  = tr.querySelector('.dp-unid').value;
+    var prec  = tr.querySelector('.dp-precio').value.trim();
+    var s = nombre;
+    if (cant) s += ' x' + cant + ' ' + unid;
+    if (prec && prec !== '0') s += ' ($' + prec + ')';
+    rows.push(s);
+  });
+  return rows.join('\n');
+}
+
+function renderProdView(productosStr) {
+  var rows = parseProductos(productosStr).filter(function(r){ return r.nombre; });
+  if (!rows.length) { document.getElementById('d-prod-view').innerHTML = '<span style="color:#9ca3af;font-size:13px">Sin productos cargados.</span>'; return; }
+  document.getElementById('d-prod-view').innerHTML = rows.map(function(r) {
+    var qty = r.cantidad ? r.cantidad + ' ' + r.unidad : '';
+    var price = r.precio ? '$ ' + r.precio : '';
+    return '<div class="det-prod-item"><span class="det-prod-nombre">' + r.nombre + '</span>' +
+      (qty ? '<span class="det-prod-qty">' + qty + '</span>' : '') +
+      (price ? '<span class="det-prod-precio">' + price + '</span>' : '') + '</div>';
+  }).join('');
+}
+
+function renderProdEdit(productosStr) {
+  var rows = parseProductos(productosStr);
+  var tbody = document.getElementById('det-tbody-productos');
+  tbody.innerHTML = rows.map(function(r) {
+    return '<tr>' +
+      '<td style="min-width:120px"><input class="dp-nombre" type="text" placeholder="Producto" value="' + escHtml(r.nombre) + '"></td>' +
+      '<td><select class="dp-unid"><option' + (r.unidad==='Unidades'?' selected':'') + '>Unidades</option><option' + (r.unidad==='Kg'?' selected':'') + '>Kg</option><option' + (r.unidad==='Cajas'?' selected':'') + '>Cajas</option></select></td>' +
+      '<td><input class="dp-cant" type="text" inputmode="numeric" placeholder="Cant." value="' + escHtml(r.cantidad) + '"></td>' +
+      '<td><input class="dp-precio" type="text" inputmode="decimal" placeholder="$" value="' + escHtml(r.precio) + '"></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function toggleEditProductos() {
+  var view = document.getElementById('d-prod-view');
+  var edit = document.getElementById('d-prod-edit');
+  var btn  = document.getElementById('btn-toggle-prods');
+  if (edit.style.display === 'none') {
+    renderProdEdit(pedidoActual.productos || '');
+    view.style.display = 'none';
+    edit.style.display = 'block';
+    btn.textContent = '✕ Cancelar';
+  } else {
+    edit.style.display = 'none';
+    view.style.display = 'flex';
+    btn.textContent = '✏️ Editar';
+    document.getElementById('d-prod-feedback').style.display = 'none';
+  }
+}
+
+function guardarProductos() {
+  var tbody = document.getElementById('det-tbody-productos');
+  var productosStr = productosToStr(tbody);
+  if (!productosStr) { mostrarProdFeedback('⚠️ Agregá al menos un producto.', '#b45309'); return; }
+
+  // Recalcular total desde los inputs
+  var totalCalc = 0;
+  tbody.querySelectorAll('tr').forEach(function(tr) {
+    var cant = parseFloat(tr.querySelector('.dp-cant').value) || 0;
+    var prec = parseFloat((tr.querySelector('.dp-precio').value||'').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+    totalCalc += cant * prec;
+  });
+
+  mostrarProdFeedback('⏳ Guardando…', '#6b7280');
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'updateProductos', norden: pedidoActual.norden, productos: productosStr, total: totalCalc > 0 ? totalCalc : null })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (!data.ok) { mostrarProdFeedback('❌ ' + (data.error||'Error.'), '#dc2626'); return; }
+    pedidoActual.productos = productosStr;
+    if (totalCalc > 0) pedidoActual.total = String(totalCalc);
+    var idx = todosLosPedidos.findIndex(function(p){ return p.norden===pedidoActual.norden; });
+    if (idx !== -1) { todosLosPedidos[idx].productos = productosStr; if (totalCalc>0) todosLosPedidos[idx].total=String(totalCalc); }
+    renderProdView(productosStr);
+    if (totalCalc > 0) document.getElementById('d-total').textContent = '$ ' + totalCalc.toLocaleString('es-AR');
+    toggleEditProductos();
+    mostrarFlashDetalle('✅ Productos guardados.', 'success');
+  })
+  .catch(function(){ mostrarProdFeedback('❌ Error de conexión.', '#dc2626'); });
+}
+
+function mostrarProdFeedback(msg, color) {
+  var el = document.getElementById('d-prod-feedback');
+  el.textContent = msg; el.style.color = color; el.style.display = 'block';
+}
+
 // ── RENDER DETALLE ────────────────────────────────────────────
 function abrirDetalle(norden) {
   if (isEmbedded) {
@@ -944,14 +1108,11 @@ function abrirDetalle(norden) {
 }
 
 function renderDetalle(p) {
-  document.getElementById('d-norden').textContent    = p.norden;
-  document.getElementById('d-fecha').textContent     = p.fecha;
-  document.getElementById('d-proveedor').textContent = p.proveedor;
-  document.getElementById('d-productos').innerHTML = (p.productos || '—')
-    .split('\n').map(s => s.trim()).filter(Boolean)
-    .map(s => `<div style="padding:2px 0;">• ${s}</div>`)
-    .join('');
-  document.getElementById('d-fgp').textContent       = p.fgp || '—';
+  document.getElementById('d-norden').textContent     = p.norden;
+  document.getElementById('d-norden-top').textContent = p.norden;
+  document.getElementById('d-fecha').textContent      = p.fecha;
+  document.getElementById('d-proveedor').textContent  = p.proveedor;
+  document.getElementById('d-fgp').textContent        = p.fgp || '—';
 
   if (p.quien) {
     document.getElementById('d-quien').textContent = p.quien;
@@ -960,15 +1121,17 @@ function renderDetalle(p) {
     document.getElementById('d-quien-wrap').style.display = 'none';
   }
 
-  // Total — usa el valor del Sheet o lo calcula de los productos como fallback
+  renderProdView(p.productos || '');
+  // Asegurar vista de productos visible
+  document.getElementById('d-prod-view').style.display = 'flex';
+  document.getElementById('d-prod-edit').style.display = 'none';
+  document.getElementById('btn-toggle-prods').textContent = '✏️ Editar';
+
   const totalNum = p.total ? parseFloat(p.total) : calcTotalProductos(p.productos || '');
-  const totalWrap = document.getElementById('d-total-wrap');
-  if (totalNum > 0) {
-    document.getElementById('d-total').textContent = formatPesos(totalNum);
-    totalWrap.style.display = '';
-  } else {
-    totalWrap.style.display = 'none';
-  }
+  document.getElementById('d-total').textContent = totalNum > 0 ? formatPesos(totalNum) : '—';
+  document.getElementById('d-total-edit').style.display = 'none';
+  document.getElementById('d-total-feedback').style.display = 'none';
+  document.getElementById('btn-editar-total').style.display = '';
 
   if (p.notas) {
     document.getElementById('d-notas').textContent = p.notas;
@@ -978,34 +1141,30 @@ function renderDetalle(p) {
   }
 
   document.getElementById('d-estadoBadge').innerHTML =
-    `<span class="badge-estado ${claseEstado(p.estado)}" style="font-size:14px;padding:5px 12px">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>`;
+    `<span class="badge-estado ${claseEstado(p.estado)}" style="font-size:14px;padding:5px 12px">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
   document.getElementById('d-fechaEstado').textContent = p.fechaEstado ? 'Actualizado: ' + p.fechaEstado : '';
 
-  // ── Topbar: norden + estado + CTAs ──────────────────────────
-  document.getElementById('d-norden-top').textContent = p.norden;
   document.getElementById('d-estadoBadge-top').innerHTML =
-    `<span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>`;
+    `<span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
 
   const sig = SIGUIENTE_ESTADO[p.estado] || [];
   const mostrarPool = ['Listo para retirar','Confirmado','En Camino'].includes(p.estado);
 
   let botonesTop = sig
     .filter(e => e !== 'Cancelado')
-    .map(e => `<button class="btn-accion-top ${CLASE_BTN[e] || ''}" onclick="confirmarAccion('${p.norden}','${e}')">${LABEL_ACCION[e] || e}</button>`)
+    .map(e => `<button class="btn-accion-top ${CLASE_BTN[e]||''}" onclick="confirmarAccion('${p.norden}','${e}')">${LABEL_ACCION[e]||e}</button>`)
     .join('');
 
   if (mostrarPool) {
-    const params = new URLSearchParams({ norden: p.norden, proveedor: p.proveedor, producto: p.productos, fgp: p.fgp || '' });
+    const params = new URLSearchParams({ norden: p.norden, proveedor: p.proveedor, producto: p.productos, fgp: p.fgp||'' });
     botonesTop += `<a href="retiro-proveedor.html?${params}" class="btn-accion-top btn-pool">🚗 Solicitar Pool para Retirar</a>`;
   }
-
   if (sig.includes('Cancelado')) {
     botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="confirmarAccion('${p.norden}','Cancelado')">Cancelar Pedido</button>`;
   }
   if (p.estado === 'Solicitado' && esAdmin()) {
     botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="eliminarPedido('${p.norden}')">🗑️ Eliminar</button>`;
   }
-
   document.getElementById('d-acciones-top').innerHTML = botonesTop;
 }
 

@@ -43,6 +43,8 @@ function doPost(e) {
       resultado = eliminarPedidoDeSheet(data);
     } else if (action === 'updateTotal') {
       resultado = updateTotalPedido(data);
+    } else if (action === 'updateProductos') {
+      resultado = updateProductosPedido(data);
     } else {
       throw new Error('Acción no reconocida: ' + action);
     }
@@ -327,6 +329,19 @@ function updateTotalPedido(data) {
   sheet.getRange(resultado.fila, COL.TOTAL + 1).setValue(parseFloat(total) || 0);
   Logger.log('Total actualizado: ' + norden + ' → ' + total);
   return 'Total actualizado: ' + norden;
+}
+
+// data: { action:'updateProductos', norden, productos, total (opcional) }
+function updateProductosPedido(data) {
+  const { norden, productos } = data;
+  if (!norden) throw new Error('Falta norden');
+  const resultado = leerPedidoPorId(norden);
+  if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
+  const sheet = getPedidosSheet();
+  sheet.getRange(resultado.fila, COL.PRODUCTOS + 1).setValue(productos || '');
+  if (data.total) sheet.getRange(resultado.fila, COL.TOTAL + 1).setValue(parseFloat(data.total) || 0);
+  Logger.log('Productos actualizados: ' + norden);
+  return 'Productos actualizados: ' + norden;
 }
 
 // data: { action:'eliminarPedido', norden }
