@@ -321,8 +321,8 @@
       btn.style.opacity = '';
       if (data.ok) {
         mostrarFeedback('✅ Orden ' + f.norden + ' registrada correctamente.', 'ok');
-        var btnWa = document.getElementById('btn-whatsapp');
-        btnWa.style.display = 'flex';
+        document.getElementById('btn-registrar').style.display = 'none';
+        document.getElementById('btn-whatsapp').style.display = 'flex';
       } else {
         mostrarFeedback('❌ Error al registrar: ' + (data.error || 'respuesta inesperada.'), 'error');
       }
