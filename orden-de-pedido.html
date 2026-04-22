@@ -286,6 +286,18 @@
     var f = leerFormulario();
 
     if (!f.filasValidas.length) { mostrarFeedback('⚠️ Agregá al menos un producto antes de registrar.', 'warn'); return; }
+
+    var sinCantidad = f.filasValidas.filter(function(r) { return !r.cantidad || r.cantidad === '0'; });
+    var sinPrecio   = f.filasValidas.filter(function(r) { return !r.precio  || r.precio  === '0'; });
+    if (sinCantidad.length) {
+      mostrarFeedback('⚠️ Falta indicar la cantidad en: ' + sinCantidad.map(function(r){ return r.nombre; }).join(', '), 'warn');
+      return;
+    }
+    if (sinPrecio.length) {
+      mostrarFeedback('⚠️ Falta indicar el precio en: ' + sinPrecio.map(function(r){ return r.nombre; }).join(', '), 'warn');
+      return;
+    }
+
     if (!f.norden || f.norden.includes('???') || f.norden === 'Generando…') {
       mostrarFeedback('⚠️ El N° de Orden aún no se generó. Esperá un momento y volvé a intentar.', 'warn');
       return;
