@@ -256,12 +256,6 @@
       <button class="nav-item" data-view="qr" data-roles="admin,staff,referente" onclick="showView('qr', this)">
         <span class="nav-icon">📷</span> Escanear QR
       </button>
-      <button class="nav-item" data-view="ordenes" data-roles="admin,staff,fgp" onclick="showView('ordenes', this)">
-        <span class="nav-icon">🗒️</span> Órdenes a Proveedor
-      </button>
-      <button class="nav-item" data-view="comprobantes" data-roles="admin" onclick="showView('comprobantes', this)">
-        <span class="nav-icon">📎</span> Comprobantes
-      </button>
 
       <div class="nav-section-label">Reportes</div>
       <button class="nav-item" data-view="dashboard-general" data-roles="admin,staff,fgp" onclick="showView('dashboard-general', this)">
@@ -304,18 +298,6 @@
           Abrir escáner QR
         </a>
       </div>
-    </div>
-
-    <!-- ÓRDENES -->
-    <div class="view" id="view-ordenes">
-      <div class="view-title">🗒️ Órdenes a Proveedor</div>
-      <iframe class="view-iframe" src="orden-de-pedido.html" id="iframe-ordenes"></iframe>
-    </div>
-
-    <!-- COMPROBANTES -->
-    <div class="view" id="view-comprobantes">
-      <div class="view-title">📎 Comprobantes de Pago</div>
-      <p style="color:var(--muted);font-size:14px">Próximamente — subir comprobantes a Drive por orden.</p>
     </div>
 
     <!-- DASHBOARD GENERAL -->
@@ -495,8 +477,6 @@ function renderWelcomeCards(role) {
   var cards = [
     { view:'pedidos',              icon:'📦', name:'Órdenes de Pedido Proveedores',             desc:'Ver y gestionar pedidos',       roles:['admin','staff','fgp'] },
     { view:'qr',                   icon:'📷', name:'Escanear QR',         desc:'Confirmar entregas',            roles:['admin','staff','referente'] },
-    { view:'ordenes',              icon:'🗒️', name:'Órdenes a Proveedor', desc:'Pedidos a proveedores',         roles:['admin','staff','fgp'] },
-    { view:'comprobantes',         icon:'📎', name:'Comprobantes',        desc:'Adjuntar comprobantes de pago', roles:['admin'] },
     { view:'dashboard-general',    icon:'📊', name:'Dashboard General',   desc:'Ventas y métricas globales',    roles:['admin','staff','fgp'] },
     { view:'dashboard-referentes', icon:'📈', name:'Mis ventas',          desc:'Dashboard de tu grado',        roles:['admin','staff','fgp','referente'] },
   ];
