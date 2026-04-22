@@ -21,7 +21,7 @@ const FGP_POR_MARCA = {
   'CABALLO NEGRO':            { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' },
   'YEMARI':                   { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' },
   'GROEN':                    { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' },
-  'PARAISA':                  { nombre: 'Ines Robertson',    telefono: '5493512112050', email: 'robertson.ine@gmail.com',  tel_proveedor: '' },
+  // PARAISA excluida — productos con stock infinito (null), no requieren alerta
   'EL MAITEN':                { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' },
   'GUARDIANES DE LA COLMENA': { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' }
 };
