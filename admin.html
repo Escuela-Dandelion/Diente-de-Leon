@@ -369,8 +369,12 @@ function logout() {
   currentUser = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
-  // Revocar Google session
-  if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
+  document.getElementById('login-loading').style.display = 'none';
+  document.getElementById('google-btn-container').style.display = 'block';
+  if (window.google && google.accounts) {
+    google.accounts.id.disableAutoSelect();
+    google.accounts.id.cancel();
+  }
 }
 
 // ══════════════════════════════════════
