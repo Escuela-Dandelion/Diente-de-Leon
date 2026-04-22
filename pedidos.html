@@ -278,9 +278,18 @@
       <div class="detalle-label">Quién retira</div>
       <div class="detalle-value" id="d-quien"></div>
     </div>
-    <div class="detalle-field" id="d-total-wrap" style="display:none">
-      <div class="detalle-label">Total del pedido</div>
+    <div class="detalle-field" id="d-total-wrap">
+      <div class="detalle-label" style="display:flex;align-items:center;justify-content:space-between;">
+        Total del pedido
+        <button id="btn-editar-total" onclick="editarTotal()" style="font-size:11px;padding:2px 8px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#6b7280;">✏️ Editar</button>
+      </div>
       <div class="detalle-value" id="d-total" style="font-size:20px;font-weight:800;color:#2d5a27;"></div>
+      <div id="d-total-edit" style="display:none;margin-top:8px;gap:8px;align-items:center;">
+        <input id="input-total" type="text" placeholder="Ej: 1500" inputmode="decimal"
+          style="flex:1;padding:8px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:700;width:100%">
+        <button onclick="guardarTotal()" style="margin-top:6px;width:100%;padding:9px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Guardar</button>
+      </div>
+      <div id="d-total-feedback" style="font-size:12px;margin-top:4px;display:none;"></div>
     </div>
     <div class="detalle-field" id="d-notas-wrap" style="display:none">
       <div class="detalle-label">Notas</div>
@@ -1012,7 +1021,57 @@ function volverALista() {
 }
 
 // ── ACCIONES DE ESTADO ────────────────────────────────────────
+// ── EDITAR TOTAL ──────────────────────────────────────────────
+function editarTotal() {
+  document.getElementById('d-total-edit').style.display = 'flex';
+  document.getElementById('d-total-edit').style.flexDirection = 'column';
+  document.getElementById('input-total').value = pedidoActual.total || '';
+  document.getElementById('input-total').focus();
+  document.getElementById('btn-editar-total').style.display = 'none';
+}
+
+function guardarTotal() {
+  var raw   = document.getElementById('input-total').value.trim().replace(/[^\d.,]/g,'');
+  var valor = parseFloat(raw.replace(/\./g,'').replace(',','.')) || 0;
+  if (!valor) { mostrarTotalFeedback('⚠️ Ingresá un monto válido.', '#b45309'); return; }
+
+  mostrarTotalFeedback('⏳ Guardando…', '#6b7280');
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'updateTotal', norden: pedidoActual.norden, total: valor })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (!data.ok) { mostrarTotalFeedback('❌ ' + (data.error || 'Error al guardar.'), '#dc2626'); return; }
+    pedidoActual.total = String(valor);
+    const idx = todosLosPedidos.findIndex(function(p){ return p.norden === pedidoActual.norden; });
+    if (idx !== -1) todosLosPedidos[idx].total = String(valor);
+    document.getElementById('d-total').textContent = '$ ' + valor.toLocaleString('es-AR');
+    document.getElementById('d-total-edit').style.display = 'none';
+    document.getElementById('btn-editar-total').style.display = '';
+    mostrarTotalFeedback('✅ Total guardado.', '#166534');
+  })
+  .catch(function(){ mostrarTotalFeedback('❌ Error de conexión.', '#dc2626'); });
+}
+
+function mostrarTotalFeedback(msg, color) {
+  var el = document.getElementById('d-total-feedback');
+  el.textContent = msg; el.style.color = color; el.style.display = 'block';
+  if (msg.startsWith('✅')) setTimeout(function(){ el.style.display='none'; }, 3000);
+}
+
 function confirmarAccion(norden, nuevoEstado) {
+  // Bloquear "Confirmado" si no tiene precio
+  if (nuevoEstado === 'Confirmado') {
+    const pedido = todosLosPedidos.find(p => p.norden === norden) || pedidoActual;
+    if (!pedido || !pedido.total || parseFloat(String(pedido.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) === 0) {
+      if (pedidoActual) mostrarFlashDetalle('⚠️ Completá el precio del pedido antes de confirmar.', 'error');
+      else mostrarFlash('⚠️ Completá el precio del pedido antes de confirmar.', 'error');
+      editarTotal();
+      return;
+    }
+  }
   pendingAction = { norden, nuevoEstado };
   const pedido = todosLosPedidos.find(p => p.norden === norden) || pedidoActual;
   const estadoActual = pedido ? pedido.estado : '';

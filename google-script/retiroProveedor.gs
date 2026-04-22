@@ -41,6 +41,8 @@ function doPost(e) {
       resultado = subirComprobanteEnDrive(data);
     } else if (action === 'eliminarPedido') {
       resultado = eliminarPedidoDeSheet(data);
+    } else if (action === 'updateTotal') {
+      resultado = updateTotalPedido(data);
     } else {
       throw new Error('Acción no reconocida: ' + action);
     }
@@ -313,6 +315,18 @@ function guardarTelProveedor(proveedor, tel) {
   }
   sheet.appendRow([proveedor, tel]);
   Logger.log('Tel nuevo guardado: ' + proveedor + ' → ' + tel);
+}
+
+// data: { action:'updateTotal', norden, total }
+function updateTotalPedido(data) {
+  const { norden, total } = data;
+  if (!norden) throw new Error('Falta norden');
+  const resultado = leerPedidoPorId(norden);
+  if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
+  const sheet = getPedidosSheet();
+  sheet.getRange(resultado.fila, COL.TOTAL + 1).setValue(parseFloat(total) || 0);
+  Logger.log('Total actualizado: ' + norden + ' → ' + total);
+  return 'Total actualizado: ' + norden;
 }
 
 // data: { action:'eliminarPedido', norden }
