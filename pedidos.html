@@ -611,6 +611,21 @@ function validarPin() {
   }
 }
 
+// ── TEL PROVEEDORES (localStorage cache) ─────────────────────
+function guardarTelLocal(proveedor, tel) {
+  try {
+    var cache = JSON.parse(localStorage.getItem('ddl_tels') || '{}');
+    cache[String(proveedor).toUpperCase()] = tel;
+    localStorage.setItem('ddl_tels', JSON.stringify(cache));
+  } catch(e) {}
+}
+function leerTelLocal(proveedor) {
+  try {
+    var cache = JSON.parse(localStorage.getItem('ddl_tels') || '{}');
+    return cache[String(proveedor).toUpperCase()] || '';
+  } catch(e) { return ''; }
+}
+
 // ── CARGA DE DATOS ────────────────────────────────────────────
 async function cargarLista() {
   try {
@@ -620,13 +635,25 @@ async function cargarLista() {
     ]);
     const text = await respCsv.text();
     todosLosPedidos = csvAObjetos(text);
-    // Mergear tel de proveedor
+
+    // 1. Mergear desde GAS (fuente de verdad)
     if (respTel.ok && respTel.proveedores) {
       todosLosPedidos.forEach(function(p) {
         const key = String(p.proveedor || '').toUpperCase();
-        if (respTel.proveedores[key]) p.tel = respTel.proveedores[key];
+        if (respTel.proveedores[key]) {
+          p.tel = respTel.proveedores[key];
+          guardarTelLocal(p.proveedor, p.tel); // actualizar cache local
+        }
       });
     }
+    // 2. Fallback: localStorage para lo que no vino del GAS
+    todosLosPedidos.forEach(function(p) {
+      if (!p.tel) {
+        var tel = leerTelLocal(p.proveedor);
+        if (tel) p.tel = tel;
+      }
+    });
+
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('listaContent').style.display  = '';
     generarMesesRapidos();
@@ -1223,8 +1250,11 @@ function guardarProveedor() {
     if (!data.ok) { fb.textContent = '❌ ' + (data.error||'Error.'); fb.style.color='#dc2626'; return; }
     pedidoActual.proveedor = nombre;
     pedidoActual.tel = tel;
-    var idx = todosLosPedidos.findIndex(function(p){ return p.norden===pedidoActual.norden; });
-    if (idx !== -1) { todosLosPedidos[idx].proveedor = nombre; todosLosPedidos[idx].tel = tel; }
+    if (tel) guardarTelLocal(nombre, tel); // persistir en localStorage
+    // Actualizar todos los pedidos del mismo proveedor en memoria
+    todosLosPedidos.forEach(function(p) {
+      if (String(p.proveedor||'').toUpperCase() === String(nombre).toUpperCase()) { p.proveedor = nombre; if (tel) p.tel = tel; }
+    });
     document.getElementById('d-proveedor').textContent = nombre;
     if (tel) { document.getElementById('d-tel').textContent = tel; document.getElementById('d-tel-wrap').style.display=''; }
     toggleEditProveedor();
@@ -1314,7 +1344,9 @@ function renderDetalle(p) {
     document.getElementById('d-tel').textContent = p.tel;
     document.getElementById('d-tel-wrap').style.display = '';
     var numFinal = p.tel.replace(/\D/g,'');
-    if (!numFinal.startsWith('549')) numFinal = '549' + numFinal;
+    // Normalizar: quitar prefijo duplicado si ya tiene 54 o 549
+    numFinal = numFinal.replace(/^(\+?54)?9?/, ''); // quitar cualquier 54/549 al inicio
+    numFinal = '549' + numFinal;
     document.getElementById('btn-wa-proveedor').href = 'https://wa.me/' + numFinal + '?text=' + encodeURIComponent(armarMensajePedido(p));
     document.getElementById('btn-wa-proveedor').style.display = 'flex';
   } else {
