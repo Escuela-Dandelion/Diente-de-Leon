@@ -80,6 +80,21 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (action === 'getTelProveedores') {
+      const ss    = SpreadsheetApp.openById(CONFIG_RETIRO.PEDIDOS_SHEET_ID);
+      const sheet = ss.getSheetByName('Proveedores');
+      const map   = {};
+      if (sheet) {
+        const data = sheet.getDataRange().getValues();
+        for (let i = 1; i < data.length; i++) {
+          if (data[i][0]) map[String(data[i][0]).toUpperCase()] = String(data[i][1] || '');
+        }
+      }
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, proveedores: map }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (action === 'getPedido') {
       const id = e.parameter.id;
       if (!id) throw new Error('Falta parámetro id');

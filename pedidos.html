@@ -614,9 +614,19 @@ function validarPin() {
 // ── CARGA DE DATOS ────────────────────────────────────────────
 async function cargarLista() {
   try {
-    const resp = await fetch(SHEET_CSV + '&t=' + Date.now());
-    const text = await resp.text();
+    const [respCsv, respTel] = await Promise.all([
+      fetch(SHEET_CSV + '&t=' + Date.now()),
+      fetch(SCRIPT_URL + '?action=getTelProveedores').then(r => r.json()).catch(() => ({ ok: false }))
+    ]);
+    const text = await respCsv.text();
     todosLosPedidos = csvAObjetos(text);
+    // Mergear tel de proveedor
+    if (respTel.ok && respTel.proveedores) {
+      todosLosPedidos.forEach(function(p) {
+        const key = String(p.proveedor || '').toUpperCase();
+        if (respTel.proveedores[key]) p.tel = respTel.proveedores[key];
+      });
+    }
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('listaContent').style.display  = '';
     generarMesesRapidos();
