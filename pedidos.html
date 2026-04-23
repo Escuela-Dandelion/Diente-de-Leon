@@ -232,7 +232,7 @@
   <!-- Topbar sticky igual que detalle -->
   <div class="detalle-topbar">
     <span style="font-size:15px;font-weight:800;color:#2d5a27;flex:1;">Órdenes de Pedido</span>
-    <a href="orden-de-pedido.html" class="btn-accion-top btn-nueva-orden">📋 Nueva Orden</a>
+    <button class="btn-accion-top btn-nueva-orden" onclick="abrirNuevaOrden()">📋 Nueva Orden</button>
   </div>
 
   <div class="flash" id="flash"></div>
@@ -1466,6 +1466,14 @@ function renderDetalle(p) {
   if (sig.includes('Cancelado')) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="confirmarAccion('${p.norden}','Cancelado')">Cancelar</button>`;
   if (p.estado === 'Solicitado' && esAdmin()) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="eliminarPedido('${p.norden}')">🗑️ Eliminar</button>`;
   document.getElementById('d-acciones-top').innerHTML = botonesTop;
+}
+
+function abrirNuevaOrden() {
+  if (isEmbedded) {
+    window.parent.postMessage({ type: 'ddl-nav', view: 'ordenes' }, '*');
+  } else {
+    window.location.href = 'orden-de-pedido.html';
+  }
 }
 
 function volverALista() {

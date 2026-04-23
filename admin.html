@@ -309,6 +309,12 @@
       <p style="color:var(--muted);font-size:14px;padding:20px">Próximamente — vista de ventas por período.</p>
     </div>
 
+    <!-- NUEVA ORDEN (sin entrada en menú, navegable por postMessage) -->
+    <div class="view" id="view-ordenes">
+      <div class="view-title">📋 Nueva Orden a Proveedor</div>
+      <iframe class="view-iframe" src="orden-de-pedido.html" id="iframe-ordenes"></iframe>
+    </div>
+
     <!-- DASHBOARD GENERAL -->
     <div class="view" id="view-dashboard-general">
       <div class="view-title">📊 Dashboard General</div>
@@ -538,10 +544,7 @@ function showView(viewId, navBtn, opts) {
 // Escuchar navegación desde el iframe de pedidos
 window.addEventListener('message', function(e) {
   if (!e.data || e.data.type !== 'ddl-nav') return;
-  var params = new URLSearchParams();
-  params.set('view', e.data.view || 'pedidos');
-  if (e.data.id) params.set('id', e.data.id);
-  history.pushState({ view: e.data.view, id: e.data.id || null }, '', '?' + params.toString());
+  showView(e.data.view || 'pedidos', null, { id: e.data.id || null });
 });
 
 // Restaurar vista desde la URL al cargar
