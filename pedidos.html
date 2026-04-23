@@ -861,8 +861,19 @@ document.addEventListener('click', closeMenus);
 function agendarPool(norden) {
   const p = todosLosPedidos.find(x => x.norden === norden);
   if (!p) return;
-  const texto = encodeURIComponent(`Hola! Necesito coordinar el retiro de la orden ${p.norden} — ${p.proveedor}. ¿Podemos agendar?`);
-  window.open('https://wa.me/?text=' + texto, '_blank');
+  const params = new URLSearchParams();
+  params.set('norden',    p.norden);
+  params.set('proveedor', p.proveedor || '');
+  params.set('producto',  p.productos || '');
+  params.set('fgp',       p.fgp || '');
+  if (p.notas)  params.set('notas', p.notas);
+  if (p.quien)  params.set('retira', p.quien);
+  const url = 'retiro-proveedor.html?' + params.toString();
+  if (isEmbedded) {
+    window.parent.postMessage({ type: 'ddl-nav', view: 'retiro', url: url }, '*');
+  } else {
+    window.location.href = url;
+  }
 }
 
 // ── RENDER LISTA ──────────────────────────────────────────────
@@ -1460,8 +1471,7 @@ function renderDetalle(p) {
   let botonesTop = sig.filter(e => e !== 'Cancelado')
     .map(e => `<button class="btn-accion-top ${CLASE_BTN[e]||''}" onclick="confirmarAccion('${p.norden}','${e}')">${LABEL_ACCION[e]||e}</button>`).join('');
   if (mostrarPool) {
-    const params = new URLSearchParams({ norden: p.norden, proveedor: p.proveedor, producto: p.productos, fgp: p.fgp||'' });
-    botonesTop += `<a href="retiro-proveedor.html?${params}" class="btn-accion-top btn-pool">🚗 Solicitar Pool</a>`;
+    botonesTop += `<button class="btn-accion-top btn-pool" onclick="agendarPool('${p.norden}')">🚗 Solicitar Pool</button>`;
   }
   if (sig.includes('Cancelado')) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="confirmarAccion('${p.norden}','Cancelado')">Cancelar</button>`;
   if (p.estado === 'Solicitado' && esAdmin()) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="eliminarPedido('${p.norden}')">🗑️ Eliminar</button>`;

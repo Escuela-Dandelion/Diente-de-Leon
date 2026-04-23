@@ -315,6 +315,12 @@
       <iframe class="view-iframe" src="orden-de-pedido.html" id="iframe-ordenes"></iframe>
     </div>
 
+    <!-- AGENDAR RETIRO (sin entrada en menú, navegable por postMessage) -->
+    <div class="view" id="view-retiro">
+      <div class="view-title">🚗 Agendar Retiro de Mercadería</div>
+      <iframe class="view-iframe" src="retiro-proveedor.html" id="iframe-retiro"></iframe>
+    </div>
+
     <!-- DASHBOARD GENERAL -->
     <div class="view" id="view-dashboard-general">
       <div class="view-title">📊 Dashboard General</div>
@@ -544,7 +550,13 @@ function showView(viewId, navBtn, opts) {
 // Escuchar navegación desde el iframe de pedidos
 window.addEventListener('message', function(e) {
   if (!e.data || e.data.type !== 'ddl-nav') return;
-  showView(e.data.view || 'pedidos', null, { id: e.data.id || null });
+  var view = e.data.view || 'pedidos';
+  // Para vistas con URL dinámica, actualizar el iframe antes de mostrar
+  if (view === 'retiro' && e.data.url) {
+    var iframe = document.getElementById('iframe-retiro');
+    if (iframe) iframe.src = e.data.url;
+  }
+  showView(view, null, { id: e.data.id || null });
 });
 
 // Restaurar vista desde la URL al cargar
