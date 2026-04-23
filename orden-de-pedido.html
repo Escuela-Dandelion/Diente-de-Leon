@@ -106,9 +106,20 @@
   <div class="section">
     <div class="section-title">Proveedor y Responsable</div>
     <div class="grid grid-2">
-      <div class="field"><label>Proveedor</label><input id="f-proveedor" type="text"></div>
+      <div class="field">
+        <label>Proveedor</label>
+        <select id="f-proveedor-sel" onchange="onProveedorChange()" style="display:none">
+          <option value="">— Seleccioná un proveedor —</option>
+        </select>
+        <input id="f-proveedor" type="text" placeholder="Nombre del proveedor" style="display:none">
+        <div id="f-proveedor-loading" style="font-size:12px;color:#9ca3af;padding:10px 0">Cargando proveedores…</div>
+      </div>
       <div class="field"><label>Responsable (FGP)</label><input id="f-fgp" type="text"></div>
-      <div class="field"><label>Teléfono del proveedor</label><input id="f-tel" type="tel" inputmode="numeric"></div>
+      <div class="field">
+        <label>Teléfono del proveedor</label>
+        <input id="f-tel" type="tel" inputmode="numeric" placeholder="Ej: 3512112050">
+        <div style="font-size:11px;color:#9ca3af;margin-top:4px">Sin guiones ni espacios. Ej: 3512112050</div>
+      </div>
       <div class="field"><label>Forma de pago acordada</label><input id="f-pago" type="text"></div>
     </div>
   </div>
@@ -184,6 +195,67 @@
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+  const GAS_URL_RQ = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+
+  var _proveedoresMap = {}; // nombre → tel
+
+  // ── CARGAR PROVEEDORES ──────────────────────────────────────
+  (function cargarProveedores() {
+    fetch(GAS_URL_RQ + '?action=getProveedores')
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        var sel = document.getElementById('f-proveedor-sel');
+        var loading = document.getElementById('f-proveedor-loading');
+        loading.style.display = 'none';
+        if (data.ok && data.proveedores && data.proveedores.length) {
+          data.proveedores.forEach(function(p) {
+            _proveedoresMap[p.nombre] = p.tel || '';
+            var opt = document.createElement('option');
+            opt.value = p.nombre; opt.textContent = p.nombre;
+            sel.appendChild(opt);
+          });
+        }
+        // Opción para ingresar uno nuevo
+        var optOtro = document.createElement('option');
+        optOtro.value = '__otro__'; optOtro.textContent = '➕ Otro proveedor…';
+        sel.appendChild(optOtro);
+        sel.style.display = '';
+        // Pre-seleccionar si viene por URL
+        var urlProveedor = new URLSearchParams(window.location.search).get('proveedor');
+        if (urlProveedor) {
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value.toUpperCase() === urlProveedor.toUpperCase()) {
+              sel.selectedIndex = i; onProveedorChange(); return;
+            }
+          }
+          // No encontrado en lista → modo libre
+          sel.style.display = 'none';
+          var inp = document.getElementById('f-proveedor');
+          inp.value = urlProveedor; inp.style.display = '';
+        }
+      })
+      .catch(function() {
+        // Sin conexión → modo texto libre
+        document.getElementById('f-proveedor-loading').style.display = 'none';
+        document.getElementById('f-proveedor').style.display = '';
+      });
+  })();
+
+  function onProveedorChange() {
+    var sel = document.getElementById('f-proveedor-sel');
+    var inp = document.getElementById('f-proveedor');
+    var val = sel.value;
+    if (val === '__otro__') {
+      sel.style.display = 'none';
+      inp.value = ''; inp.style.display = '';
+      inp.focus();
+      document.getElementById('f-tel').value = '';
+    } else if (val) {
+      inp.value = val;
+      var tel = _proveedoresMap[val] || '';
+      if (tel) document.getElementById('f-tel').value = tel;
+    }
+  }
 
   // ── TOTAL AUTO-CALCULADO ────────────────────────────────────────────────────
   function parsePrecio(str) {
@@ -226,7 +298,7 @@
     // Fecha de hoy por defecto
     document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
 
-    if (p.get('proveedor')) document.getElementById('f-proveedor').value = p.get('proveedor');
+    // proveedor se maneja en cargarProveedores() con el select
     if (p.get('tel'))       document.getElementById('f-tel').value       = p.get('tel');
     if (p.get('fgp'))       document.getElementById('f-fgp').value       = p.get('fgp');
     if (p.get('pago'))      document.getElementById('f-pago').value      = p.get('pago');
@@ -269,7 +341,10 @@
 
     return {
       norden:    document.getElementById('f-norden').value.trim(),
-      proveedor: document.getElementById('f-proveedor').value.trim(),
+      proveedor: (document.getElementById('f-proveedor').style.display !== 'none'
+        ? document.getElementById('f-proveedor').value
+        : document.getElementById('f-proveedor-sel').value === '__otro__' ? '' : document.getElementById('f-proveedor-sel').value
+      ).trim(),
       fgp:       document.getElementById('f-fgp').value.trim(),
       tel:       document.getElementById('f-tel').value.trim().replace(/\D/g, ''),
       fecha:     document.getElementById('f-fecha').value,

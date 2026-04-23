@@ -383,6 +383,10 @@
           <div id="d-proveedor-edit" style="display:none">
             <div style="margin-bottom:10px">
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Nombre</div>
+              <select id="input-proveedor-sel" onchange="onEditProveedorChange()"
+                style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:14px;font-weight:600;background:#fff;display:none">
+                <option value="">— Seleccioná —</option>
+              </select>
               <input id="input-proveedor" type="text" placeholder="Nombre del proveedor"
                 style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:14px;font-weight:600;">
             </div>
@@ -390,6 +394,7 @@
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Teléfono</div>
               <input id="input-tel-proveedor" type="tel" inputmode="numeric" placeholder="Ej: 3516123456"
                 style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;">
+              <div style="font-size:11px;color:#9ca3af;margin-top:4px">Sin guiones ni espacios. Ej: 3516123456</div>
             </div>
             <button onclick="guardarProveedor()" style="width:100%;padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">💾 Guardar</button>
             <div id="d-proveedor-feedback" style="font-size:12px;margin-top:6px;display:none;font-weight:600;text-align:center;"></div>
@@ -542,6 +547,51 @@ const SUBTITULO_ESTADO = {
 
 // ── ESTADO GLOBAL ─────────────────────────────────────────────
 let todosLosPedidos = [];
+var _proveedoresMap = {}; // nombre → tel (cargado desde GAS)
+
+function cargarProveedoresMap() {
+  fetch(SCRIPT_URL + '?action=getProveedores')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.ok || !data.proveedores) return;
+      data.proveedores.forEach(function(p) { _proveedoresMap[p.nombre] = p.tel || ''; });
+      // Actualizar tel en memoria si algún pedido no lo tenía
+      todosLosPedidos.forEach(function(p) {
+        if (!p.tel && _proveedoresMap[p.proveedor]) p.tel = _proveedoresMap[p.proveedor];
+      });
+    }).catch(function(){});
+}
+
+function poblarSelectorProveedor() {
+  var sel = document.getElementById('input-proveedor-sel');
+  if (!sel) return;
+  // Limpiar opciones previas (salvo la primera)
+  while (sel.options.length > 1) sel.remove(1);
+  Object.keys(_proveedoresMap).forEach(function(nombre) {
+    var opt = document.createElement('option');
+    opt.value = nombre; opt.textContent = nombre;
+    sel.appendChild(opt);
+  });
+  var optOtro = document.createElement('option');
+  optOtro.value = '__otro__'; optOtro.textContent = '➕ Otro proveedor…';
+  sel.appendChild(optOtro);
+}
+
+function onEditProveedorChange() {
+  var sel = document.getElementById('input-proveedor-sel');
+  var inp = document.getElementById('input-proveedor');
+  var val = sel.value;
+  if (val === '__otro__') {
+    sel.style.display = 'none';
+    inp.value = ''; inp.style.display = '';
+    inp.focus();
+    document.getElementById('input-tel-proveedor').value = '';
+  } else if (val) {
+    inp.value = val;
+    var tel = _proveedoresMap[val] || '';
+    if (tel) document.getElementById('input-tel-proveedor').value = tel;
+  }
+}
 let pedidoActual   = null;
 let pendingAction  = null;
 let isEmbedded     = false;
@@ -658,6 +708,7 @@ async function cargarLista() {
     document.getElementById('listaContent').style.display  = '';
     generarMesesRapidos();
     renderLista(todosLosPedidos);
+    cargarProveedoresMap();
   } catch (err) {
     document.getElementById('loadingSpinner').textContent = 'Error al cargar. Recargá la página.';
   }
@@ -1212,12 +1263,25 @@ function toggleEditProveedor() {
   var edit = document.getElementById('d-proveedor-edit');
   var btn  = document.getElementById('btn-toggle-proveedor');
   if (edit.style.display === 'none') {
-    document.getElementById('input-proveedor').value = pedidoActual.proveedor || '';
+    var sel = document.getElementById('input-proveedor-sel');
+    var inp = document.getElementById('input-proveedor');
+    poblarSelectorProveedor();
+    if (Object.keys(_proveedoresMap).length > 0) {
+      // Preseleccionar proveedor actual si está en la lista
+      var encontrado = false;
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === pedidoActual.proveedor) { sel.selectedIndex = i; encontrado = true; break; }
+      }
+      if (!encontrado) sel.selectedIndex = 0;
+      sel.style.display = ''; inp.style.display = 'none';
+    } else {
+      sel.style.display = 'none'; inp.style.display = '';
+    }
+    inp.value = pedidoActual.proveedor || '';
     document.getElementById('input-tel-proveedor').value = pedidoActual.tel || '';
     view.style.display = 'none';
     edit.style.display = 'block';
     btn.textContent = '✕ Cancelar';
-    document.getElementById('input-proveedor').focus();
   } else {
     edit.style.display = 'none';
     view.style.display = 'block';
@@ -1227,7 +1291,10 @@ function toggleEditProveedor() {
 }
 
 function guardarProveedor() {
-  var nombre = document.getElementById('input-proveedor').value.trim();
+  var selProv = document.getElementById('input-proveedor-sel');
+  var nombre = (selProv.style.display !== 'none' && selProv.value && selProv.value !== '__otro__')
+    ? selProv.value
+    : document.getElementById('input-proveedor').value.trim();
   var telRaw = document.getElementById('input-tel-proveedor').value.trim().replace(/\D/g,'');
   // Normalizar a 549 + 10 dígitos
   var tel = telRaw;
