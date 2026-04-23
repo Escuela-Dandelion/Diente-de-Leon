@@ -80,6 +80,13 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (action === 'getProductosTN') {
+      const productos = obtenerProductosTN();
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, productos: productos }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (action === 'getProveedores') {
       const ss    = SpreadsheetApp.openById(CONFIG_RETIRO.PEDIDOS_SHEET_ID);
       const sheet = ss.getSheetByName('Proveedores');
@@ -208,6 +215,34 @@ function formatearFecha(fechaStr) {
 //           Estado(5) · Fecha Estado(6) · Quien lo busca(7) · Comprobante Pago(8) · Notas(9)
 // Los precios y cantidades van embebidos en el campo Productos:
 //   "Shampoo x3 Unid. ($1500)\nJabón x2 kg ($800)"
+
+// ── TIENDANUBE ───────────────────────────────────────────────
+const TN_STORE_ID   = '7396246';
+const TN_API_TOKEN  = 'e3d744d94ddbf13317bef0082c53e2c46fb50631';
+
+function obtenerProductosTN() {
+  const resp = UrlFetchApp.fetch(
+    'https://api.tiendanube.com/v1/' + TN_STORE_ID + '/products?per_page=200&fields=id,name,variants', {
+    headers: {
+      'Authentication': 'bearer ' + TN_API_TOKEN,
+      'User-Agent': 'DienteDeLeon (dientedeleon-admin@googlegroups.com)'
+    }
+  });
+  const data  = JSON.parse(resp.getContentText());
+  const skus  = {};
+  const lista = [];
+  data.forEach(function(p) {
+    const nombre = p.name && p.name.es ? p.name.es : String(p.name || '');
+    (p.variants || []).forEach(function(v) {
+      const sku = v.sku ? String(v.sku).trim() : '';
+      if (sku && !skus[nombre.toUpperCase()]) {
+        skus[nombre.toUpperCase()] = sku;
+        lista.push({ nombre: nombre, sku: sku });
+      }
+    });
+  });
+  return lista;
+}
 
 const COL = {
   NORDEN:      0,   // A

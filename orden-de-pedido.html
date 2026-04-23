@@ -198,6 +198,17 @@
   const GAS_URL_RQ = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
 
   var _proveedoresMap = {}; // nombre → tel
+  var _skuMap = {};         // nombre_upper → sku
+
+  // ── CARGAR SKUs DE TIENDANUBE ───────────────────────────────
+  fetch(SCRIPT_URL + '?action=getProductosTN')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.ok) return;
+      data.productos.forEach(function(p) {
+        _skuMap[p.nombre.toUpperCase()] = p.sku;
+      });
+    }).catch(function(){});
 
   // ── CARGAR PROVEEDORES ──────────────────────────────────────
   (function cargarProveedores() {
@@ -375,7 +386,10 @@
     }
 
     var productosStr = f.filasValidas.map(function(r) {
-      return r.nombre + (r.cantidad ? ' x' + r.cantidad : '') + (r.unidad ? ' ' + r.unidad : '') + (r.precio !== '0' ? ' ($' + r.precio + ')' : '');
+      var s = r.nombre + (r.cantidad ? ' x' + r.cantidad : '') + (r.unidad ? ' ' + r.unidad : '') + (r.precio !== '0' ? ' ($' + r.precio + ')' : '');
+      var sku = _skuMap[r.nombre.toUpperCase().trim()];
+      if (sku) s += ' [' + sku + ']';
+      return s;
     }).join('\n');
 
     var fechaFmt = f.fecha ? f.fecha.split('-').reverse().join('/') : f.fecha;

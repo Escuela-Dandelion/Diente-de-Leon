@@ -1161,17 +1161,20 @@ function filtrarMes(btn, mesKey) {
 
 // ── PARSEAR PRODUCTOS ─────────────────────────────────────────
 function parseProductos(str) {
-  if (!str) return [{ nombre:'', cantidad:'', unidad:'Unidades', precio:'' }];
+  if (!str) return [{ nombre:'', cantidad:'', unidad:'Unidades', precio:'', sku:'' }];
   var rows = str.split('\n').map(function(line) {
     line = line.trim(); if (!line) return null;
+    // Extraer SKU al final: [SKU_VALUE]
+    var sku = '';
+    var skuMatch = line.match(/\[([^\]]+)\]\s*$/);
+    if (skuMatch) { sku = skuMatch[1]; line = line.slice(0, skuMatch.index).trim(); }
     var m = line.match(/^(.+?)\s+x(\d+(?:[.,]\d+)?)\s*(Unidades|Kg|Cajas|unidades|kg|cajas)?(?:\s+\(\$([0-9.,]+)\))?$/i);
-    if (m) return { nombre: m[1].trim(), cantidad: m[2], unidad: m[3] ? (m[3].charAt(0).toUpperCase()+m[3].slice(1).toLowerCase()) : 'Unidades', precio: m[4] || '' };
+    if (m) return { nombre: m[1].trim(), cantidad: m[2], unidad: m[3] ? (m[3].charAt(0).toUpperCase()+m[3].slice(1).toLowerCase()) : 'Unidades', precio: m[4] || '', sku: sku };
     m = line.match(/^(.+?)\s+\(\$([0-9.,]+)\)$/);
-    if (m) return { nombre: m[1].trim(), cantidad: '', unidad: 'Unidades', precio: m[2] };
-    return { nombre: line, cantidad: '', unidad: 'Unidades', precio: '' };
+    if (m) return { nombre: m[1].trim(), cantidad: '', unidad: 'Unidades', precio: m[2], sku: sku };
+    return { nombre: line, cantidad: '', unidad: 'Unidades', precio: '', sku: sku };
   }).filter(Boolean);
-  // Asegurar al menos 4 filas editables
-  while (rows.length < 4) rows.push({ nombre:'', cantidad:'', unidad:'Unidades', precio:'' });
+  while (rows.length < 4) rows.push({ nombre:'', cantidad:'', unidad:'Unidades', precio:'', sku:'' });
   return rows;
 }
 
@@ -1183,9 +1186,11 @@ function productosToStr(tbody) {
     var cant  = tr.querySelector('.dp-cant').value.trim();
     var unid  = tr.querySelector('.dp-unid').value;
     var prec  = tr.querySelector('.dp-precio').value.trim();
+    var sku   = tr.querySelector('.dp-sku') ? tr.querySelector('.dp-sku').value.trim() : '';
     var s = nombre;
     if (cant) s += ' x' + cant + ' ' + unid;
     if (prec && prec !== '0') s += ' ($' + prec + ')';
+    if (sku) s += ' [' + sku + ']';
     rows.push(s);
   });
   return rows.join('\n');
@@ -1199,6 +1204,7 @@ function renderProdView(productosStr) {
     return;
   }
   var cell = 'padding:8px 6px;font-size:13px;color:#6b7280;background:#f9fafb;border:none;width:100%;';
+  var hasSku = rows.some(function(r){ return r.sku; });
   container.innerHTML =
     '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
       '<thead><tr>' +
@@ -1206,6 +1212,7 @@ function renderProdView(productosStr) {
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:85px">Unid.</th>' +
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:60px">Cant.</th>' +
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:80px">Precio $</th>' +
+        (hasSku ? '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:100px">SKU</th>' : '') +
       '</tr></thead><tbody>' +
     rows.map(function(r) {
       return '<tr style="border-bottom:1px solid #f3f4f6">' +
@@ -1213,6 +1220,7 @@ function renderProdView(productosStr) {
         '<td><span style="' + cell + 'display:block">' + escHtml(r.unidad||'Unidades') + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + escHtml(r.cantidad) + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + (r.precio ? '$ ' + escHtml(r.precio) : '—') + '</span></td>' +
+        (hasSku ? '<td><span style="' + cell + 'display:block;font-family:monospace;font-size:11px;color:#9ca3af">' + escHtml(r.sku||'—') + '</span></td>' : '') +
       '</tr>';
     }).join('') +
     '</tbody></table>';
@@ -1237,6 +1245,7 @@ function renderProdEdit(productosStr) {
       '<td><select class="dp-unid"><option' + (r.unidad==='Unidades'?' selected':'') + '>Unidades</option><option' + (r.unidad==='Kg'?' selected':'') + '>Kg</option><option' + (r.unidad==='Cajas'?' selected':'') + '>Cajas</option></select></td>' +
       '<td><input class="dp-cant" type="text" inputmode="numeric" placeholder="Cant." value="' + escHtml(r.cantidad) + '" oninput="recalcularTotalEdit()"></td>' +
       '<td><input class="dp-precio" type="text" inputmode="decimal" placeholder="$" value="' + escHtml(r.precio) + '" onblur="recalcularTotalEdit()"></td>' +
+      '<input class="dp-sku" type="hidden" value="' + escHtml(r.sku||'') + '">' +
     '</tr>';
   }).join('');
 }
