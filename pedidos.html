@@ -117,33 +117,53 @@
   .btn-accion-top.btn-cancelar-ord { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
   .btn-accion-top.btn-nueva-orden  { background: #d4edd8; color: #2d5a27; border: 1px solid #2d5a27; text-decoration: none; }
 
-  /* DETALLE REDISEÑADO */
-  .det-card { background:#fff; border-radius:12px; border:1px solid #e5e7eb; margin-bottom:12px; overflow:hidden; }
-  .det-card-header { padding:12px 16px; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between; }
-  .det-card-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; }
-  .det-card-body { padding:16px; }
-  .det-proveedor { font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:4px; }
-  .det-meta { font-size:13px; color:#6b7280; display:flex; flex-wrap:wrap; gap:8px; }
-  .det-meta span { display:flex; align-items:center; gap:4px; }
-  .det-prod-table { width:100%; border-collapse:collapse; font-size:13px; }
-  .det-prod-table th { background:#f0fdf4; color:#2d5a27; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.5px; padding:7px 6px; text-align:left; border-bottom:2px solid #c8e6c9; }
-  .det-prod-table td { padding:0; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
-  .det-prod-table td input, .det-prod-table td select { width:100%; border:none; background:transparent; padding:8px 6px; font-size:13px; font-family:inherit; color:#2d2d2d; }
-  .det-prod-table td input:focus, .det-prod-table td select:focus { outline:none; background:#f0fdf4; }
-  .det-prod-table td select { appearance:none; -webkit-appearance:none; cursor:pointer; }
-  .det-prod-view { display:flex; flex-direction:column; gap:6px; }
-  .det-prod-item { display:flex; align-items:baseline; gap:6px; padding:6px 0; border-bottom:1px solid #f9fafb; font-size:14px; }
-  .det-prod-item:last-child { border-bottom:none; }
-  .det-prod-nombre { flex:1; font-weight:600; color:#1a1a2e; }
-  .det-prod-qty { font-size:12px; color:#6b7280; white-space:nowrap; }
-  .det-prod-precio { font-size:12px; font-weight:700; color:#2d5a27; white-space:nowrap; }
-  .det-total-row { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#f0fdf4; border-top:2px solid #c8e6c9; }
-  .det-total-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; }
-  .det-total-value { font-size:22px; font-weight:800; color:#2d5a27; }
-  .btn-edit-small { font-size:11px; padding:3px 10px; border:1px solid #d1d5db; border-radius:6px; background:#fff; cursor:pointer; color:#6b7280; font-weight:600; transition:all .15s; }
-  .btn-edit-small:hover { border-color:#2d5a27; color:#2d5a27; }
-  .btn-save-prods { width:100%; margin-top:10px; padding:11px; background:#2d5a27; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; }
-  .btn-save-prods:hover { background:#1e3d1a; }
+  /* ── DETALLE V2 ───────────────────────────────────────────── */
+  .det-layout { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
+  @media (max-width: 768px) { .det-layout { grid-template-columns: 1fr; } }
+
+  .det-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 16px; overflow: hidden; }
+  .det-card-header { padding: 14px 18px; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; justify-content: space-between; }
+  .det-card-title { font-size: 13px; font-weight: 700; color: #374151; }
+  .det-card-body { padding: 18px; }
+
+  /* Cabecera */
+  .det-head { margin-bottom: 20px; }
+  .det-head-top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .det-norden { font-size: 24px; font-weight: 800; color: #1a1a2e; }
+  .det-fecha  { font-size: 13px; color: #9ca3af; }
+
+  /* Productos */
+  .det-prod-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f9fafb; gap: 12px; }
+  .det-prod-item:last-child { border-bottom: none; }
+  .det-prod-info { flex: 1; min-width: 0; }
+  .det-prod-nombre { font-size: 14px; font-weight: 700; color: #2d5a27; margin-bottom: 2px; }
+  .det-prod-sub { font-size: 12px; color: #9ca3af; }
+  .det-prod-total { font-size: 14px; font-weight: 700; color: #1a1a2e; white-space: nowrap; }
+
+  .det-total-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: #f9fafb; border-top: 2px solid #e5e7eb; }
+  .det-total-label { font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+  .det-total-value { font-size: 22px; font-weight: 800; color: #2d5a27; }
+
+  /* Sidebar cards */
+  .det-prov-nombre { font-size: 18px; font-weight: 800; color: #1a1a2e; margin-bottom: 4px; }
+  .det-prov-tel    { font-size: 13px; color: #6b7280; }
+  .det-info-row    { display: flex; flex-direction: column; gap: 10px; }
+  .det-info-item   { font-size: 13px; color: #374151; }
+  .det-info-label  { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #9ca3af; margin-bottom: 2px; }
+  .det-estado-badge-wrap { margin-bottom: 8px; }
+  .det-estado-fecha { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+
+  /* Edición inline */
+  .det-prod-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .det-prod-table th { background: #f0fdf4; color: #2d5a27; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; padding: 7px 6px; text-align: left; border-bottom: 2px solid #c8e6c9; }
+  .det-prod-table td { padding: 0; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  .det-prod-table td input, .det-prod-table td select { width: 100%; border: none; background: transparent; padding: 8px 6px; font-size: 13px; font-family: inherit; color: #2d2d2d; }
+  .det-prod-table td input:focus, .det-prod-table td select:focus { outline: none; background: #f0fdf4; }
+  .det-prod-table td select { appearance: none; -webkit-appearance: none; cursor: pointer; }
+  .btn-edit-small { font-size: 11px; padding: 3px 10px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; cursor: pointer; color: #6b7280; font-weight: 600; transition: all .15s; }
+  .btn-edit-small:hover { border-color: #2d5a27; color: #2d5a27; }
+  .btn-save-prods { width: 100%; margin-top: 10px; padding: 11px; background: #2d5a27; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .btn-save-prods:hover { background: #1e3d1a; }
 
   /* MODALS */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
@@ -280,101 +300,127 @@
 
   <div class="flash" id="flashDetalle"></div>
 
-  <!-- Cabecera del pedido -->
-  <div class="det-card">
-    <div class="det-card-header">
-      <span class="det-card-title">Proveedor</span>
-      <button class="btn-edit-small" id="btn-toggle-proveedor" onclick="toggleEditProveedor()">✏️ Editar</button>
+  <!-- Layout dos columnas -->
+  <div class="det-layout">
+
+    <!-- ── COLUMNA IZQUIERDA ── -->
+    <div>
+
+      <!-- Header -->
+      <div class="det-head">
+        <div class="det-head-top">
+          <span class="det-norden" id="d-norden"></span>
+          <span class="det-fecha" id="d-fecha"></span>
+        </div>
+        <span id="d-estadoBadge"></span>
+      </div>
+
+      <!-- Card productos -->
+      <div class="det-card">
+        <div class="det-card-header">
+          <span class="det-card-title">Productos</span>
+          <button class="btn-edit-small" id="btn-toggle-prods" onclick="toggleEditProductos()">✏️ Editar</button>
+        </div>
+
+        <!-- Vista lectura -->
+        <div class="det-card-body" id="d-prod-view" style="padding:0 18px"></div>
+
+        <!-- Vista edición -->
+        <div id="d-prod-edit" style="display:none; padding:14px 18px">
+          <div style="overflow-x:auto">
+            <table class="det-prod-table">
+              <thead><tr>
+                <th style="min-width:120px">Producto</th>
+                <th style="width:85px">Unid.</th>
+                <th style="width:60px">Cant.</th>
+                <th style="width:80px">Precio $</th>
+              </tr></thead>
+              <tbody id="det-tbody-productos"></tbody>
+            </table>
+          </div>
+          <button class="btn-save-prods" onclick="guardarProductos()">💾 Guardar productos</button>
+          <div id="d-prod-feedback" style="font-size:12px;margin-top:6px;display:none;text-align:center;font-weight:600;"></div>
+        </div>
+
+        <!-- Total -->
+        <div class="det-total-row">
+          <span class="det-total-label">Total del pedido</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="det-total-value" id="d-total">—</span>
+            <button class="btn-edit-small" id="btn-editar-total" onclick="editarTotal()">✏️</button>
+          </div>
+        </div>
+        <div id="d-total-edit" style="display:none;padding:12px 18px;flex-direction:column;gap:8px;">
+          <input id="input-total" type="text" placeholder="Ej: 1500" inputmode="decimal"
+            style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:700;">
+          <button onclick="guardarTotal()" style="padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Guardar total</button>
+        </div>
+        <div id="d-total-feedback" style="font-size:12px;padding:0 18px 10px;display:none;font-weight:600;"></div>
+      </div>
+
     </div>
-    <div class="det-card-body">
-      <!-- Vista lectura -->
-      <div id="d-proveedor-view">
-        <div class="det-proveedor" id="d-proveedor"></div>
-        <div class="det-meta" style="margin-top:6px">
-          <span id="d-tel-wrap" style="display:none">📞 <span id="d-tel"></span></span>
+
+    <!-- ── COLUMNA DERECHA ── -->
+    <div>
+
+      <!-- Card proveedor -->
+      <div class="det-card">
+        <div class="det-card-header">
+          <span class="det-card-title">Proveedor</span>
+          <button class="btn-edit-small" id="btn-toggle-proveedor" onclick="toggleEditProveedor()">✏️ Editar</button>
+        </div>
+        <div class="det-card-body">
+          <div id="d-proveedor-view">
+            <div class="det-prov-nombre" id="d-proveedor"></div>
+            <div class="det-prov-tel" id="d-tel-wrap" style="display:none">📞 <span id="d-tel"></span></div>
+          </div>
+          <div id="d-proveedor-edit" style="display:none">
+            <div style="margin-bottom:10px">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Nombre</div>
+              <input id="input-proveedor" type="text" placeholder="Nombre del proveedor"
+                style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:14px;font-weight:600;">
+            </div>
+            <div style="margin-bottom:10px">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Teléfono</div>
+              <input id="input-tel-proveedor" type="tel" inputmode="numeric" placeholder="Ej: 3516123456"
+                style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;">
+            </div>
+            <button onclick="guardarProveedor()" style="width:100%;padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">💾 Guardar</button>
+            <div id="d-proveedor-feedback" style="font-size:12px;margin-top:6px;display:none;font-weight:600;text-align:center;"></div>
+          </div>
         </div>
       </div>
-      <!-- Vista edición -->
-      <div id="d-proveedor-edit" style="display:none">
-        <div style="margin-bottom:10px">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Nombre del proveedor</div>
-          <input id="input-proveedor" type="text" placeholder="Nombre del proveedor"
-            style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:600;">
+
+      <!-- Card gestión -->
+      <div class="det-card">
+        <div class="det-card-header"><span class="det-card-title">Gestión</span></div>
+        <div class="det-card-body">
+          <div class="det-info-row">
+            <div class="det-info-item">
+              <div class="det-info-label">FGP Responsable</div>
+              <div id="d-fgp"></div>
+            </div>
+            <div class="det-info-item" id="d-quien-wrap" style="display:none">
+              <div class="det-info-label">Quién retira</div>
+              <div id="d-quien"></div>
+            </div>
+            <div class="det-info-item" id="d-notas-wrap" style="display:none">
+              <div class="det-info-label">Notas</div>
+              <div id="d-notas" style="color:#374151;font-size:13px"></div>
+            </div>
+          </div>
         </div>
-        <div style="margin-bottom:10px">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Teléfono (se guarda para próximas órdenes)</div>
-          <input id="input-tel-proveedor" type="tel" inputmode="numeric" placeholder="Ej: 3516123456"
-            style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:15px;">
+      </div>
+
+      <!-- Card estado -->
+      <div class="det-card">
+        <div class="det-card-header"><span class="det-card-title">Estado</span></div>
+        <div class="det-card-body">
+          <div class="det-estado-badge-wrap" id="d-estadoBadge2"></div>
+          <div class="det-estado-fecha" id="d-fechaEstado"></div>
         </div>
-        <button onclick="guardarProveedor()" style="width:100%;padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">💾 Guardar</button>
-        <div id="d-proveedor-feedback" style="font-size:12px;margin-top:6px;display:none;font-weight:600;text-align:center;"></div>
-      </div>
-      <!-- Meta -->
-      <div class="det-meta" id="d-meta-row" style="margin-top:8px">
-        <span>📋 <span id="d-norden"></span></span>
-        <span>📅 <span id="d-fecha"></span></span>
-        <span>👤 FGP: <span id="d-fgp"></span></span>
-        <span id="d-quien-wrap" style="display:none">🚗 Retira: <span id="d-quien"></span></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Productos -->
-  <div class="det-card">
-    <div class="det-card-header">
-      <span class="det-card-title">Productos</span>
-      <button class="btn-edit-small" id="btn-toggle-prods" onclick="toggleEditProductos()">✏️ Editar</button>
-    </div>
-    <div class="det-card-body" style="padding:12px 16px">
-
-      <!-- Vista de solo lectura -->
-      <div id="d-prod-view" class="det-prod-view"></div>
-
-      <!-- Vista de edición -->
-      <div id="d-prod-edit" style="display:none">
-        <div style="overflow-x:auto;">
-          <table class="det-prod-table">
-            <thead><tr>
-              <th style="min-width:120px">Producto</th>
-              <th style="width:80px">Unid.</th>
-              <th style="width:60px">Cant.</th>
-              <th style="width:80px">Precio $</th>
-            </tr></thead>
-            <tbody id="det-tbody-productos"></tbody>
-          </table>
-        </div>
-        <button class="btn-save-prods" onclick="guardarProductos()">💾 Guardar productos</button>
-        <div id="d-prod-feedback" style="font-size:12px;margin-top:6px;display:none;text-align:center;font-weight:600;"></div>
       </div>
 
-    </div>
-
-    <!-- Total -->
-    <div class="det-total-row">
-      <span class="det-total-label">Total</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span class="det-total-value" id="d-total">—</span>
-        <button class="btn-edit-small" id="btn-editar-total" onclick="editarTotal()">✏️</button>
-      </div>
-    </div>
-    <div id="d-total-edit" style="display:none;padding:12px 16px;gap:8px;flex-direction:column;">
-      <input id="input-total" type="text" placeholder="Ej: 1500" inputmode="decimal"
-        style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:700;">
-      <button onclick="guardarTotal()" style="padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Guardar total</button>
-    </div>
-    <div id="d-total-feedback" style="font-size:12px;padding:0 16px 8px;display:none;font-weight:600;"></div>
-  </div>
-
-  <!-- Estado + notas -->
-  <div class="det-card">
-    <div class="det-card-header"><span class="det-card-title">Estado</span></div>
-    <div class="det-card-body">
-      <div style="margin-bottom:6px" id="d-estadoBadge"></div>
-      <div style="font-size:12px;color:#9ca3af" id="d-fechaEstado"></div>
-      <div id="d-notas-wrap" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:4px">Notas</div>
-        <div style="font-size:14px;color:#374151" id="d-notas"></div>
-      </div>
     </div>
   </div>
 
@@ -1042,13 +1088,24 @@ function productosToStr(tbody) {
 
 function renderProdView(productosStr) {
   var rows = parseProductos(productosStr).filter(function(r){ return r.nombre; });
-  if (!rows.length) { document.getElementById('d-prod-view').innerHTML = '<span style="color:#9ca3af;font-size:13px">Sin productos cargados.</span>'; return; }
-  document.getElementById('d-prod-view').innerHTML = rows.map(function(r) {
-    var qty = r.cantidad ? r.cantidad + ' ' + r.unidad : '';
-    var price = r.precio ? '$ ' + r.precio : '';
-    return '<div class="det-prod-item"><span class="det-prod-nombre">' + r.nombre + '</span>' +
-      (qty ? '<span class="det-prod-qty">' + qty + '</span>' : '') +
-      (price ? '<span class="det-prod-precio">' + price + '</span>' : '') + '</div>';
+  var container = document.getElementById('d-prod-view');
+  if (!rows.length) {
+    container.innerHTML = '<div style="padding:14px 0;color:#9ca3af;font-size:13px">Sin productos cargados.</div>';
+    return;
+  }
+  container.innerHTML = rows.map(function(r) {
+    var precioNum = r.precio ? parseFloat(String(r.precio).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0 : 0;
+    var cantNum   = r.cantidad ? parseFloat(r.cantidad) || 0 : 0;
+    var lineTotal = cantNum && precioNum ? '$ ' + (cantNum * precioNum).toLocaleString('es-AR') : '';
+    var sub = [];
+    if (r.cantidad) sub.push(r.cantidad + ' ' + r.unidad + (precioNum ? ' × $ ' + precioNum.toLocaleString('es-AR') : ''));
+    return '<div class="det-prod-item">' +
+      '<div class="det-prod-info">' +
+        '<div class="det-prod-nombre">' + r.nombre + '</div>' +
+        (sub.length ? '<div class="det-prod-sub">' + sub.join(' · ') + '</div>' : '') +
+      '</div>' +
+      (lineTotal ? '<div class="det-prod-total">' + lineTotal + '</div>' : '') +
+    '</div>';
   }).join('');
 }
 
@@ -1132,7 +1189,7 @@ function toggleEditProductos() {
     btn.textContent = '✕ Cancelar';
   } else {
     edit.style.display = 'none';
-    view.style.display = 'flex';
+    view.style.display = 'block';
     btn.textContent = '✏️ Editar';
     document.getElementById('d-prod-feedback').style.display = 'none';
   }
@@ -1200,18 +1257,13 @@ function renderDetalle(p) {
   document.getElementById('btn-toggle-proveedor').textContent = '✏️ Editar';
   if (p.tel) { document.getElementById('d-tel').textContent = p.tel; document.getElementById('d-tel-wrap').style.display = ''; }
   else { document.getElementById('d-tel-wrap').style.display = 'none'; }
-  document.getElementById('d-fgp').textContent        = p.fgp || '—';
+  document.getElementById('d-fgp').textContent = p.fgp || '—';
 
-  if (p.quien) {
-    document.getElementById('d-quien').textContent = p.quien;
-    document.getElementById('d-quien-wrap').style.display = '';
-  } else {
-    document.getElementById('d-quien-wrap').style.display = 'none';
-  }
+  if (p.quien) { document.getElementById('d-quien').textContent = p.quien; document.getElementById('d-quien-wrap').style.display = ''; }
+  else { document.getElementById('d-quien-wrap').style.display = 'none'; }
 
   renderProdView(p.productos || '');
-  // Asegurar vista de productos visible
-  document.getElementById('d-prod-view').style.display = 'flex';
+  document.getElementById('d-prod-view').style.display = 'block';
   document.getElementById('d-prod-edit').style.display = 'none';
   document.getElementById('btn-toggle-prods').textContent = '✏️ Editar';
 
@@ -1221,38 +1273,25 @@ function renderDetalle(p) {
   document.getElementById('d-total-feedback').style.display = 'none';
   document.getElementById('btn-editar-total').style.display = '';
 
-  if (p.notas) {
-    document.getElementById('d-notas').textContent = p.notas;
-    document.getElementById('d-notas-wrap').style.display = '';
-  } else {
-    document.getElementById('d-notas-wrap').style.display = 'none';
-  }
+  if (p.notas) { document.getElementById('d-notas').textContent = p.notas; document.getElementById('d-notas-wrap').style.display = ''; }
+  else { document.getElementById('d-notas-wrap').style.display = 'none'; }
 
-  document.getElementById('d-estadoBadge').innerHTML =
-    `<span class="badge-estado ${claseEstado(p.estado)}" style="font-size:14px;padding:5px 12px">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
+  const badgeHtml = `<span class="badge-estado ${claseEstado(p.estado)}" style="font-size:14px;padding:5px 12px">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
+  document.getElementById('d-estadoBadge').innerHTML  = badgeHtml;
+  document.getElementById('d-estadoBadge2').innerHTML = badgeHtml;
+  document.getElementById('d-estadoBadge-top').innerHTML = `<span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
   document.getElementById('d-fechaEstado').textContent = p.fechaEstado ? 'Actualizado: ' + p.fechaEstado : '';
-
-  document.getElementById('d-estadoBadge-top').innerHTML =
-    `<span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
 
   const sig = SIGUIENTE_ESTADO[p.estado] || [];
   const mostrarPool = ['Listo para retirar','Confirmado','En Camino'].includes(p.estado);
-
-  let botonesTop = sig
-    .filter(e => e !== 'Cancelado')
-    .map(e => `<button class="btn-accion-top ${CLASE_BTN[e]||''}" onclick="confirmarAccion('${p.norden}','${e}')">${LABEL_ACCION[e]||e}</button>`)
-    .join('');
-
+  let botonesTop = sig.filter(e => e !== 'Cancelado')
+    .map(e => `<button class="btn-accion-top ${CLASE_BTN[e]||''}" onclick="confirmarAccion('${p.norden}','${e}')">${LABEL_ACCION[e]||e}</button>`).join('');
   if (mostrarPool) {
     const params = new URLSearchParams({ norden: p.norden, proveedor: p.proveedor, producto: p.productos, fgp: p.fgp||'' });
-    botonesTop += `<a href="retiro-proveedor.html?${params}" class="btn-accion-top btn-pool">🚗 Solicitar Pool para Retirar</a>`;
+    botonesTop += `<a href="retiro-proveedor.html?${params}" class="btn-accion-top btn-pool">🚗 Solicitar Pool</a>`;
   }
-  if (sig.includes('Cancelado')) {
-    botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="confirmarAccion('${p.norden}','Cancelado')">Cancelar Pedido</button>`;
-  }
-  if (p.estado === 'Solicitado' && esAdmin()) {
-    botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="eliminarPedido('${p.norden}')">🗑️ Eliminar</button>`;
-  }
+  if (sig.includes('Cancelado')) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="confirmarAccion('${p.norden}','Cancelado')">Cancelar</button>`;
+  if (p.estado === 'Solicitado' && esAdmin()) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="eliminarPedido('${p.norden}')">🗑️ Eliminar</button>`;
   document.getElementById('d-acciones-top').innerHTML = botonesTop;
 }
 
