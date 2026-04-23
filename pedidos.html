@@ -1115,6 +1115,16 @@ function renderProdView(productosStr) {
   }).join('');
 }
 
+function recalcularTotalEdit() {
+  var total = 0;
+  document.querySelectorAll('#det-tbody-productos tr').forEach(function(tr) {
+    var cant = parseFloat(tr.querySelector('.dp-cant').value) || 0;
+    var prec = parseFloat((tr.querySelector('.dp-precio').value||'').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+    total += cant * prec;
+  });
+  document.getElementById('d-total').textContent = total > 0 ? '$ ' + total.toLocaleString('es-AR') : '—';
+}
+
 function renderProdEdit(productosStr) {
   var rows = parseProductos(productosStr);
   var tbody = document.getElementById('det-tbody-productos');
@@ -1122,8 +1132,8 @@ function renderProdEdit(productosStr) {
     return '<tr>' +
       '<td style="min-width:120px"><input class="dp-nombre" type="text" placeholder="Producto" value="' + escHtml(r.nombre) + '"></td>' +
       '<td><select class="dp-unid"><option' + (r.unidad==='Unidades'?' selected':'') + '>Unidades</option><option' + (r.unidad==='Kg'?' selected':'') + '>Kg</option><option' + (r.unidad==='Cajas'?' selected':'') + '>Cajas</option></select></td>' +
-      '<td><input class="dp-cant" type="text" inputmode="numeric" placeholder="Cant." value="' + escHtml(r.cantidad) + '"></td>' +
-      '<td><input class="dp-precio" type="text" inputmode="decimal" placeholder="$" value="' + escHtml(r.precio) + '"></td>' +
+      '<td><input class="dp-cant" type="text" inputmode="numeric" placeholder="Cant." value="' + escHtml(r.cantidad) + '" oninput="recalcularTotalEdit()"></td>' +
+      '<td><input class="dp-precio" type="text" inputmode="decimal" placeholder="$" value="' + escHtml(r.precio) + '" onblur="recalcularTotalEdit()"></td>' +
     '</tr>';
   }).join('');
 }
