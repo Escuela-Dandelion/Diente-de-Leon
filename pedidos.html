@@ -1228,7 +1228,14 @@ function toggleEditProveedor() {
 
 function guardarProveedor() {
   var nombre = document.getElementById('input-proveedor').value.trim();
-  var tel    = document.getElementById('input-tel-proveedor').value.trim().replace(/\D/g,'');
+  var telRaw = document.getElementById('input-tel-proveedor').value.trim().replace(/\D/g,'');
+  // Normalizar a 549 + 10 dígitos
+  var tel = telRaw;
+  if (tel.startsWith('549') && tel.length === 13) { /* ya correcto */ }
+  else if (tel.startsWith('549')) tel = '549' + tel.slice(3);
+  else if (tel.startsWith('54'))  tel = '549' + tel.slice(2);
+  else if (tel.startsWith('9'))   tel = '549' + tel.slice(1);
+  else if (tel.length > 0)        tel = '549' + tel;
   if (!nombre) {
     var fb = document.getElementById('d-proveedor-feedback');
     fb.textContent = '⚠️ El nombre del proveedor es obligatorio.'; fb.style.color = '#b45309'; fb.style.display = 'block';
@@ -1344,9 +1351,12 @@ function renderDetalle(p) {
     document.getElementById('d-tel').textContent = p.tel;
     document.getElementById('d-tel-wrap').style.display = '';
     var numFinal = p.tel.replace(/\D/g,'');
-    // Normalizar: quitar prefijo duplicado si ya tiene 54 o 549
-    numFinal = numFinal.replace(/^(\+?54)?9?/, ''); // quitar cualquier 54/549 al inicio
-    numFinal = '549' + numFinal;
+    // Normalizar → siempre '549' + 10 dígitos locales
+    if (numFinal.startsWith('549') && numFinal.length === 13) { /* ya correcto */ }
+    else if (numFinal.startsWith('549')) numFinal = '549' + numFinal.slice(3);
+    else if (numFinal.startsWith('54'))  numFinal = '549' + numFinal.slice(2);
+    else if (numFinal.startsWith('9'))   numFinal = '549' + numFinal.slice(1);
+    else                                  numFinal = '549' + numFinal;
     document.getElementById('btn-wa-proveedor').href = 'https://wa.me/' + numFinal + '?text=' + encodeURIComponent(armarMensajePedido(p));
     document.getElementById('btn-wa-proveedor').style.display = 'flex';
   } else {
