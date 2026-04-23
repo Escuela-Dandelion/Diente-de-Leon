@@ -361,10 +361,16 @@ function logout() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-loading').style.display = 'none';
-  document.getElementById('google-btn-container').style.display = 'block';
+  document.getElementById('login-error').style.display = 'none';
+  // Re-renderizar el botón de Google
+  var container = document.getElementById('google-btn-container');
+  container.innerHTML = '';
+  container.style.display = 'block';
   if (window.google && google.accounts) {
     google.accounts.id.disableAutoSelect();
     google.accounts.id.cancel();
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleLogin });
+    google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', width: 280, text: 'signin_with', locale: 'es' });
   }
 }
 
