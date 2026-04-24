@@ -1712,9 +1712,10 @@ async function ejecutarAccion() {
   try {
     console.log('[DDL] updateEstado →', norden, nuevoEstado);
     const resp = await fetch(SCRIPT_URL, {
-      method:  'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body:    JSON.stringify({ action: 'updateEstado', norden, estado: nuevoEstado })
+      method:   'POST',
+      redirect: 'follow',
+      headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
+      body:     JSON.stringify({ action: 'updateEstado', norden, estado: nuevoEstado })
     });
     const text = await resp.text();
     console.log('[DDL] respuesta raw:', text);
@@ -1759,18 +1760,18 @@ async function ejecutarAccion() {
 
 function mostrarFlash(msg, tipo) {
   const el = document.getElementById('flash');
-  el.textContent = msg;
+  el.innerHTML = msg + (tipo === 'error' ? ' <button onclick="this.parentElement.style.display=\'none\'" style="margin-left:10px;background:none;border:none;font-size:14px;cursor:pointer;color:inherit;opacity:.7">✕</button>' : '');
   el.className = 'flash ' + tipo;
   el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 4000);
+  if (tipo !== 'error') setTimeout(() => { el.style.display = 'none'; }, 4000);
 }
 
 function mostrarFlashDetalle(msg, tipo) {
   const el = document.getElementById('flashDetalle');
-  el.textContent = msg;
+  el.innerHTML = msg + (tipo === 'error' ? ' <button onclick="this.parentElement.style.display=\'none\'" style="margin-left:10px;background:none;border:none;font-size:14px;cursor:pointer;color:inherit;opacity:.7">✕</button>' : '');
   el.className = 'flash ' + tipo;
   el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 4000);
+  if (tipo !== 'error') setTimeout(() => { el.style.display = 'none'; }, 4000);
 }
 </script>
 </body>
