@@ -17,7 +17,7 @@ const CONFIG_STOCK = {
 
 const FGP_POR_MARCA = {
   'LA YAYA':                  { nombre: 'Yuliana Longhi',   telefono: '5493513645612', email: 'longhi.yuliana@gmail.com', tel_proveedor: '' },
-  'ODDIS':                    { nombre: 'Luli Del Castillo', telefono: '5493513003789', email: null,                       tel_proveedor: '' },
+  'ODDIS':                    { nombre: 'Luli Del Castillo', telefono: '5493513003789', email: 'lourdelcastillo@gmail.com', tel_proveedor: '' },
   'CABALLO NEGRO':            { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' },
   'YEMARI':                   { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' },
   'GROEN':                    { nombre: 'Maria Martini',     telefono: '5493516865078', email: 'martinimaria39@gmail.com', tel_proveedor: '' },

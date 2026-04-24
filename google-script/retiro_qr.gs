@@ -1260,7 +1260,8 @@ var AUTH_EMAILS = {
   'robertson.ine@gmail.com':    { role: 'ADMIN', name: 'Inés' },
   'longhi.yuliana@gmail.com':        { role: 'ADMIN', name: 'Yuliana' },
   'yuliana.longhi@dandelion.edu.ar': { role: 'ADMIN', name: 'Yuliana' },
-  'martinimaria39@gmail.com':   { role: 'FGP',   name: 'Maria' }
+  'martinimaria39@gmail.com':   { role: 'FGP',   name: 'Maria' },
+  'lourdelcastillo@gmail.com':  { role: 'FGP',   name: 'Luli' }
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
 
