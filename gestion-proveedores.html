@@ -639,27 +639,46 @@
         </table>
       </div>
 
-      <!-- Planilla -->
-      <h3 style="margin:24px 0 10px">Planilla y herramientas</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📋 Planilla de Pedidos a Proveedor</div>
-          <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Fuente de verdad central. Columnas: <code>N° Orden · Fecha · Proveedor · FGP · Producto(s) · Cantidad · Unidad · Precio Unitario · Total · Estado · Fecha Estado · Quien lo busca · Comprobante Pago · Notas</code></p>
-          <p style="font-size:11px;color:var(--muted);margin:0 0 10px">La columna <strong>Total</strong> usa fórmula <code>=Cantidad×Precio</code> cuando hay un único producto. Se completa automáticamente al enviar la Orden de Pedido.</p>
-          <a href="https://docs.google.com/spreadsheets/d/1NmjnYWllrXrFpJI8GYJOjkGz90lPtvvDi0IQEYZl7-I/edit?gid=857535467" target="_blank" style="font-size:12px;color:var(--earth);font-weight:600">Abrir planilla →</a>
-        </div>
-
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📱 pedidos.html <span class="badge badge-active" style="font-size:10px;vertical-align:middle;margin-left:4px">✓ Activo</span></div>
-          <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Frontend mobile-first con acceso por PIN. Muestra todos los pedidos en curso como cards y permite avanzar el estado con un toque. Diseñado para usar desde el celular, desde el link del WhatsApp.</p>
-          <p style="font-size:12px;color:var(--muted);margin:0"><strong>Acceso:</strong> FGP para estados Confirmado → Entregado en Escuela. FGP para Pagado. Colaborador del pool accede por link directo sin PIN.</p>
-        </div>
-
+      <div class="callout" style="border-left:3px solid var(--earth);background:#fdf6ee">
+        <strong>Todo se gestiona desde el Admin.</strong> Cada pedido tiene su propio link que circula por WhatsApp — desde ahí se confirma, se avanza el estado y se coordina el retiro.
       </div>
 
-      <div class="callout" style="border-left:3px solid var(--earth);background:#fdf6ee">
-        <strong>Todo se gestiona desde las pantallas que llegan por WhatsApp.</strong> Cada pedido tiene su propio link que circula por mensaje — desde ahí se confirma, se avanza el estado y se coordina el retiro. No desde la planilla.
+      <!-- Previews de pantallas -->
+      <h3 style="margin:24px 0 12px">Pantallas que usarás</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px">
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:700;color:var(--text)">📋 Orden de Pedido</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Registrar el pedido al proveedor</div>
+          </div>
+          <div style="position:relative;overflow:hidden;height:320px;background:#f7f8fa">
+            <iframe src="https://escuela-dandelion.github.io/Comision-Recursos/orden-de-pedido.html"
+              style="width:200%;height:640px;border:none;transform:scale(0.5);transform-origin:top left;pointer-events:none;"
+              scrolling="no"></iframe>
+          </div>
+          <div style="padding:10px 14px">
+            <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=ordenes" target="_blank"
+              style="font-size:12px;color:var(--earth);font-weight:700;text-decoration:none;">Abrir pantalla →</a>
+          </div>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:700;color:var(--text)">🚗 Agendar Retiro</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Asignar un colaborador del pool</div>
+          </div>
+          <div style="position:relative;overflow:hidden;height:320px;background:#f7f8fa">
+            <iframe src="https://escuela-dandelion.github.io/Comision-Recursos/retiro-proveedor.html"
+              style="width:200%;height:640px;border:none;transform:scale(0.5);transform-origin:top left;pointer-events:none;"
+              scrolling="no"></iframe>
+          </div>
+          <div style="padding:10px 14px">
+            <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=retiro" target="_blank"
+              style="font-size:12px;color:var(--earth);font-weight:700;text-decoration:none;">Abrir pantalla →</a>
+          </div>
+        </div>
+
       </div>
     </div>
 
