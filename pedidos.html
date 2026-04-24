@@ -533,7 +533,7 @@ const EMOJI_ESTADO = {
 const LABEL_ACCION = {
   'Confirmado':          'Confirmar Pedido',
   'En Camino':           'Marcar en Camino',
-  'Entregado en Escuela':'Entregado en Escuela',
+  'Entregado en Escuela':'Entregar en Escuela',
   'Cerrado':             'Cerrar Pedido',
   'Cancelado':           'Cancelar Orden'
 };
@@ -1725,18 +1725,19 @@ async function ejecutarAccion() {
     if (json.ok) {
       cerrarModal();
 
-      // Actualizar estado local en el array global
+      // Actualizar estado local — siempre en ambos: pedidoActual y todosLosPedidos
       const idx = todosLosPedidos.findIndex(p => p.norden === norden);
-      const pedido = idx !== -1 ? todosLosPedidos[idx] : pedidoActual;
-      if (pedido) {
-        pedido.estado      = nuevoEstado;
-        pedido.fechaEstado = new Date().toLocaleDateString('es-AR');
-        if (idx !== -1) todosLosPedidos[idx] = pedido;
+      if (idx !== -1) {
+        todosLosPedidos[idx].estado      = nuevoEstado;
+        todosLosPedidos[idx].fechaEstado = new Date().toLocaleDateString('es-AR');
+      }
+      if (pedidoActual && pedidoActual.norden === norden) {
+        pedidoActual.estado      = nuevoEstado;
+        pedidoActual.fechaEstado = new Date().toLocaleDateString('es-AR');
       }
 
       // Si estamos en el detalle, actualizar la vista local
       if (pedidoActual && pedidoActual.norden === norden) {
-        pedidoActual = pedido;
         mostrarFlashDetalle('✅ Estado actualizado a "' + nuevoEstado + '"', 'success');
         renderDetalle(pedidoActual);
       } else {
