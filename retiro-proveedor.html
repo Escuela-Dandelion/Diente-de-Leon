@@ -145,9 +145,14 @@
           <input type="date" id="fecha_escuela" name="fecha_escuela">
         </div>
       </div>
+      <div class="field" id="notas-pedido-wrap" style="display:none">
+        <label>Notas del pedido</label>
+        <div id="notas-pedido-texto" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:13px;color:#6b7280;min-height:40px"></div>
+        <input type="hidden" id="notas" name="notas">
+      </div>
       <div class="field">
-        <label>Notas / Observaciones</label>
-        <textarea id="notas" name="notas" placeholder="Ej: Llamar antes de ir, traer bolsas. Si retirás solo parte del pedido, indicalo acá." rows="2"></textarea>
+        <label>Comentarios para el retiro</label>
+        <textarea id="comentarios_retiro" name="comentarios_retiro" placeholder="Ej: Llamar antes de ir, traer bolsas. Si retirás solo parte del pedido, indicalo acá." rows="2"></textarea>
       </div>
     </div>
   </div>
@@ -230,7 +235,8 @@ function armarMensaje(data) {
     '🏫 *Entregar en escuela:* ' + (data.fecha_escuela ? formatearFecha(data.fecha_escuela) : 'A confirmar')
   );
   if (data.norden) lineas.push('📋 *N° Orden:* ' + data.norden);
-  if (data.notas)  lineas.push('📝 *Notas:* '    + data.notas);
+  if (data.notas)  lineas.push('📝 *Notas del pedido:* ' + data.notas);
+  if (data.comentarios_retiro) lineas.push('💬 *Comentarios retiro:* ' + data.comentarios_retiro);
   lineas.push(
     '━━━━━━━━━━━━━━━━',
     '',
@@ -294,7 +300,12 @@ function renderTablaProductos(str) {
     set('lugar',        pedido.lugar || '');
     set('fecha_retiro', pedido.fecha_retiro || '');
     set('fecha_escuela',pedido.fecha_escuela || '');
-    set('notas',        pedido.notas || '');
+    // Notas del pedido — read-only
+    if (pedido.notas) {
+      document.getElementById('notas-pedido-texto').textContent = pedido.notas;
+      document.getElementById('notas-pedido-wrap').style.display = '';
+      document.getElementById('notas').value = pedido.notas;
+    }
     set('fgp',          pedido.fgp || '');
     if (pedido.quien) {
       const sel = document.getElementById('retira');
@@ -364,8 +375,9 @@ document.getElementById('formRetiro').addEventListener('submit', async function(
     fecha_retiro:  document.getElementById('fecha_retiro').value,
     fecha_escuela: document.getElementById('fecha_escuela').value,
     norden:        document.getElementById('norden').value.trim(),
-    notas:         document.getElementById('notas').value.trim(),
-    fgp:           document.getElementById('fgp').value.trim(),
+    notas:              document.getElementById('notas').value.trim(),
+    comentarios_retiro: document.getElementById('comentarios_retiro').value.trim(),
+    fgp:                document.getElementById('fgp').value.trim(),
     telefono_manual: document.getElementById('telefono_manual').value.trim()
   };
 

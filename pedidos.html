@@ -1461,8 +1461,8 @@ function renderDetalle(p) {
   document.getElementById('d-total-feedback').style.display = 'none';
   document.getElementById('btn-editar-total').style.display = '';
 
-  if (p.notas) { document.getElementById('d-notas').textContent = p.notas; document.getElementById('d-notas-wrap').style.display = ''; }
-  else { document.getElementById('d-notas-wrap').style.display = 'none'; }
+  document.getElementById('d-notas').textContent = p.notas || '—';
+  document.getElementById('d-notas-wrap').style.display = '';
 
   const badgeHtml = `<span class="badge-estado ${claseEstado(p.estado)}" style="font-size:14px;padding:5px 12px">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
   document.getElementById('d-estadoBadge').innerHTML  = badgeHtml;
