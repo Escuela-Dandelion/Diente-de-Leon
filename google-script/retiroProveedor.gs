@@ -102,7 +102,7 @@ function doGet(e) {
       const brandsSet = {};
       try {
         const resp = UrlFetchApp.fetch(
-          'https://api.tiendanube.com/v1/' + TN_STORE_ID + '/products?per_page=200&fields=brand', {
+          'https://api.tiendanube.com/v1/' + TN_STORE_ID + '/products?per_page=200', {
           headers: { 'Authentication': 'bearer ' + TN_API_TOKEN, 'User-Agent': 'DienteDeLeon (dientedeleon-admin@googlegroups.com)' }
         });
         JSON.parse(resp.getContentText()).forEach(function(p) {
