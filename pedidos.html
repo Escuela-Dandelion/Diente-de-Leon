@@ -1711,12 +1711,8 @@ async function ejecutarAccion() {
 
   try {
     console.log('[DDL] updateEstado →', norden, nuevoEstado);
-    const resp = await fetch(SCRIPT_URL, {
-      method:   'POST',
-      redirect: 'follow',
-      headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
-      body:     JSON.stringify({ action: 'updateEstado', norden, estado: nuevoEstado })
-    });
+    const url = SCRIPT_URL + '?action=updateEstado&norden=' + encodeURIComponent(norden) + '&estado=' + encodeURIComponent(nuevoEstado);
+    const resp = await fetch(url, { redirect: 'follow' });
     const text = await resp.text();
     console.log('[DDL] respuesta raw:', text);
     let json;

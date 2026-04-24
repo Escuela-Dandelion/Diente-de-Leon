@@ -140,6 +140,18 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (action === 'updateEstado') {
+      const resultado = updateEstadoPedido({
+        norden: e.parameter.norden || '',
+        estado: e.parameter.estado || '',
+        quien:  e.parameter.quien  || '',
+        notas:  e.parameter.notas  || ''
+      });
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, mensaje: resultado }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     // Health check
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true, status: 'DdL Retiro API activa' }))
