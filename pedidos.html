@@ -45,7 +45,7 @@
   .est-EnProceso      { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
   .est-Listo          { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
   .est-Recibido       { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
-  .est-Pagado         { background: #f0fdf4; color: #15803d; border: 1px solid #4ade80; font-weight: 700; }
+  .est-Cerrado         { background: #f0fdf4; color: #15803d; border: 1px solid #4ade80; font-weight: 700; }
   .est-Cancelado      { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
 
   /* FILTER BAR */
@@ -111,7 +111,7 @@
   .btn-accion-top.btn-enproceso  { background: #ede9fe; color: #5b21b6; }
   .btn-accion-top.btn-listo      { background: #fef3c7; color: #92400e; }
   .btn-accion-top.btn-recibido   { background: #d4edd8; color: #166534; }
-  .btn-accion-top.btn-pagado     { background: #2d5a27; color: #fff; }
+  .btn-accion-top.btn-pagado { background: #2d5a27; color: #fff; }
   .btn-accion-top.btn-cancelado  { background: #fee2e2; color: #991b1b; }
   .btn-accion-top.btn-pool       { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
   .btn-accion-top.btn-cancelar-ord { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
@@ -249,7 +249,7 @@
         <button class="filtro-btn" data-estado="Confirmado" onclick="filtrar(this)">Confirmado</button>
         <button class="filtro-btn" data-estado="Entregado en Escuela" onclick="filtrar(this)">Entregado</button>
         <button class="filtro-btn" data-estado="Recibido" onclick="filtrar(this)">Recibido</button>
-        <button class="filtro-btn" data-estado="Pagado" onclick="filtrar(this)">Pagado</button>
+        <button class="filtro-btn" data-estado="Cerrado" onclick="filtrar(this)">Cerrado</button>
       </div>
     </div>
 
@@ -500,8 +500,8 @@ const SIGUIENTE_ESTADO = {
   'Solicitado':          ['Confirmado',           'Cancelado'],
   'Confirmado':          ['En Camino',            'Cancelado'],
   'En Camino':           ['Entregado en Escuela', 'Cancelado'],
-  'Entregado en Escuela':['Pagado'],
-  'Pagado':              [],
+  'Entregado en Escuela':['Cerrado'],
+  'Cerrado':             [],
   'Cancelado':           []
 };
 
@@ -509,7 +509,7 @@ const CLASE_BTN = {
   'Confirmado':          'btn-confirmar',
   'En Camino':           'btn-enproceso',
   'Entregado en Escuela':'btn-listo',
-  'Pagado':              'btn-pagado',
+  'Cerrado':             'btn-pagado',
   'Cancelado':           'btn-cancelado'
 };
 
@@ -518,7 +518,7 @@ const EMOJI_ESTADO = {
   'Confirmado':          '✅',
   'En Camino':           '🚚',
   'Entregado en Escuela':'🏫',
-  'Pagado':              '💰',
+  'Cerrado':             '🔒',
   'Cancelado':           '❌'
 };
 
@@ -526,7 +526,7 @@ const LABEL_ACCION = {
   'Confirmado':          'Confirmar Pedido',
   'En Camino':           'Marcar en Camino',
   'Entregado en Escuela':'Entregado en Escuela',
-  'Pagado':              'Confirmar Pago',
+  'Cerrado':             'Cerrar Pedido',
   'Cancelado':           'Cancelar Orden'
 };
 
@@ -534,8 +534,8 @@ const SUBTITULO_ESTADO = {
   'Solicitado':          'Pendiente de confirmación del proveedor',
   'Confirmado':          'Proveedor confirmó — coordinar retiro con el pool',
   'En Camino':           'Mercadería en camino a la escuela',
-  'Entregado en Escuela':'Mercadería entregada en la escuela',
-  'Pagado':              'Orden completada ✓',
+  'Entregado en Escuela':'Mercadería entregada — actualizar stock en TiendaNube',
+  'Cerrado':             'Stock actualizado en TiendaNube ✓',
   'Cancelado':           'Orden cancelada'
 };
 
@@ -1045,7 +1045,7 @@ function claseEstado(estado) {
   if (estado === 'En Camino')        return 'est-EnProceso';
   if (estado === 'Entregado en Escuela')return 'est-Listo';
   if (estado === 'Recibido')          return 'est-Recibido';
-  if (estado === 'Pagado')            return 'est-Pagado';
+  if (estado === 'Cerrado')            return 'est-Cerrado';
   if (estado === 'Cancelado')         return 'est-Cancelado';
   return '';
 }
@@ -1656,7 +1656,7 @@ async function ejecutarSubida() {
       btn.textContent = 'Listo ✓';
       const idx = todosLosPedidos.findIndex(p => p.norden === uploadNorden);
       if (idx !== -1) {
-        todosLosPedidos[idx].estado      = 'Pagado';
+        todosLosPedidos[idx].estado = 'Entregado en Escuela';
         todosLosPedidos[idx].comprobante = data.url || '';
       }
       setTimeout(cerrarUpload, 2200);

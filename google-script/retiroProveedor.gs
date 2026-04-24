@@ -322,7 +322,7 @@ function updateEstadoPedido(data) {
   const { norden, estado, quien, notas } = data;
   if (!norden || !estado) throw new Error('Faltan campos: norden y estado son requeridos');
 
-  const ESTADOS_VALIDOS = ['Solicitado','Confirmado','En Camino','En Proceso','Entregado en Escuela','Recibido','Pagado','Cancelado'];
+  const ESTADOS_VALIDOS = ['Solicitado','Confirmado','En Camino','En Proceso','Entregado en Escuela','Recibido','Cerrado','Cancelado'];
   if (!ESTADOS_VALIDOS.includes(estado)) throw new Error('Estado inválido: ' + estado);
 
   const resultado = leerPedidoPorId(norden);
@@ -490,7 +490,7 @@ function subirComprobanteEnDrive(data) {
   const hoy   = Utilities.formatDate(new Date(), 'America/Argentina/Cordoba', 'dd/MM/yyyy');
 
   sheet.getRange(fila, COL.COMPROBANTE + 1).setValue(url);
-  sheet.getRange(fila, COL.ESTADO + 1).setValue('Pagado');
+  sheet.getRange(fila, COL.ESTADO + 1).setValue('Cerrado');
   sheet.getRange(fila, COL.FECHA_EST + 1).setValue(hoy);
 
   Logger.log('Comprobante subido: ' + norden + ' → ' + url);
@@ -537,7 +537,7 @@ function normalizarColumnas() {
   }
 
   // Detectar índice de "Estado" buscando en la fila 2 un valor que sea un estado válido
-  const ESTADOS = ['Solicitado','Confirmado','En Proceso','Entregado en Escuela','Recibido','Pagado','Cancelado'];
+  const ESTADOS = ['Solicitado','Confirmado','En Proceso','Entregado en Escuela','Recibido','Cerrado','Cancelado'];
   let estadoCol = -1;
   if (data[1]) {
     for (let c = 4; c < numCols; c++) {
