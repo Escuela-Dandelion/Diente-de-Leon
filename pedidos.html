@@ -927,6 +927,7 @@ function renderLista(pedidos) {
       <tr>
         <td class="col-norden">
           <a href="?id=${p.norden}${isEmbedded?'&auth=1':''}" onclick="event.preventDefault();abrirDetalle('${p.norden}')" style="color:#2d5a27;font-weight:700;text-decoration:underline;font-size:11px;">${p.norden}</a>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px">${p.fecha}</div>
           <div style="margin-top:3px">
             ${p.comprobante
               ? `<span style="background:#f0fdf4;color:#15803d;border:1px solid #4ade80;border-radius:100px;font-size:9px;font-weight:700;padding:1px 6px;">💳 Pagado</span>`
@@ -943,7 +944,6 @@ function renderLista(pedidos) {
             ${totalStr ? `<span style="font-size:12px;font-weight:700;color:#2d5a27;">${totalStr}</span>` : ''}
           </div>
         </td>
-        <td class="col-fecha">${p.fecha}</td>
         <td class="col-fgp">${p.fgp || ''}</td>
         <td class="col-estado">
           <span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>
@@ -1028,7 +1028,6 @@ function renderLista(pedidos) {
             <th>N° Orden</th>
             <th>Proveedor</th>
             <th>Productos</th>
-            <th>Fecha</th>
             <th>FGP</th>
             <th>Estado</th>
             <th>Acción</th>
