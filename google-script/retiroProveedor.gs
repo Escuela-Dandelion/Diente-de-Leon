@@ -88,15 +88,37 @@ function doGet(e) {
     }
 
     if (action === 'getProveedores') {
+      // 1. Teles guardados en la tab Proveedores
       const ss    = SpreadsheetApp.openById(CONFIG_RETIRO.PEDIDOS_SHEET_ID);
       const sheet = ss.getSheetByName('Proveedores');
-      const lista = [];
+      const telMap = {};
       if (sheet) {
         const data = sheet.getDataRange().getValues();
         for (let i = 1; i < data.length; i++) {
-          if (data[i][0]) lista.push({ nombre: String(data[i][0]), tel: String(data[i][1] || '') });
+          if (data[i][0]) telMap[String(data[i][0]).toUpperCase()] = String(data[i][1] || '');
         }
       }
+      // 2. Marcas de TiendaNube como lista base
+      const brandsSet = {};
+      try {
+        const resp = UrlFetchApp.fetch(
+          'https://api.tiendanube.com/v1/' + TN_STORE_ID + '/products?per_page=200&fields=brand', {
+          headers: { 'Authentication': 'bearer ' + TN_API_TOKEN, 'User-Agent': 'DienteDeLeon (dientedeleon-admin@googlegroups.com)' }
+        });
+        JSON.parse(resp.getContentText()).forEach(function(p) {
+          const brand = p.brand ? String(p.brand).trim() : '';
+          if (brand) brandsSet[brand.toUpperCase()] = brand;
+        });
+      } catch(e) { Logger.log('Error TN: ' + e.message); }
+      // 3. Merge: marcas TN + proveedores del Sheet (puede haber proveedores sin marca TN)
+      const listaMap = {};
+      Object.keys(brandsSet).forEach(function(key) {
+        listaMap[key] = { nombre: brandsSet[key], tel: telMap[key] || '' };
+      });
+      Object.keys(telMap).forEach(function(key) {
+        if (!listaMap[key]) listaMap[key] = { nombre: key, tel: telMap[key] };
+      });
+      const lista = Object.values(listaMap).sort(function(a,b){ return a.nombre.localeCompare(b.nombre); });
       return ContentService
         .createTextOutput(JSON.stringify({ ok: true, proveedores: lista }))
         .setMimeType(ContentService.MimeType.JSON);
