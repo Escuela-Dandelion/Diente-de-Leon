@@ -364,9 +364,18 @@
 
       <!-- Notas — debajo de productos -->
       <div class="det-card" id="d-notas-wrap">
-        <div class="det-card-header"><span class="det-card-title">Notas del pedido</span></div>
+        <div class="det-card-header">
+          <span class="det-card-title">Notas del pedido</span>
+          <button class="btn-edit-small" id="btn-editar-notas" onclick="editarNotas()">✏️ Editar</button>
+        </div>
         <div class="det-card-body">
           <div id="d-notas" style="color:#374151;font-size:13px;min-height:20px"></div>
+          <div id="d-notas-edit" style="display:none;margin-top:8px">
+            <textarea id="input-notas" rows="3" placeholder="Agregar notas…"
+              style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical"></textarea>
+            <button onclick="guardarNotas()" style="margin-top:6px;width:100%;padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">💾 Guardar notas</button>
+            <div id="d-notas-feedback" style="font-size:12px;margin-top:4px;display:none;font-weight:600;"></div>
+          </div>
         </div>
       </div>
 
@@ -535,7 +544,7 @@ const LABEL_ACCION = {
   'En Camino':           'Marcar en Camino',
   'Entregado en Escuela':'Entregar en Escuela',
   'Cerrado':             'Cerrar Pedido',
-  'Cancelado':           'Cancelar Orden'
+  'Cancelado':           'Cancelar Pedido'
 };
 
 const SUBTITULO_ESTADO = {
@@ -1550,6 +1559,48 @@ function guardarTotal() {
     mostrarTotalFeedback('✅ Total guardado.', '#166534');
   })
   .catch(function(){ btnTotal.disabled=false; btnTotal.style.opacity=''; mostrarTotalFeedback('❌ Error de conexión.', '#dc2626'); });
+}
+
+// ── EDITAR NOTAS ──────────────────────────────────────────────
+function editarNotas() {
+  var edit = document.getElementById('d-notas-edit');
+  var btn  = document.getElementById('btn-editar-notas');
+  if (edit.style.display === 'none') {
+    document.getElementById('input-notas').value = pedidoActual.notas || '';
+    edit.style.display = 'block';
+    btn.textContent = '✕ Cancelar';
+    document.getElementById('input-notas').focus();
+  } else {
+    edit.style.display = 'none';
+    btn.textContent = '✏️ Editar';
+    document.getElementById('d-notas-feedback').style.display = 'none';
+  }
+}
+
+function guardarNotas() {
+  var notas = document.getElementById('input-notas').value.trim();
+  var fb    = document.getElementById('d-notas-feedback');
+  var btn   = document.querySelector('#d-notas-edit button[onclick*="guardarNotas"]');
+  btn.disabled = true; btn.style.opacity = '0.6';
+  fb.textContent = '⏳ Guardando…'; fb.style.color = '#6b7280'; fb.style.display = 'block';
+
+  var url = SCRIPT_URL + '?action=updateNotas&norden=' + encodeURIComponent(pedidoActual.norden) + '&notas=' + encodeURIComponent(notas);
+  fetch(url, { redirect: 'follow' })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      btn.disabled = false; btn.style.opacity = '';
+      if (!data.ok) { fb.textContent = '❌ ' + (data.error||'Error.'); fb.style.color='#dc2626'; return; }
+      pedidoActual.notas = notas;
+      var idx = todosLosPedidos.findIndex(function(p){ return p.norden===pedidoActual.norden; });
+      if (idx !== -1) todosLosPedidos[idx].notas = notas;
+      document.getElementById('d-notas').textContent = notas || '—';
+      editarNotas();
+      mostrarFlashDetalle('✅ Notas guardadas.', 'success');
+    })
+    .catch(function(){
+      btn.disabled = false; btn.style.opacity = '';
+      fb.textContent = '❌ Error de conexión.'; fb.style.color='#dc2626';
+    });
 }
 
 function mostrarTotalFeedback(msg, color) {

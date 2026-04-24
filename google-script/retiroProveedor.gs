@@ -140,6 +140,17 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (action === 'updateNotas') {
+      const resultado = leerPedidoPorId(e.parameter.norden || '');
+      if (!resultado) throw new Error('Pedido no encontrado');
+      const sheet = getPedidosSheet();
+      sheet.getRange(resultado.fila, COL.NOTAS + 1).setValue(e.parameter.notas || '');
+      Logger.log('Notas actualizadas: ' + e.parameter.norden);
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (action === 'updateEstado') {
       const resultado = updateEstadoPedido({
         norden: e.parameter.norden || '',
