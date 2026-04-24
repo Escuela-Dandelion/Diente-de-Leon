@@ -242,7 +242,7 @@
   <a href="#checklists" class="sub">→ Retiro en proveedor</a>
   <a href="#checklists" class="sub">→ Recepción en escuela</a>
   <a href="#calendario">Calendario de Gestión</a>
-  <a href="#pendientes">Pendientes / TBD</a>
+  <a href="#pendientes">Próximas mejoras</a>
 
   <div class="sidebar-section" style="margin-top:auto">Proyecto</div>
   <a href="wiki-comision-recursos.html">🌻 Wiki Principal</a>
@@ -780,35 +780,9 @@ Cualquier cosa podés coordinar con <strong>Maria Martini</strong> al 5493516865
 
     <!-- PENDIENTES -->
     <div class="section" id="pendientes">
-      <h2><span class="icon">📌</span> Pendientes / TBD</h2>
-
-      <h3 style="font-size:13px;margin:0 0 8px">✅ Resuelto</h3>
-      <ul class="checklist" style="margin-bottom:20px">
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Establecer puntos de pedido por producto</span> — umbral definido en 10 unidades, trigger activo en TiendaNube.</li>
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Crear formulario Google de solicitud de reposición</span> — reemplazado por alerta automática + Orden de Pedido con URL params.</li>
-      </ul>
-
-      <h3 style="font-size:13px;margin:0 0 8px">🔧 Pista A — Pedido al proveedor</h3>
-      <ul class="checklist" style="margin-bottom:20px">
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Lectura de parámetros URL en orden-de-pedido.html</span> — implementado, <strong>verificar que funcione correctamente end-to-end</strong>.</li>
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Registro en Google Sheets al confirmar la orden</span> — implementado, <strong>verificar que todos los campos llegan bien al Sheet</strong>.</li>
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Botón "Enviar WhatsApp al proveedor"</span> — funcionando.</li>
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Al enviar el WhatsApp al proveedor, actualizar el estado en el Sheet a "Solicitado"</span> — se registra automáticamente al enviar la Orden de Pedido.</li>
-        <li><div class="box"></div> Definir qué número de WhatsApp recibe el pedido por proveedor (si hay más de uno).</li>
-      </ul>
-
-      <h3 style="font-size:13px;margin:0 0 8px">🔧 Pista B — Pool de colaboradores</h3>
-      <ul class="checklist" style="margin-bottom:20px">
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Asignación de colaborador desde pedidos.html</span> — FGP va al detalle del pedido → "Agendar Retiro con el Pool" → retiro-proveedor.html pre-completado.</li>
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">WhatsApp automático al colaborador</span> — enviado por el sistema al confirmar el agendamiento en retiro-proveedor.html .</li>
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Acceso del colaborador a pedidos.html para marcar "Recibido"</span> — accede por link directo en el WhatsApp, sin PIN.</li>
-      </ul>
-
-      <h3 style="font-size:13px;margin:0 0 8px">📋 Operativo general</h3>
+      <h2><span class="icon">📌</span> Próximas mejoras</h2>
       <ul class="checklist">
-        <li><div class="box"></div> Crear formularios de "Retiro realizado" y "Recepción en escuela" (pasos 4 y 5).</li>
-        <li><div class="box" style="background:var(--earth);border-color:var(--earth)"></div> <span style="text-decoration:line-through;color:var(--muted)">Definir quién autoriza los pedidos a proveedores</span> — la FGP lo gestiona directamente, proceso documentado en la Wiki.</li>
-        <li><div class="box"></div> Definir zonas de cobertura del pool para futura operación de despacho externo.</li>
+        <li><div class="box"></div> Asignación inteligente del colaborador del pool por zona de cobertura.</li>
       </ul>
     </div>
 
