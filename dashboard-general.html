@@ -173,6 +173,8 @@
       .card-label { font-size:9px; }
     }
   </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 </head>
 <body>
 
@@ -181,10 +183,20 @@
   <div class="login-card">
     <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Diente de León">
     <h2>Dashboard General</h2>
-    <p>Ingresá tu PIN para acceder</p>
+    <p>Ingresá con tu cuenta de Google o con PIN</p>
+    <div id="google-btn-dash" style="display:flex;justify-content:center;margin-bottom:4px"></div>
+    <div id="login-loading-dash" style="display:none;text-align:center;margin:8px 0">
+      <div style="display:inline-block;width:22px;height:22px;border:3px solid #c8e6c9;border-top-color:#1a1a6e;border-radius:50%;animation:spin .7s linear infinite"></div>
+      <p style="font-size:12px;color:#888;margin-top:6px">Verificando acceso…</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin:14px 0">
+      <div style="flex:1;height:1px;background:#e0e0e0"></div>
+      <span style="font-size:11px;color:#aaa;white-space:nowrap">o ingresá con PIN</span>
+      <div style="flex:1;height:1px;background:#e0e0e0"></div>
+    </div>
     <input type="password" id="pin-input" placeholder="••••" maxlength="8"
            onkeydown="if(event.key==='Enter') ingresar()">
-    <button id="btn-login" onclick="ingresar()">Ingresar</button>
+    <button id="btn-login" onclick="ingresar()">Ingresar con PIN</button>
     <p id="login-error"></p>
   </div>
 </div>
@@ -454,8 +466,39 @@ window.addEventListener('load', function(){
   } catch(e) {}
   // Fallback: PIN session
   var pin = leerSesion();
-  if (pin) _doLogin(pin, false);
+  if (pin) { _doLogin(pin, false); return; }
+  // Mostrar botón Google
+  if (typeof google !== 'undefined') {
+    google.accounts.id.initialize({ client_id: '308208183848-61d09u9u2vlb6852hqi1rspevi2r2qbk.apps.googleusercontent.com', callback: onGoogleLoginDash });
+    google.accounts.id.renderButton(document.getElementById('google-btn-dash'),
+      { theme: 'outline', size: 'large', width: 280, text: 'signin_with', locale: 'es' });
+  }
 });
+
+function onGoogleLoginDash(response) {
+  var payload = JSON.parse(atob(response.credential.split('.')[1]));
+  var email = payload.email;
+  document.getElementById('google-btn-dash').style.display = 'none';
+  document.getElementById('login-loading-dash').style.display = 'block';
+  fetch(APPS_URL + '?action=api_dashboard&email=' + encodeURIComponent(email), { redirect:'follow' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      document.getElementById('login-loading-dash').style.display = 'none';
+      document.getElementById('google-btn-dash').style.display = 'flex';
+      if (d.ok) {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
+        initDashboard(d);
+      } else {
+        showErr('Tu cuenta no tiene acceso. Contactá al administrador.');
+      }
+    })
+    .catch(function(){
+      document.getElementById('login-loading-dash').style.display = 'none';
+      document.getElementById('google-btn-dash').style.display = 'flex';
+      showErr('Error de conexión. Intentá de nuevo.');
+    });
+}
 
 // ── INIT ──
 function initDashboard(d) {
