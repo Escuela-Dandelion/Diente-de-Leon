@@ -853,16 +853,7 @@ function closeMenus() {
 document.addEventListener('click', closeMenus);
 
 function agendarPool(norden) {
-  const p = todosLosPedidos.find(x => x.norden === norden);
-  if (!p) return;
-  const params = new URLSearchParams();
-  params.set('norden',    p.norden);
-  params.set('proveedor', p.proveedor || '');
-  params.set('producto',  p.productos || '');
-  params.set('fgp',       p.fgp || '');
-  if (p.notas)  params.set('notas', p.notas);
-  if (p.quien)  params.set('retira', p.quien);
-  const url = 'retiro-proveedor.html?' + params.toString();
+  const url = 'retiro-proveedor.html?id=' + encodeURIComponent(norden);
   if (isEmbedded) {
     window.parent.postMessage({ type: 'ddl-nav', view: 'retiro', url: url }, '*');
   } else {

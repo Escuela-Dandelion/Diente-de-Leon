@@ -288,6 +288,45 @@ function renderTablaProductos(str) {
   const p = new URLSearchParams(window.location.search);
   const set = (id, val) => { if (val) document.getElementById(id).value = val; };
 
+  function poblarFormulario(pedido) {
+    set('proveedor',    pedido.proveedor);
+    set('norden',       pedido.norden);
+    set('lugar',        pedido.lugar || '');
+    set('fecha_retiro', pedido.fecha_retiro || '');
+    set('fecha_escuela',pedido.fecha_escuela || '');
+    set('notas',        pedido.notas || '');
+    set('fgp',          pedido.fgp || '');
+    if (pedido.quien) {
+      const sel = document.getElementById('retira');
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].text === pedido.quien) { sel.selectedIndex = i; break; }
+      }
+    }
+    const productoStr = pedido.productos || pedido.producto || '';
+    document.getElementById('producto').value = productoStr;
+    renderTablaProductos(productoStr);
+  }
+
+  const id = p.get('id');
+  if (id) {
+    // Cargar pedido desde GAS por ID
+    document.getElementById('productos-tabla').textContent = 'Cargando pedido…';
+    fetch(SCRIPT_URL + '?action=getPedido&id=' + encodeURIComponent(id))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ok && data.pedido) {
+          poblarFormulario(data.pedido.pedido || data.pedido);
+        } else {
+          document.getElementById('productos-tabla').textContent = 'No se encontró el pedido.';
+        }
+      })
+      .catch(function() {
+        document.getElementById('productos-tabla').textContent = 'Error al cargar. Recargá la página.';
+      });
+    return;
+  }
+
+  // Fallback: params individuales (retrocompatibilidad)
   set('proveedor',    p.get('proveedor'));
   set('norden',       p.get('norden'));
   set('lugar',        p.get('lugar'));
@@ -295,9 +334,7 @@ function renderTablaProductos(str) {
   set('fecha_escuela',p.get('fecha_escuela'));
   set('notas',        p.get('notas'));
   set('fgp',          p.get('fgp'));
-
-  // Productos → tabla read-only + hidden input
-  var productoStr = p.get('producto') || '';
+  const productoStr = p.get('producto') || '';
   document.getElementById('producto').value = productoStr;
   renderTablaProductos(productoStr);
 
