@@ -247,7 +247,7 @@
         <button class="filtro-btn active" data-estado="Todos" onclick="filtrar(this)">Todos</button>
         <button class="filtro-btn" data-estado="Solicitado" onclick="filtrar(this)">Solicitado</button>
         <button class="filtro-btn" data-estado="Confirmado" onclick="filtrar(this)">Confirmado</button>
-        <button class="filtro-btn" data-estado="Listo para retirar" onclick="filtrar(this)">Listo p/retirar</button>
+        <button class="filtro-btn" data-estado="Entregado en Escuela" onclick="filtrar(this)">Entregado</button>
         <button class="filtro-btn" data-estado="Recibido" onclick="filtrar(this)">Recibido</button>
         <button class="filtro-btn" data-estado="Pagado" onclick="filtrar(this)">Pagado</button>
       </div>
@@ -497,52 +497,46 @@ const PINS_ADMIN = ['PIR26', 'PYL26', 'PMM26'];
 
 // Próximos estados posibles por estado actual
 const SIGUIENTE_ESTADO = {
-  'Solicitado':        ['Confirmado',        'Cancelado'],
-  'Confirmado':        ['En Camino',        'Cancelado'],
-  'En Camino':        ['Listo para retirar','Cancelado'],
-  'Listo para retirar':['Recibido',          'Cancelado'],
-  'Recibido':          ['Pagado'],
-  'Pagado':            [],
-  'Cancelado':         []
+  'Solicitado':          ['Confirmado',           'Cancelado'],
+  'Confirmado':          ['En Camino',            'Cancelado'],
+  'En Camino':           ['Entregado en Escuela', 'Cancelado'],
+  'Entregado en Escuela':['Pagado'],
+  'Pagado':              [],
+  'Cancelado':           []
 };
 
 const CLASE_BTN = {
-  'Confirmado':        'btn-confirmar',
-  'En Camino':        'btn-enproceso',
-  'Listo para retirar':'btn-listo',
-  'Recibido':          'btn-recibido',
-  'Pagado':            'btn-pagado',
-  'Cancelado':         'btn-cancelado'
+  'Confirmado':          'btn-confirmar',
+  'En Camino':           'btn-enproceso',
+  'Entregado en Escuela':'btn-listo',
+  'Pagado':              'btn-pagado',
+  'Cancelado':           'btn-cancelado'
 };
 
 const EMOJI_ESTADO = {
-  'Solicitado':        '📋',
-  'Confirmado':        '✅',
-  'En Camino':        '🔄',
-  'Listo para retirar':'📦',
-  'Recibido':          '🏫',
-  'Pagado':            '💰',
-  'Cancelado':         '❌'
+  'Solicitado':          '📋',
+  'Confirmado':          '✅',
+  'En Camino':           '🚚',
+  'Entregado en Escuela':'🏫',
+  'Pagado':              '💰',
+  'Cancelado':           '❌'
 };
 
-// Etiquetas de acción orientadas a la tarea (qué hace el usuario, no el estado resultante)
 const LABEL_ACCION = {
-  'Confirmado':         'Confirmar Pedido',
-  'En Camino':         'Marcar en Camino',
-  'Listo para retirar': 'Marcar Listo p/Retirar',
-  'Recibido':           'Marcar como Recibido',
-  'Pagado':             'Confirmar Pago',
-  'Cancelado':          'Cancelar Orden'
+  'Confirmado':          'Confirmar Pedido',
+  'En Camino':           'Marcar en Camino',
+  'Entregado en Escuela':'Entregado en Escuela',
+  'Pagado':              'Confirmar Pago',
+  'Cancelado':           'Cancelar Orden'
 };
 
 const SUBTITULO_ESTADO = {
-  'Solicitado':         'Pendiente de confirmación',
-  'Confirmado':         'Pendiente de despachar',
-  'En Camino':         'El proveedor ya envió la mercadería',
-  'Listo para retirar': 'Coordinar retiro con el Pool',
-  'Recibido':           'Pendiente de pago',
-  'Pagado':             'Orden completada ✓',
-  'Cancelado':          'Orden cancelada'
+  'Solicitado':          'Pendiente de confirmación del proveedor',
+  'Confirmado':          'Proveedor confirmó — coordinar retiro con el pool',
+  'En Camino':           'Mercadería en camino a la escuela',
+  'Entregado en Escuela':'Mercadería entregada en la escuela',
+  'Pagado':              'Orden completada ✓',
+  'Cancelado':           'Orden cancelada'
 };
 
 // ── ESTADO GLOBAL ─────────────────────────────────────────────
@@ -965,7 +959,7 @@ function renderLista(pedidos) {
               ${p.estado !== 'Cancelado' ? `
               <div class="dots-menu-sep"></div>
               <button class="dots-menu-item" onclick="closeMenus(); abrirModalComprobante('${p.norden}')">📎 Adjuntar comprobante</button>` : ''}
-              ${['Listo para retirar','Confirmado','En Camino'].includes(p.estado)
+              ${['Entregado en Escuela','Confirmado','En Camino'].includes(p.estado)
                 ? `<button class="dots-menu-item" onclick="closeMenus(); agendarPool('${p.norden}')">🚗 Agendar con el Pool</button>`
                 : ''}
               ${(SIGUIENTE_ESTADO[p.estado] || []).includes('Cancelado')
@@ -1049,7 +1043,7 @@ function claseEstado(estado) {
   if (estado === 'Solicitado')        return 'est-Solicitado';
   if (estado === 'Confirmado')        return 'est-Confirmado';
   if (estado === 'En Camino')        return 'est-EnProceso';
-  if (estado === 'Listo para retirar')return 'est-Listo';
+  if (estado === 'Entregado en Escuela')return 'est-Listo';
   if (estado === 'Recibido')          return 'est-Recibido';
   if (estado === 'Pagado')            return 'est-Pagado';
   if (estado === 'Cancelado')         return 'est-Cancelado';
@@ -1476,7 +1470,7 @@ function renderDetalle(p) {
   document.getElementById('d-fechaEstado').textContent = p.fechaEstado ? 'Actualizado: ' + p.fechaEstado : '';
 
   const sig = SIGUIENTE_ESTADO[p.estado] || [];
-  const mostrarPool = ['Listo para retirar','Confirmado','En Camino'].includes(p.estado);
+  const mostrarPool = ['Entregado en Escuela','Confirmado','En Camino'].includes(p.estado);
   let botonesTop = sig.filter(e => e !== 'Cancelado')
     .map(e => `<button class="btn-accion-top ${CLASE_BTN[e]||''}" onclick="confirmarAccion('${p.norden}','${e}')">${LABEL_ACCION[e]||e}</button>`).join('');
   if (mostrarPool) {

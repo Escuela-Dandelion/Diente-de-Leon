@@ -156,12 +156,16 @@ function agendarRetiro(data) {
   // 1. Crear evento en Google Calendar
   crearEventoCalendario(data);
 
-  // 2. Actualizar estado del pedido a "Confirmado" y registrar quién retira
-  if (norden) {
+  // 2. Registrar quién retira en la planilla (sin cambiar estado — lo hace el FGP manualmente)
+  if (norden && retira) {
     try {
-      updateEstadoPedido({ norden: norden, estado: 'Confirmado', quien: retira, notas: notas });
+      const resultado = leerPedidoPorId(norden);
+      if (resultado) {
+        const sheet = getPedidosSheet();
+        sheet.getRange(resultado.fila, COL.QUIEN + 1).setValue(retira);
+      }
     } catch(e) {
-      Logger.log('No se pudo actualizar estado del pedido: ' + e.message);
+      Logger.log('No se pudo registrar quien retira: ' + e.message);
     }
   }
 
@@ -318,7 +322,7 @@ function updateEstadoPedido(data) {
   const { norden, estado, quien, notas } = data;
   if (!norden || !estado) throw new Error('Faltan campos: norden y estado son requeridos');
 
-  const ESTADOS_VALIDOS = ['Solicitado','Confirmado','En Camino','En Proceso','Listo para retirar','Recibido','Pagado','Cancelado'];
+  const ESTADOS_VALIDOS = ['Solicitado','Confirmado','En Camino','En Proceso','Entregado en Escuela','Recibido','Pagado','Cancelado'];
   if (!ESTADOS_VALIDOS.includes(estado)) throw new Error('Estado inválido: ' + estado);
 
   const resultado = leerPedidoPorId(norden);
@@ -533,7 +537,7 @@ function normalizarColumnas() {
   }
 
   // Detectar índice de "Estado" buscando en la fila 2 un valor que sea un estado válido
-  const ESTADOS = ['Solicitado','Confirmado','En Proceso','Listo para retirar','Recibido','Pagado','Cancelado'];
+  const ESTADOS = ['Solicitado','Confirmado','En Proceso','Entregado en Escuela','Recibido','Pagado','Cancelado'];
   let estadoCol = -1;
   if (data[1]) {
     for (let c = 4; c < numCols; c++) {
