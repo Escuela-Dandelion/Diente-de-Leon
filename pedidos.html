@@ -73,7 +73,7 @@
   .col-proveedor { width: 110px; font-size: 13px; font-weight: 600; color: #111827; white-space: nowrap; }
   .col-productos { font-size: 13px; color: #374151; }
   .col-fecha { width: 76px; font-size: 12px; color: #6b7280; white-space: nowrap; }
-  .col-fgp { width: 90px; font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
   .col-estado { width: 160px; }
   .col-accion { width: 44px; text-align: right; }
   .btn-abrir { padding: 6px 14px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; color: #374151; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: 'Inter', sans-serif; }
@@ -197,7 +197,6 @@
   @media (max-width: 480px) {
     body { padding: 10px 12px; }
     .col-productos { max-width: 130px; }
-    .col-fgp { display: none; }
     .btn-accion-top { padding: 6px 10px; font-size: 11px; gap: 3px; }
     .detalle-topbar-actions { gap: 4px; }
     .detalle-topbar { gap: 6px; }
@@ -264,15 +263,17 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="mesesRapidos"></div>
 
       <!-- Rango manual -->
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
-        <div style="flex:1;min-width:110px">
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end">
+        <div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Desde</div>
-          <input type="date" id="fechaDesde" onchange="aplicarFiltros()"
+          <input type="text" id="fechaDesde" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10"
+            oninput="autoFormatFecha(this)" onblur="aplicarFiltros()"
             style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
         </div>
-        <div style="flex:1;min-width:110px">
+        <div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Hasta</div>
-          <input type="date" id="fechaHasta" onchange="aplicarFiltros()"
+          <input type="text" id="fechaHasta" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10"
+            oninput="autoFormatFecha(this)" onblur="aplicarFiltros()"
             style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
         </div>
         <button onclick="limpiarFechas()"
@@ -934,7 +935,10 @@ function renderLista(pedidos) {
               : `<span style="background:#fef9c3;color:#854d0e;border:1px solid #fde68a;border-radius:100px;font-size:9px;font-weight:700;padding:1px 6px;">⏳ No pagado</span>`}
           </div>
         </td>
-        <td class="col-proveedor">${p.proveedor}</td>
+        <td class="col-proveedor">
+          ${p.proveedor}
+          ${p.fgp ? `<div style="margin-top:3px"><span style="background:#eaf3e6;color:#2d5a27;border:1px solid #a3c4a8;border-radius:100px;font-size:9px;font-weight:700;padding:1px 7px;">${p.fgp}</span></div>` : ''}
+        </td>
         <td class="col-productos">
           <button class="btn-expand" id="expand-btn-${p.norden}" onclick="toggleProductos('${p.norden}')">
             ${count} prod. <span id="expand-chevron-${p.norden}" style="margin-left:4px;">↓</span>
@@ -944,7 +948,6 @@ function renderLista(pedidos) {
             ${totalStr ? `<span style="font-size:12px;font-weight:700;color:#2d5a27;">${totalStr}</span>` : ''}
           </div>
         </td>
-        <td class="col-fgp">${p.fgp || ''}</td>
         <td class="col-estado">
           <span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado] || ''} ${p.estado}</span>
           ${SUBTITULO_ESTADO[p.estado] ? `<div style="font-size:11px;color:#6b7280;margin-top:4px;font-family:'Inter',sans-serif;">${SUBTITULO_ESTADO[p.estado]}</div>` : ''}
@@ -1028,7 +1031,6 @@ function renderLista(pedidos) {
             <th>N° Orden</th>
             <th>Proveedor</th>
             <th>Productos</th>
-            <th>FGP</th>
             <th>Estado</th>
             <th>Acción</th>
           </tr>
@@ -1069,11 +1071,18 @@ function parseFechaSheet(str) {
 }
 
 function parseFechaInput(str) {
-  // Formato del input type="date": YYYY-MM-DD — parsear como fecha local (no UTC)
   if (!str) return null;
-  const p = str.split('-');
-  if (p.length !== 3) return null;
-  return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+  // Acepta dd/mm/aaaa
+  const p = str.split('/');
+  if (p.length === 3 && p[2].length === 4) return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
+  return null;
+}
+
+function autoFormatFecha(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+  if (v.length >= 6) v = v.slice(0,5) + '/' + v.slice(5,9);
+  input.value = v;
 }
 
 function aplicarFiltros() {
@@ -1147,9 +1156,9 @@ function filtrarMes(btn, mesKey) {
   const [y, m] = mesKey.split('-');
   const desde = y + '-' + m + '-01';
   const lastDay = new Date(parseInt(y), parseInt(m), 0).getDate();
-  const hasta  = y + '-' + m + '-' + String(lastDay).padStart(2,'0');
-  document.getElementById('fechaDesde').value = desde;
-  document.getElementById('fechaHasta').value = hasta;
+  // Formato dd/mm/aaaa para los inputs de texto
+  document.getElementById('fechaDesde').value = '01/' + m + '/' + y;
+  document.getElementById('fechaHasta').value = String(lastDay).padStart(2,'0') + '/' + m + '/' + y;
   aplicarFiltros();
 }
 
