@@ -325,7 +325,6 @@
   <a href="#roles" class="sub">→ Roles</a>
   <a href="#flujo" class="sub">→ Flujo del Proceso</a>
   <a href="#herramientas" class="sub">→ Herramientas</a>
-  <a href="#checklists" class="sub">→ Checklists</a>
   <a href="#piloto" class="sub">→ Piloto</a>
   <a href="#referentes" class="sub">→ Para Referentes</a>
   <a href="#faq" class="sub">→ Preguntas Frecuentes</a>
@@ -615,6 +614,7 @@
           <tr><td><strong>Maria Martini</strong></td><td><span class="badge badge-active">Coordinadora de FGP</span></td><td><a class="wa-link" href="https://wa.me/5493516865078" target="_blank">+54 9 3516 86-5078</a></td><td></td></tr>
           <tr><td><strong>Ines Robertson</strong></td><td><span class="badge badge-pilot">Soporte Digital</span></td><td><a class="wa-link" href="https://wa.me/5493512112050" target="_blank">+54 9 3512 11-2050</a></td><td>Tienda Virtual, Formularios, Códigos QR, Procesos, Dashboards de métricas, Flyers</td></tr>
           <tr><td><strong>Anabella Gargiulo</strong></td><td><span class="badge badge-active">Comisión de Recursos</span></td><td><a class="wa-link" href="https://wa.me/5493513915935" target="_blank">+54 9 3513 91-5935</a></td><td>Rol pendiente de acordar</td></tr>
+          <tr><td><strong>Belén Ravaza</strong></td><td><span class="badge badge-draft">TBD</span></td><td>—</td><td>Rol pendiente de definir</td></tr>
         </tbody>
       </table>
 
@@ -834,65 +834,31 @@
       </table>
     </div>
 
-    <!-- CHECKLISTS -->
-    <div class="section" id="checklists">
-      <h2><span class="icon">✅</span> Checklists Operativos</h2>
-
-      <h3>Checklist de Retiro en Proveedor</h3>
-      <ul class="checklist">
-        <li><div class="box"></div> Confirmar dirección y horario de retiro con la FGP (con al menos 24hs de anticipación)</li>
-        <li><div class="box"></div> Llevar el pedido impreso o en el celular (SKU, cantidades, precio acordado)</li>
-        <li><div class="box"></div> Contar y verificar los bultos en el momento del retiro</li>
-        <li><div class="box"></div> Fotografiar el remito y los bultos antes de cargar</li>
-        <li><div class="box"></div> Verificar estado general del producto (envases, temperatura si aplica)</li>
-        <li><div class="box"></div> Completar el formulario "Retiro realizado" desde el celular</li>
-        <li><div class="box"></div> Trasladar directamente a la escuela (no dejar en casa intermedia sin aviso)</li>
-      </ul>
-
-      <h3>Checklist de Recepción en Escuela</h3>
-      <ul class="checklist">
-        <li><div class="box"></div> Recibir con el remito en mano y verificar cantidades vs. pedido original</li>
-        <li><div class="box"></div> Revisar estado: envases cerrados, sin roturas, fecha de vencimiento</li>
-        <li><div class="box"></div> Fotografiar lo recibido</li>
-        <li><div class="box"></div> Registrar incidencias si las hay (faltante, producto dañado)</li>
-        <li><div class="box"></div> Completar el formulario "Recepción en escuela"</li>
-        <li><div class="box"></div> Avisar a Gestoría de Tienda para actualizar stock en TiendaNube</li>
-      </ul>
-
-      <h3>Checklist de Armado de Pedidos Comunitarios</h3>
-      <ul class="checklist">
-        <li><div class="box"></div> Descargar el listado de pedidos del mes desde la planilla</li>
-        <li><div class="box"></div> Preparar bolsas/cajas etiquetadas por grado/referente</li>
-        <li><div class="box"></div> Armar cada paquete verificando producto y cantidad</li>
-        <li><div class="box"></div> Registrar cualquier faltante o sustitución</li>
-        <li><div class="box"></div> Marcar pedido como "listo para entrega" en la planilla</li>
-        <li><div class="box"></div> Coordinar con el referente la fecha de retiro en escuela</li>
-      </ul>
-    </div>
 
     <!-- ACCESOS -->
     <div class="section" id="accesos">
       <h2><span class="icon">🔐</span> Accesos y Permisos</h2>
-      <p>Solo requieren gestión de acceso las herramientas internas del equipo. La tienda, la wiki y el dashboard son públicos.</p>
+      <p>El acceso al sistema se gestiona por cuenta de Gmail. La wiki, los dashboards y el Admin requieren login con Google o PIN.</p>
 
       <table class="wiki-table">
         <thead>
-          <tr><th>Rol</th><th>Qué necesita</th><th>Herramientas</th></tr>
+          <tr><th>Rol</th><th>Qué necesita</th><th>Acceso</th></tr>
         </thead>
         <tbody>
           <tr>
             <td><strong>Referente de Grado</strong></td>
-            <td>Escanear códigos QR en el punto de retiro</td>
-            <td><span class="access-pill access-full">Celular con cámara</span> — no requiere acceso a ningún sistema</td>
+            <td>Registrar entregas y ver su dashboard de ventas</td>
+            <td><span class="access-pill access-full">PIN personal</span> — recibido antes del primer turno</td>
           </tr>
           <tr>
-            <td><strong>Gestión con Proveedores</strong><br><small style="color:var(--muted)">FGP · Comisión de Recursos · Pool</small></td>
-            <td>Solicitar pedidos, registrar retiros y seguir el calendario</td>
-            <td>
-              <span class="access-pill access-full">Google Form</span> — Solicitud de pedidos<br>
-              <span class="access-pill access-edit">Google Sheets</span> — Planilla operativa<br>
-              <span class="access-pill access-read">Google Calendar</span> — Turnos y fechas
-            </td>
+            <td><strong>FGP · Comisión de Recursos</strong></td>
+            <td>Gestionar pedidos a proveedores, retiros y seguimiento</td>
+            <td><span class="access-pill access-edit">Gmail</span> — acceso con cuenta de Google al Admin</td>
+          </tr>
+          <tr>
+            <td><strong>Administrador</strong></td>
+            <td>Acceso completo al sistema</td>
+            <td><span class="access-pill access-full">Gmail</span> — acceso completo con cuenta de Google al Admin</td>
           </tr>
         </tbody>
       </table>
@@ -901,7 +867,7 @@
         <div class="icon">📬</div>
         <div>
           <div class="callout-title">¿Cómo solicitar acceso?</div>
-          Escribir a <strong>dientedeleon-admin@googlegroups.com</strong> indicando nombre, rol y herramienta. Los accesos se otorgan antes del primer turno asignado.
+          Escribir a <strong>dientedeleon-admin@googlegroups.com</strong> indicando nombre, Gmail y rol. El acceso se otorga antes del primer turno asignado.
         </div>
       </div>
 
@@ -935,17 +901,17 @@
           <tr>
             <td><strong>Etapa 3</strong> — Primer ciclo</td>
             <td>Ejecutar una reposición completa con el nuevo sistema: pedido → retiro → recepción → armado → entrega</td>
-            <td><span class="badge badge-draft">Pendiente</span></td>
+            <td><span class="badge badge-active">Completada</span></td>
           </tr>
           <tr>
             <td><strong>Etapa 4</strong> — Evaluación</td>
-            <td>Reunión de retrospectiva, ajuste de procesos, documentación final</td>
+            <td>Reunión de retrospectiva, ajuste de procesos, documentación final. Evaluar si el proceso funciona bien para todos.</td>
             <td><span class="badge badge-draft">Pendiente</span></td>
           </tr>
           <tr>
             <td><strong>Etapa 5</strong> — TiendaNube pública</td>
             <td>Lanzamiento de la tienda pública con catálogo inicial y primer despacho externo</td>
-            <td><span class="badge badge-draft">Pendiente</span></td>
+            <td><span class="badge badge-active">Completada</span></td>
           </tr>
         </tbody>
       </table>
