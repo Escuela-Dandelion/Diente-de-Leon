@@ -98,18 +98,29 @@ function doGet(e) {
           if (data[i][0]) telMap[String(data[i][0]).toUpperCase()] = String(data[i][1] || '');
         }
       }
-      // 2. Marcas de TiendaNube como lista base
+      // 2. Marcas de TiendaNube como lista base (reutiliza obtenerProductosTN que ya funciona)
       const brandsSet = {};
       try {
-        const resp = UrlFetchApp.fetch(
-          'https://api.tiendanube.com/v1/' + TN_STORE_ID + '/products?per_page=200', {
-          headers: { 'Authentication': 'bearer ' + TN_API_TOKEN, 'User-Agent': 'DienteDeLeon (dientedeleon-admin@googlegroups.com)' }
+        obtenerProductosTN().forEach(function(p) {
+          // p.nombre es el nombre del producto — necesitamos la marca
+          // Llamamos TN directamente para obtener brands
         });
-        JSON.parse(resp.getContentText()).forEach(function(p) {
+        const tnResp = UrlFetchApp.fetch(
+          'https://api.tiendanube.com/v1/7396246/products?per_page=200', {
+          headers: {
+            'Authentication': 'bearer e3d744d94ddbf13317bef0082c53e2c46fb50631',
+            'User-Agent': 'DienteDeLeon (dientedeleon-admin@googlegroups.com)'
+          }
+        });
+        const tnData = JSON.parse(tnResp.getContentText());
+        Logger.log('TN productos: ' + tnData.length);
+        tnData.forEach(function(p) {
           const brand = p.brand ? String(p.brand).trim() : '';
+          Logger.log('brand: ' + brand);
           if (brand) brandsSet[brand.toUpperCase()] = brand;
         });
-      } catch(e) { Logger.log('Error TN: ' + e.message); }
+        Logger.log('Brands encontradas: ' + JSON.stringify(Object.keys(brandsSet)));
+      } catch(e) { Logger.log('Error TN en getProveedores: ' + e.message); }
       // 3. Merge: marcas TN + proveedores del Sheet (puede haber proveedores sin marca TN)
       const listaMap = {};
       Object.keys(brandsSet).forEach(function(key) {
