@@ -99,20 +99,8 @@ function doGet(e) {
         }
       }
       // 2. Marcas de TiendaNube como lista base
-      const brandsSet = {};
-      try {
-        const tnResp = UrlFetchApp.fetch(
-          'https://api.tiendanube.com/v1/7396246/products?per_page=200', {
-          headers: {
-            'Authentication': 'bearer e3d744d94ddbf13317bef0082c53e2c46fb50631',
-            'User-Agent': 'DienteDeLeon (dientedeleon-admin@googlegroups.com)'
-          }
-        });
-        JSON.parse(tnResp.getContentText()).forEach(function(p) {
-          const brand = p.brand ? String(p.brand).trim() : '';
-          if (brand) brandsSet[brand.toUpperCase()] = brand;
-        });
-      } catch(e) { Logger.log('Error TN en getProveedores: ' + e.message); }
+      let brandsSet = {};
+      try { brandsSet = obtenerMarcasTN(); } catch(e) { Logger.log('Error marcas TN: ' + e.message); }
       // 3. Merge: marcas TN + proveedores del Sheet (puede haber proveedores sin marca TN)
       const listaMap = {};
       Object.keys(brandsSet).forEach(function(key) {
@@ -257,6 +245,23 @@ function formatearFecha(fechaStr) {
 // ── TIENDANUBE ───────────────────────────────────────────────
 const TN_STORE_ID   = '7396246';
 const TN_API_TOKEN  = 'e3d744d94ddbf13317bef0082c53e2c46fb50631';
+
+function obtenerMarcasTN() {
+  const resp = UrlFetchApp.fetch(
+    'https://api.tiendanube.com/v1/' + TN_STORE_ID + '/products?per_page=200&fields=id,name,brand', {
+    headers: {
+      'Authentication': 'bearer ' + TN_API_TOKEN,
+      'User-Agent': 'DienteDeLeon (dientedeleon-admin@googlegroups.com)'
+    }
+  });
+  const data   = JSON.parse(resp.getContentText());
+  const brands = {};
+  data.forEach(function(p) {
+    const brand = p.brand ? String(p.brand).trim() : '';
+    if (brand) brands[brand.toUpperCase()] = brand;
+  });
+  return brands;
+}
 
 function obtenerProductosTN() {
   const resp = UrlFetchApp.fetch(
