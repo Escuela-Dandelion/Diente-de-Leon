@@ -156,6 +156,15 @@ function agendarRetiro(data) {
   // 1. Crear evento en Google Calendar
   crearEventoCalendario(data);
 
+  // 2. Actualizar estado del pedido a "Confirmado" y registrar quién retira
+  if (norden) {
+    try {
+      updateEstadoPedido({ norden: norden, estado: 'Confirmado', quien: retira, notas: notas });
+    } catch(e) {
+      Logger.log('No se pudo actualizar estado del pedido: ' + e.message);
+    }
+  }
+
   return 'Retiro agendado: ' + proveedor + ' — ' + fecha_retiro;
 }
 
