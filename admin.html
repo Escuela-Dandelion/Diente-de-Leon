@@ -169,6 +169,17 @@
   .view.active { display: block; }
   .view-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; }
 
+  /* ── TABLA VENTAS (estilo Pedidos) ── */
+  .v-table-wrap { background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+  .v-table { width:100%; border-collapse:collapse; font-family:inherit; }
+  .v-table thead th { background:#f9fafb; color:#6b7280; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:10px 12px; text-align:left; border-bottom:2px solid #e5e7eb; white-space:nowrap; }
+  .v-table tbody tr:hover td { background:#fafafa; }
+  .v-table tbody td { padding:10px 12px; font-size:13px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+  .v-table tbody tr:last-child td { border-bottom:none; }
+  .v-filtros { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin-bottom:16px; }
+  .v-filtros input, .v-filtros select { padding:7px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; width:100%; font-family:inherit; background:#fff; }
+  .v-filtros label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#9ca3af; display:block; margin-bottom:4px; }
+
   /* Cards de bienvenida */
   .welcome-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
   .welcome-card {
@@ -360,29 +371,22 @@
       </div>
 
       <!-- Filtros adicionales -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
-        <div>
-          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Referente</div>
-          <select id="vfilt-referente" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
-            <option value="">Todos los referentes</option>
-          </select>
-        </div>
-        <div>
-          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Producto</div>
-          <input id="vfilt-producto" oninput="aplicarFiltrosVentas()" placeholder="Buscar producto…"
-            style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
-        </div>
-        <div>
-          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Desde</div>
-          <input id="vfilt-desde" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa"
-            oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()"
-            style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
-        </div>
-        <div>
-          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Hasta</div>
-          <input id="vfilt-hasta" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa"
-            oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()"
-            style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
+      <div class="v-filtros">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label>Referente</label>
+            <select id="vfilt-referente" onchange="aplicarFiltrosVentas()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div><label>Producto</label>
+            <input id="vfilt-producto" oninput="aplicarFiltrosVentas()" placeholder="Buscar…">
+          </div>
+          <div><label>Desde</label>
+            <input id="vfilt-desde" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
+          </div>
+          <div><label>Hasta</label>
+            <input id="vfilt-hasta" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
+          </div>
         </div>
       </div>
       <div id="ventas-contador" style="font-size:12px;color:#9ca3af;margin-bottom:8px"></div>
@@ -768,31 +772,24 @@ function renderVentas(rows) {
     cont.innerHTML = '<p style="color:#9ca3af;font-size:14px;padding:20px 0">Sin registros.</p>';
     cont.style.display = 'block'; return;
   }
-  var th = 'padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;background:#f9fafb;border-bottom:2px solid #e5e7eb;text-align:left;white-space:nowrap';
-  var td = 'padding:10px 12px;font-size:13px;border-bottom:1px solid #f3f4f6;vertical-align:top';
-  cont.innerHTML = '<table style="width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb">' +
+  cont.innerHTML = '<div class="v-table-wrap"><div style="overflow-x:auto"><table class="v-table">' +
     '<thead><tr>' +
-    '<th style="' + th + '">Pedido</th>' +
-    '<th style="' + th + '">Comprador</th>' +
-    '<th style="' + th + '">Productos</th>' +
-    '<th style="' + th + '">Total</th>' +
-    '<th style="' + th + '">Estado</th>' +
-    '<th style="' + th + '">Referente</th>' +
+    '<th>Pedido</th><th>Comprador</th><th>Productos</th><th>Total</th><th>Estado</th><th>Referente</th>' +
     '</tr></thead><tbody>' +
     rows.map(function(v) {
       var entregado = v.estado === 'Entregado';
       var pill = entregado
-        ? '<span style="background:#f0fdf4;color:#15803d;border:1px solid #4ade80;border-radius:100px;font-size:10px;font-weight:700;padding:2px 10px">✅ Entregado</span>'
-        : '<span style="background:#fef9c3;color:#854d0e;border:1px solid #fde68a;border-radius:100px;font-size:10px;font-weight:700;padding:2px 10px">⏳ Pendiente</span>';
+        ? '<span style="background:#f0fdf4;color:#15803d;border:1px solid #4ade80;border-radius:100px;font-size:10px;font-weight:700;padding:2px 10px;white-space:nowrap">✅ Entregado</span>'
+        : '<span style="background:#fef9c3;color:#854d0e;border:1px solid #fde68a;border-radius:100px;font-size:10px;font-weight:700;padding:2px 10px;white-space:nowrap">⏳ Pendiente</span>';
       return '<tr>' +
-        '<td style="' + td + '"><strong style="color:#2d5a27">#' + v.numero + '</strong><div style="font-size:10px;color:#9ca3af;margin-top:2px">' + v.fecha + '</div></td>' +
-        '<td style="' + td + '">' + v.nombre + '</td>' +
-        '<td style="' + td + ';max-width:200px;overflow:hidden;text-overflow:ellipsis">' + v.productos + '</td>' +
-        '<td style="' + td + ';font-weight:700;color:#2d5a27;white-space:nowrap">$ ' + v.total + '</td>' +
-        '<td style="' + td + '">' + pill + (entregado && v.fechaEntrega ? '<div style="font-size:10px;color:#9ca3af;margin-top:3px">' + v.fechaEntrega + '</div>' : '') + '</td>' +
-        '<td style="' + td + ';color:#374151">' + (v.staff || '—') + '</td>' +
+        '<td><strong style="color:#2d5a27">#' + v.numero + '</strong><div style="font-size:10px;color:#9ca3af;margin-top:2px">' + v.fecha + '</div></td>' +
+        '<td>' + v.nombre + '</td>' +
+        '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + v.productos + '</td>' +
+        '<td style="font-weight:700;color:#2d5a27;white-space:nowrap">$ ' + v.total + '</td>' +
+        '<td>' + pill + (entregado && v.fechaEntrega ? '<div style="font-size:10px;color:#9ca3af;margin-top:3px">' + v.fechaEntrega + '</div>' : '') + '</td>' +
+        '<td>' + (v.staff || '—') + '</td>' +
       '</tr>';
-    }).join('') + '</tbody></table>';
+    }).join('') + '</tbody></table></div></div>';
   cont.style.display = 'block';
 }
 
