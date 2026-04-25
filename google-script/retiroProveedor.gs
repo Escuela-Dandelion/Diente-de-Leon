@@ -568,50 +568,72 @@ function subirComprobanteEnDrive(data) {
  * Ver Registros (Ctrl+Enter) para leer el resultado.
  */
 // ── MIGRACIÓN DE COLUMNAS ────────────────────────────────────
-// Ejecutar UNA VEZ para reorganizar el Sheet al nuevo formato de 13 columnas
+// Ejecutar UNA VEZ para reorganizar el Sheet al nuevo formato de 13 columnas.
+// SEGURO: crea una copia de respaldo antes de modificar nada.
 function migrarColumnasSheet() {
-  const sheet = getPedidosSheet();
-  const data  = sheet.getDataRange().getValues();
+  const ss    = SpreadsheetApp.openById(CONFIG_RETIRO.PEDIDOS_SHEET_ID);
+  // 1. Buscar la hoja Pedidos por nombre (más confiable que por GID)
+  const sheet = ss.getSheetByName('Pedidos');
+  if (!sheet) { Logger.log('ERROR: no se encontró la hoja "Pedidos"'); return; }
 
-  // Nueva cabecera
-  const header = ['N° Orden','Fecha','Proveedor','FGP','Productos','Estado','Fecha Estado','Quien retira','Total','Notas','Estado Pago','Fecha de Pago','Comprobante'];
+  const data = sheet.getDataRange().getValues();
+  Logger.log('Filas encontradas: ' + data.length);
 
-  // Mapeo viejo → nuevo (índices 0-based)
+  // 2. Crear copia de respaldo
+  const backup = ss.getSheetByName('Pedidos_backup') || ss.insertSheet('Pedidos_backup');
+  backup.clearContents();
+  backup.getRange(1, 1, data.length, data[0].length).setValues(data);
+  Logger.log('Backup creado en "Pedidos_backup" con ' + data.length + ' filas');
+
+  // 3. Construir nuevos datos
   // Viejo: 0=Orden,1=Fecha,2=Prov,3=FGP,4=Prods,5=Estado,6=FechaEst,7=Quien,8=Comprobante,9=Notas,10=Total
   // Nuevo: 0=Orden,1=Fecha,2=Prov,3=FGP,4=Prods,5=Estado,6=FechaEst,7=Quien,8=Total,9=Notas,10=EstPago,11=FechaPago,12=Comprobante
+  const header = ['N° Orden','Fecha','Proveedor','FGP','Productos','Estado','Fecha Estado','Quien retira','Total','Notas','Estado Pago','Fecha de Pago','Comprobante'];
   const newData = [header];
+  let migradas = 0;
+
   for (let i = 1; i < data.length; i++) {
     const r = data[i];
-    if (!r[0]) continue;
+    if (!r[0] && !r[1] && !r[2]) continue; // fila completamente vacía
+    const estadoPago = r[8] ? 'Pagado' : 'No pagado'; // si tenía comprobante → Pagado
+    const fechaPago  = r[8] ? (r[6] || '') : '';       // usar fecha estado como referencia
     newData.push([
-      r[0],  // Orden
-      r[1],  // Fecha
-      r[2],  // Proveedor
-      r[3],  // FGP
-      r[4],  // Productos
-      r[5],  // Estado
-      r[6],  // Fecha Estado
-      r[7],  // Quien
-      r[10] || '', // Total (viejo col 10 → nuevo col 8)
-      r[9]  || '', // Notas (viejo col 9 → nuevo col 9)
-      '',          // Estado Pago (nuevo)
-      '',          // Fecha Pago (nuevo)
-      r[8]  || ''  // Comprobante (viejo col 8 → nuevo col 12)
+      r[0]  || '', // N° Orden
+      r[1]  || '', // Fecha
+      r[2]  || '', // Proveedor
+      r[3]  || '', // FGP
+      r[4]  || '', // Productos
+      r[5]  || '', // Estado
+      r[6]  || '', // Fecha Estado
+      r[7]  || '', // Quien
+      r[10] || '', // Total (viejo 10 → nuevo 8)
+      r[9]  || '', // Notas (viejo 9 → nuevo 9)
+      estadoPago,  // Estado Pago (nuevo K)
+      fechaPago,   // Fecha Pago (nuevo L)
+      r[8]  || ''  // Comprobante (viejo 8 → nuevo M)
     ]);
+    migradas++;
   }
 
-  sheet.clearContents();
+  // 4. Reescribir la hoja (SIN clearContents — sobreescribimos desde A1)
   sheet.getRange(1, 1, newData.length, 13).setValues(newData);
+  // Borrar columnas extra si había más de 13
+  if (sheet.getLastColumn() > 13) {
+    sheet.deleteColumns(14, sheet.getLastColumn() - 13);
+  }
 
-  // Actualizar validación de estados
-  const estadosValidos = ['Solicitado','Confirmado','En Camino','Entregado en Escuela','Cerrado','Cancelado'];
-  const reglaEstado = SpreadsheetApp.newDataValidation().requireValueInList(estadosValidos).setAllowInvalid(false).build();
+  // 5. Actualizar validaciones
+  const reglaEstado = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Solicitado','Confirmado','En Camino','Entregado en Escuela','Cerrado','Cancelado'])
+    .setAllowInvalid(false).build();
   sheet.getRange('F2:F1000').setDataValidation(reglaEstado);
 
-  const reglaEstadoPago = SpreadsheetApp.newDataValidation().requireValueInList(['Pagado','No pagado']).setAllowInvalid(false).build();
+  const reglaEstadoPago = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Pagado','No pagado'])
+    .setAllowInvalid(false).build();
   sheet.getRange('K2:K1000').setDataValidation(reglaEstadoPago);
 
-  Logger.log('Migración completada. Filas migradas: ' + (newData.length - 1));
+  Logger.log('✅ Migración completada. ' + migradas + ' pedidos migrados. Backup en "Pedidos_backup".');
 }
 
 // Ejecutar UNA VEZ para actualizar la validación de estados en todo el Sheet
