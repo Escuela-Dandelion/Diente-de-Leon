@@ -767,6 +767,7 @@ function autoFmtV(input) {
   if (v.length >= 3) v = v.slice(0,2)+'/'+v.slice(2);
   if (v.length >= 6) v = v.slice(0,5)+'/'+v.slice(5,9);
   input.value = v;
+  if (v.replace(/\D/g,'').length === 8) aplicarFiltrosVentas(); // fecha completa
 }
 
 function parseFechaVentas(str) {
@@ -886,7 +887,10 @@ function aplicarFiltrosVentas() {
       var fv = parseFechaVentas(v.fecha);
       if (fv) {
         if (desde && fv < desde) return false;
-        if (hasta && fv > hasta) return false;
+        if (hasta) {
+          var hastaFin = new Date(hasta.getFullYear(), hasta.getMonth(), hasta.getDate(), 23, 59, 59);
+          if (fv > hastaFin) return false;
+        }
       }
     }
     return true;
