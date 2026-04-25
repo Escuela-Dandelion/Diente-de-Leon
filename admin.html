@@ -401,6 +401,9 @@
               <option value="">Todos</option>
             </select>
           </div>
+          <div style="grid-column:1/-1"><label>Comprador</label>
+            <input id="vfilt-comprador" oninput="aplicarFiltrosVentas()" placeholder="Buscar por nombre…" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
+          </div>
           <div><label>Desde (dd/mm/aaaa)</label>
             <input id="vfilt-desde" type="text" inputmode="numeric" maxlength="10" placeholder="01/04/2026" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
           </div>
@@ -841,8 +844,9 @@ function aplicarFiltrosVentas() {
     document.getElementById('vfilt-Pendiente').classList.toggle('active', _ventasFiltroEstado === 'Pendiente');
     document.getElementById('vfilt-Entregado').classList.toggle('active', _ventasFiltroEstado === 'Entregado');
   }
-  var referente = document.getElementById('vfilt-referente') ? document.getElementById('vfilt-referente').value : '';
-  var producto  = (document.getElementById('vfilt-producto') ? document.getElementById('vfilt-producto').value : '').toLowerCase();
+  var referente  = document.getElementById('vfilt-referente') ? document.getElementById('vfilt-referente').value : '';
+  var producto   = (document.getElementById('vfilt-producto') ? document.getElementById('vfilt-producto').value : '').toLowerCase();
+  var comprador  = (document.getElementById('vfilt-comprador') ? document.getElementById('vfilt-comprador').value : '').toLowerCase();
   var desde     = parseFechaVentas(document.getElementById('vfilt-desde') ? document.getElementById('vfilt-desde').value : '');
   var hasta     = parseFechaVentas(document.getElementById('vfilt-hasta') ? document.getElementById('vfilt-hasta').value : '');
 
@@ -850,6 +854,7 @@ function aplicarFiltrosVentas() {
     if (_ventasFiltroEstado !== 'Todos' && v.estado !== _ventasFiltroEstado) return false;
     if (referente && v.staff !== referente) return false;
     if (producto && v.productos.toLowerCase().indexOf(producto) === -1) return false;
+    if (comprador && v.nombre.toLowerCase().indexOf(comprador) === -1) return false;
     if (desde || hasta) {
       var fv = parseFechaVentas(v.fecha);
       if (fv) {
