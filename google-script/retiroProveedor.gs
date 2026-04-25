@@ -315,13 +315,15 @@ const COL = {
   FECHA:       1,   // B
   PROVEEDOR:   2,   // C
   FGP:         3,   // D
-  PRODUCTOS:   4,   // E  — formato "nombre x<cant> <unid>. ($<precio>)" por línea
+  PRODUCTOS:   4,   // E
   ESTADO:      5,   // F
   FECHA_EST:   6,   // G
   QUIEN:       7,   // H
-  COMPROBANTE: 8,   // I
+  TOTAL:       8,   // I
   NOTAS:       9,   // J
-  TOTAL:       10   // K  — total calculado desde el frontend
+  ESTADO_PAGO: 10,  // K  — Pagado / No pagado
+  FECHA_PAGO:  11,  // L
+  COMPROBANTE: 12   // M
 };
 
 function getPedidosSheet() {
@@ -346,7 +348,9 @@ function filaAObjeto(fila) {
     quien:       fila[COL.QUIEN],
     comprobante: fila[COL.COMPROBANTE],
     notas:       fila[COL.NOTAS],
-    total:       fila[COL.TOTAL] || ''
+    total:       fila[COL.TOTAL] || '',
+    estadoPago:  fila[COL.ESTADO_PAGO] || '',
+    fechaPago:   fila[COL.FECHA_PAGO] || ''
   };
 }
 
@@ -417,7 +421,7 @@ function registrarPedidoEnSheet(data) {
   const sheet = getPedidosSheet();
   const hoy   = Utilities.formatDate(new Date(), 'America/Argentina/Cordoba', 'dd/MM/yyyy');
 
-  const fila = new Array(11).fill('');
+  const fila = new Array(13).fill('');
   fila[COL.NORDEN]    = norden;
   fila[COL.FECHA]     = fecha || hoy;
   fila[COL.PROVEEDOR] = proveedor || '';
@@ -425,8 +429,9 @@ function registrarPedidoEnSheet(data) {
   fila[COL.PRODUCTOS] = productos || '';
   fila[COL.ESTADO]    = 'Solicitado';
   fila[COL.FECHA_EST] = hoy;
-  fila[COL.NOTAS]     = notas || '';
   fila[COL.TOTAL]     = data.total ? parseFloat(data.total) : '';
+  fila[COL.NOTAS]     = notas || '';
+  fila[COL.ESTADO_PAGO] = 'No pagado';
 
   sheet.appendRow(fila);
 
@@ -549,8 +554,8 @@ function subirComprobanteEnDrive(data) {
   const hoy   = Utilities.formatDate(new Date(), 'America/Argentina/Cordoba', 'dd/MM/yyyy');
 
   sheet.getRange(fila, COL.COMPROBANTE + 1).setValue(url);
-  sheet.getRange(fila, COL.ESTADO + 1).setValue('Cerrado');
-  sheet.getRange(fila, COL.FECHA_EST + 1).setValue(hoy);
+  sheet.getRange(fila, COL.ESTADO_PAGO + 1).setValue('Pagado');
+  sheet.getRange(fila, COL.FECHA_PAGO + 1).setValue(hoy);
 
   Logger.log('Comprobante subido: ' + norden + ' → ' + url);
   return { url: url };
@@ -562,6 +567,53 @@ function subirComprobanteEnDrive(data) {
  * Ejecutar UNA VEZ desde el editor GAS para ver el estado actual de la Sheet.
  * Ver Registros (Ctrl+Enter) para leer el resultado.
  */
+// ── MIGRACIÓN DE COLUMNAS ────────────────────────────────────
+// Ejecutar UNA VEZ para reorganizar el Sheet al nuevo formato de 13 columnas
+function migrarColumnasSheet() {
+  const sheet = getPedidosSheet();
+  const data  = sheet.getDataRange().getValues();
+
+  // Nueva cabecera
+  const header = ['N° Orden','Fecha','Proveedor','FGP','Productos','Estado','Fecha Estado','Quien retira','Total','Notas','Estado Pago','Fecha de Pago','Comprobante'];
+
+  // Mapeo viejo → nuevo (índices 0-based)
+  // Viejo: 0=Orden,1=Fecha,2=Prov,3=FGP,4=Prods,5=Estado,6=FechaEst,7=Quien,8=Comprobante,9=Notas,10=Total
+  // Nuevo: 0=Orden,1=Fecha,2=Prov,3=FGP,4=Prods,5=Estado,6=FechaEst,7=Quien,8=Total,9=Notas,10=EstPago,11=FechaPago,12=Comprobante
+  const newData = [header];
+  for (let i = 1; i < data.length; i++) {
+    const r = data[i];
+    if (!r[0]) continue;
+    newData.push([
+      r[0],  // Orden
+      r[1],  // Fecha
+      r[2],  // Proveedor
+      r[3],  // FGP
+      r[4],  // Productos
+      r[5],  // Estado
+      r[6],  // Fecha Estado
+      r[7],  // Quien
+      r[10] || '', // Total (viejo col 10 → nuevo col 8)
+      r[9]  || '', // Notas (viejo col 9 → nuevo col 9)
+      '',          // Estado Pago (nuevo)
+      '',          // Fecha Pago (nuevo)
+      r[8]  || ''  // Comprobante (viejo col 8 → nuevo col 12)
+    ]);
+  }
+
+  sheet.clearContents();
+  sheet.getRange(1, 1, newData.length, 13).setValues(newData);
+
+  // Actualizar validación de estados
+  const estadosValidos = ['Solicitado','Confirmado','En Camino','Entregado en Escuela','Cerrado','Cancelado'];
+  const reglaEstado = SpreadsheetApp.newDataValidation().requireValueInList(estadosValidos).setAllowInvalid(false).build();
+  sheet.getRange('F2:F1000').setDataValidation(reglaEstado);
+
+  const reglaEstadoPago = SpreadsheetApp.newDataValidation().requireValueInList(['Pagado','No pagado']).setAllowInvalid(false).build();
+  sheet.getRange('K2:K1000').setDataValidation(reglaEstadoPago);
+
+  Logger.log('Migración completada. Filas migradas: ' + (newData.length - 1));
+}
+
 // Ejecutar UNA VEZ para actualizar la validación de estados en todo el Sheet
 function actualizarValidacionEstados() {
   const sheet = getPedidosSheet();
