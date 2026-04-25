@@ -930,7 +930,9 @@ function renderLista(pedidos) {
   const rows = pedidos.map(p => {
     const prods = p.productos ? p.productos.split('\n').map(s => s.trim()).filter(Boolean) : ['—'];
     const count = prods.length || 1;
-    const total = calcTotalProductos(p.productos || '');
+    // Usar total guardado en Sheet; calcular desde productos como fallback
+    const totalNum = p.total ? parseFloat(String(p.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0 : 0;
+    const total = totalNum > 0 ? totalNum : calcTotalProductos(p.productos || '');
     const totalStr = total > 0 ? formatPesos(total) : '';
     // Sumar unidades totales
     const totalUnidades = prods.reduce((sum, l) => {
