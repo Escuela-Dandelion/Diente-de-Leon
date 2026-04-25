@@ -427,11 +427,11 @@
           <div style="grid-column:1/-1"><label>Comprador</label>
             <input id="vfilt-comprador" oninput="aplicarFiltrosVentas()" placeholder="Buscar por nombre…" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
           </div>
-          <div><label>Desde (dd/mm/aaaa)</label>
-            <input id="vfilt-desde" type="text" inputmode="numeric" maxlength="10" placeholder="01/04/2026" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
+          <div><label>Desde</label>
+            <input id="vfilt-desde" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
           </div>
-          <div><label>Hasta (dd/mm/aaaa)</label>
-            <input id="vfilt-hasta" type="text" inputmode="numeric" maxlength="10" placeholder="30/04/2026" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
+          <div><label>Hasta</label>
+            <input id="vfilt-hasta" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
           </div>
         </div>
       </div>
@@ -772,6 +772,12 @@ function autoFmtV(input) {
 
 function parseFechaVentas(str) {
   if (!str) return null;
+  // Acepta YYYY-MM-DD (type=date) o dd/mm/yyyy (datos del sheet)
+  if (str.indexOf('-') !== -1) {
+    var p = str.split('-');
+    if (p.length !== 3) return null;
+    return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  }
   var p = str.split('/');
   if (p.length !== 3 || p[2].length !== 4) return null;
   return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
@@ -847,8 +853,8 @@ function poblarFiltrosVentas() {
       btn.className = 'filtro-btn'; btn.textContent = label;
       btn.onclick = function() {
         var lastDay = new Date(parseInt(parts[0]), parseInt(parts[1]), 0).getDate();
-        document.getElementById('vfilt-desde').value = '01/' + parts[1] + '/' + parts[0];
-        document.getElementById('vfilt-hasta').value = String(lastDay).padStart(2,'0') + '/' + parts[1] + '/' + parts[0];
+        document.getElementById('vfilt-desde').value = parts[0] + '-' + parts[1] + '-01';
+        document.getElementById('vfilt-hasta').value = parts[0] + '-' + parts[1] + '-' + String(lastDay).padStart(2,'0');
         document.querySelectorAll('#v-meses .filtro-btn').forEach(function(b){ b.classList.remove('active'); });
         btn.classList.add('active');
         aplicarFiltrosVentas();
@@ -1088,7 +1094,7 @@ function verMisEntregas() {
     var dd = String(hoy.getDate()).padStart(2,'0');
     var mm = String(hoy.getMonth()+1).padStart(2,'0');
     var yyyy = hoy.getFullYear();
-    var fechaHoy = dd + '/' + mm + '/' + yyyy;
+    var fechaHoy = yyyy + '-' + mm + '-' + dd;
     document.getElementById('vfilt-desde').value = fechaHoy;
     document.getElementById('vfilt-hasta').value = fechaHoy;
     aplicarFiltrosVentas();
