@@ -1024,7 +1024,7 @@ function onQRScanned(url) {
       document.getElementById('qr-pedido-numero').textContent = 'Pedido #' + d.order.number;
       document.getElementById('qr-pedido-nombre').textContent = d.order.contact_name;
       document.getElementById('qr-pedido-productos').textContent = (d.order.products||[]).map(function(p){ return p.quantity + 'x ' + p.name; }).join(' · ');
-      document.getElementById('qr-pedido-total').textContent = '$ ' + d.order.total;
+      document.getElementById('qr-pedido-total').textContent = fmtPesosAR(d.order.total);
       document.getElementById('qr-pedido-wrap').style.display = 'block';
     })
     .catch(function(){
@@ -1043,15 +1043,17 @@ function confirmarEntregaQR() {
   var btn   = document.getElementById('qr-btn-confirmar');
   if (!staff) { fb.textContent='⚠️ Seleccioná tu nombre.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
   if (!pin)   { fb.textContent='⚠️ Ingresá tu PIN.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
-  btn.disabled = true; btn.textContent = 'Confirmando…'; fb.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '<div style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px"></div> Confirmando…';
+  fb.style.display = 'none';
   var notas    = document.getElementById('qr-notas') ? document.getElementById('qr-notas').value.trim() : '';
-  var staffKey = staff.replace(' ', '.') + ' '; // formato del GAS
+  var staffKey = staff.replace(' ', '.') + ' '; // formato esperado por el GAS: Nombre.Apellido[espacio]
   var url = GAS_URL + '?action=api_entregar&id=' + _qrData.id + '&token=' + _qrData.token + '&staff=' + encodeURIComponent(staffKey) + '&pin=' + encodeURIComponent(pin);
   if (notas) url += '&notas=' + encodeURIComponent(notas);
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(d){
-      btn.disabled = false; btn.textContent = '✅ Confirmar entrega';
+      btn.disabled = false; btn.innerHTML = '✅ Confirmar entrega';
       if (d.ok) {
         document.getElementById('qr-pedido-wrap').style.display = 'none';
         document.getElementById('qr-ya-entregado').style.display = 'block';
@@ -1061,7 +1063,7 @@ function confirmarEntregaQR() {
         fb.textContent = '❌ ' + (d.error || 'PIN incorrecto o sin permisos.'); fb.style.color='#dc2626'; fb.style.display='block';
       }
     })
-    .catch(function(){ btn.disabled=false; btn.textContent='✅ Confirmar entrega'; fb.textContent='❌ Error de conexión.'; fb.style.color='#dc2626'; fb.style.display='block'; });
+    .catch(function(){ btn.disabled=false; btn.innerHTML='✅ Confirmar entrega'; fb.textContent='❌ Error de conexión.'; fb.style.color='#dc2626'; fb.style.display='block'; });
 }
 
 function verMisEntregas() {
