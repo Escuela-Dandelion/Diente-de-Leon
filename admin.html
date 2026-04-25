@@ -385,9 +385,14 @@
       <div id="qr-ya-entregado" style="display:none;text-align:center;padding:20px">
         <div style="font-size:48px;margin-bottom:12px">✅</div>
         <div style="font-size:18px;font-weight:800;color:#166534" id="qr-entregado-msg"></div>
-        <button onclick="reiniciarQR()" style="margin-top:16px;padding:10px 24px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">
-          Escanear otro
-        </button>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;max-width:300px;margin-left:auto;margin-right:auto">
+          <button onclick="reiniciarQR()" style="padding:12px 24px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">
+            📷 Entregar otro pedido
+          </button>
+          <button onclick="verMisEntregas()" style="padding:12px 24px;background:#f0fdf4;color:#15803d;border:1px solid #4ade80;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">
+            📋 Ver mis entregas de hoy
+          </button>
+        </div>
       </div>
     </div>
 
@@ -900,7 +905,7 @@ function renderVentas(rows) {
     cont.style.display = 'block'; return;
   }
   cont.innerHTML = '<div class="v-table-wrap"><div style="overflow-x:auto"><table class="v-table">' +
-    '<thead><tr><th>Pedido</th><th>Comprador</th><th>Productos</th><th>Total</th><th>Estado</th><th>Quién entregó</th></tr></thead><tbody>' +
+    '<thead><tr><th>Pedido</th><th>Comprador</th><th>Productos</th><th>Total</th><th>Estado</th><th>Quién entregó</th><th>Notas</th></tr></thead><tbody>' +
     rows.map(function(v, i) {
       var entregado = v.estado === 'Entregado';
       var pill = entregado
@@ -916,9 +921,10 @@ function renderVentas(rows) {
         '<td style="font-weight:700;color:#2d5a27;white-space:nowrap">' + fmtPesosAR(v.total) + '</td>' +
         '<td>' + pill + (entregado && v.fechaEntrega ? '<div style="font-size:10px;color:#9ca3af;margin-top:3px">' + v.fechaEntrega + '</div>' : '') + '</td>' +
         '<td>' + (v.staff || '—') + '</td>' +
+        '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6b7280;font-size:12px" title="' + (v.notas||'') + '">' + (v.notas ? v.notas : '—') + '</td>' +
       '</tr>' +
       '<tr id="vrow-' + i + '" style="display:none;background:#f9fafb">' +
-        '<td colspan="6" style="padding:8px 16px 12px">' + detalle + '</td>' +
+        '<td colspan="7" style="padding:8px 16px 12px">' + detalle + (v.notas ? '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280"><strong>Notas:</strong> ' + v.notas + '</div>' : '') + '</td>' +
       '</tr>';
     }).join('') + '</tbody></table></div></div>';
   cont.style.display = 'block';
@@ -1056,6 +1062,31 @@ function confirmarEntregaQR() {
       }
     })
     .catch(function(){ btn.disabled=false; btn.textContent='✅ Confirmar entrega'; fb.textContent='❌ Error de conexión.'; fb.style.color='#dc2626'; fb.style.display='block'; });
+}
+
+function verMisEntregas() {
+  // Navegar a Ventas → filtrar por Entregado + referente actual
+  _ventasFiltroEstado = 'Entregado';
+  showView('ventas', null, { skipHistory: false });
+  setTimeout(function() {
+    var sel = document.getElementById('vfilt-referente');
+    if (sel && currentUser && currentUser.name) {
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value.toLowerCase().indexOf(currentUser.name.split(' ')[0].toLowerCase()) !== -1) {
+          sel.selectedIndex = i; break;
+        }
+      }
+    }
+    // Filtrar por hoy
+    var hoy = new Date();
+    var dd = String(hoy.getDate()).padStart(2,'0');
+    var mm = String(hoy.getMonth()+1).padStart(2,'0');
+    var yyyy = hoy.getFullYear();
+    var fechaHoy = dd + '/' + mm + '/' + yyyy;
+    document.getElementById('vfilt-desde').value = fechaHoy;
+    document.getElementById('vfilt-hasta').value = fechaHoy;
+    aplicarFiltrosVentas();
+  }, 300);
 }
 
 function reiniciarQR() {

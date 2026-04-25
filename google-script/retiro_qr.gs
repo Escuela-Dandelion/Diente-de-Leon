@@ -119,7 +119,8 @@ function doGetInterno(e) {
 
   // Endpoint JSON para verificación de PIN desde el cliente (AJAX)
   if (action === 'api_entregar') {
-    var resultado = apiEntregar(orderId, staffName, pin, pass, token);
+    var notasParam = e.parameter.notas || '';
+    var resultado = apiEntregar(orderId, staffName, pin, pass, token, notasParam);
     return ContentService
       .createTextOutput(JSON.stringify(resultado))
       .setMimeType(ContentService.MimeType.JSON);
@@ -401,7 +402,7 @@ function yaFueEnviado(orderId) {
   return false;
 }
 
-function marcarEntregado(orderId, staffName) {
+function marcarEntregado(orderId, staffName, notas) {
   var sheet = getSheet();
   var data  = sheet.getDataRange().getValues();
   var buyerEmail  = '';
@@ -413,6 +414,7 @@ function marcarEntregado(orderId, staffName) {
     if (String(data[i][0]) === String(orderId)) {
       sheet.getRange(i + 1, 8).setValue('ENTREGADO ✓ — ' + new Date().toLocaleString('es-AR'));
       sheet.getRange(i + 1, 9).setValue(staffName);
+      if (notas) sheet.getRange(i + 1, 10).setValue(notas);
       buyerEmail  = data[i][3];
       buyerName   = data[i][2];
       orderNumber = data[i][1];
@@ -824,7 +826,7 @@ function getOrderNumber(orderId) {
 // ──────────────────────────────────────────────────────────
 
 // Lógica de verificación de PIN + entrega — usada por api_entregar (AJAX)
-function apiEntregar(orderId, staffName, pin, adminPass, token) {
+function apiEntregar(orderId, staffName, pin, adminPass, token, notas) {
   // Validar acceso: o viene del portal (adminPass) o tiene un token QR válido
   if (adminPass) {
     if (adminPass !== CONFIG.STAFF_TOKEN) return { ok: false, error: 'Acceso no autorizado.' };
@@ -846,7 +848,7 @@ function apiEntregar(orderId, staffName, pin, adminPass, token) {
     return { ok: false, error: 'Tu acceso es solo al dashboard de ventas. No tenés permiso para confirmar entregas.' };
   }
   try {
-    marcarEntregado(orderId, staffKey);
+    marcarEntregado(orderId, staffKey, notas || '');
   } catch(err) {
     Logger.log('Error al marcar entregado: ' + err);
     return { ok: false, error: 'No se pudo registrar la entrega: ' + err.message };
@@ -1397,7 +1399,8 @@ function getRetirosData(estadoFiltro, diasFiltro) {
       fecha:        fechaPedido,
       estado:       entregado ? 'Entregado' : 'Pendiente',
       fechaEntrega: fechaEntrega,
-      staff:        staff
+      staff:        staff,
+      notas:        String(row[9] || '')
     });
   }
   return rows.reverse();
