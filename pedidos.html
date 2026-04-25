@@ -1297,6 +1297,25 @@ function armarMensajePedido(p) {
   ].filter(function(l){ return l !== null; }).join('\n');
 }
 
+// ── REFRESCAR PEDIDO DESDE EL GAS ────────────────────────────
+function refrescarPedidoActual(callback) {
+  if (!pedidoActual) return;
+  fetch(SCRIPT_URL + '?action=getPedido&id=' + encodeURIComponent(pedidoActual.norden))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.ok || !data.pedido) return;
+      var p = data.pedido.pedido || data.pedido;
+      // Actualizar en memoria
+      Object.assign(pedidoActual, p);
+      var idx = todosLosPedidos.findIndex(function(x){ return x.norden === pedidoActual.norden; });
+      if (idx !== -1) Object.assign(todosLosPedidos[idx], p);
+      // Re-renderizar detalle
+      renderDetalle(pedidoActual);
+      if (callback) callback();
+    })
+    .catch(function(){}); // silencioso — el usuario ya vio el feedback del guardado
+}
+
 function toggleEditProveedor() {
   var view = document.getElementById('d-proveedor-view');
   var edit = document.getElementById('d-proveedor-edit');
@@ -1372,6 +1391,7 @@ function guardarProveedor() {
     if (tel) { document.getElementById('d-tel').textContent = tel; document.getElementById('d-tel-wrap').style.display=''; }
     toggleEditProveedor();
     mostrarFlashDetalle('✅ Proveedor actualizado.', 'success');
+    refrescarPedidoActual();
   })
   .catch(function(){ btn.disabled=false; btn.style.opacity=''; fb.textContent = '❌ Error de conexión.'; fb.style.color='#dc2626'; });
 }
@@ -1426,6 +1446,7 @@ function guardarProductos() {
     if (totalCalc > 0) document.getElementById('d-total').textContent = '$ ' + totalCalc.toLocaleString('es-AR');
     toggleEditProductos();
     mostrarFlashDetalle('✅ Productos guardados.', 'success');
+    refrescarPedidoActual();
   })
   .catch(function(){ btnProds.disabled=false; btnProds.style.opacity=''; mostrarProdFeedback('❌ Error de conexión.', '#dc2626'); });
 }
@@ -1559,6 +1580,7 @@ function guardarTotal() {
     document.getElementById('d-total-edit').style.display = 'none';
     document.getElementById('btn-editar-total').style.display = '';
     mostrarTotalFeedback('✅ Total guardado.', '#166534');
+    refrescarPedidoActual();
   })
   .catch(function(){ btnTotal.disabled=false; btnTotal.style.opacity=''; mostrarTotalFeedback('❌ Error de conexión.', '#dc2626'); });
 }
