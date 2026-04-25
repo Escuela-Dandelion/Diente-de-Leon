@@ -134,7 +134,9 @@ function doGetInterno(e) {
   }
 
   if (action === 'getRetiros') {
-    var retiros = getRetirosData();
+    var estadoFiltro = e.parameter.estado || '';  // 'Pendiente', 'Entregado', o '' = todos
+    var diasFiltro   = parseInt(e.parameter.dias || '0');
+    var retiros = getRetirosData(estadoFiltro, diasFiltro);
     return ContentService.createTextOutput(JSON.stringify({ ok: true, retiros: retiros }))
       .setMimeType(ContentService.MimeType.JSON);
   }
@@ -1356,7 +1358,7 @@ function apiVerifyOTP(tel, code) {
 }
 
 // ── RETIROS CON ESTADO ENTREGADO/PENDIENTE ───────────────────
-function getRetirosData() {
+function getRetirosData(estadoFiltro, diasFiltro) {
   var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
   var sheet = ss.getSheetByName('Retiros');
   if (!sheet) return [];
@@ -1371,6 +1373,20 @@ function getRetirosData() {
     var staff         = String(row[8] || '').replace('.', ' ').trim();
     var fechaPedido   = '';
     try { fechaPedido = row[6] ? Utilities.formatDate(new Date(row[6]), 'America/Argentina/Cordoba', 'dd/MM/yyyy') : ''; } catch(e) {}
+    // Filtro por estado
+    if (estadoFiltro && estadoFiltro !== entregado ? 'Entregado' : 'Pendiente') {
+      if (estadoFiltro === 'Pendiente' && entregado) continue;
+      if (estadoFiltro === 'Entregado' && !entregado) continue;
+    }
+    // Filtro por días (solo para Entregado)
+    if (diasFiltro > 0 && entregado) {
+      var fechaRow = row[6] ? new Date(row[6]) : null;
+      if (fechaRow) {
+        var limite = new Date();
+        limite.setDate(limite.getDate() - diasFiltro);
+        if (fechaRow < limite) continue;
+      }
+    }
     rows.push({
       id:           String(row[0]),
       numero:       row[1],
