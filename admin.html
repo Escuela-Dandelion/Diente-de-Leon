@@ -131,8 +131,17 @@
   .app-sidebar {
     position: fixed; top: var(--header-h); left: 0; bottom: 0;
     width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--border);
-    overflow-y: auto; z-index: 90; transition: transform .25s ease;
+    overflow-y: auto; overflow-x: hidden; z-index: 90; transition: width .2s ease, transform .25s ease;
   }
+  .app-sidebar.collapsed { width: 56px; }
+  .app-sidebar.collapsed .nav-section-label,
+  .app-sidebar.collapsed .nav-item span:not(.nav-icon),
+  .app-sidebar.collapsed .nav-item[data-roles] > span:last-child { display: none; }
+  .app-sidebar.collapsed .nav-item { padding: 11px 0; justify-content: center; }
+  .app-sidebar.collapsed .nav-item .nav-icon { width: 56px; text-align: center; }
+  .app-main.collapsed { margin-left: 56px; }
+  .btn-collapse { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 6px; color: var(--muted); font-size: 16px; line-height: 1; }
+  .btn-collapse:hover { background: var(--green-light); color: var(--green); }
   .sidebar-nav { padding: 12px 0; }
   .nav-section-label {
     font-size: 10px; font-weight: 700; color: var(--muted);
@@ -248,6 +257,7 @@
   <!-- Header -->
   <header class="app-header">
     <button class="btn-hamburger" onclick="toggleSidebar()">☰</button>
+    <button class="btn-collapse" id="btn-collapse-sidebar" onclick="collapseSidebar()" title="Colapsar menú">◀</button>
     <span class="header-logo"><img src="Logo_Diente_de_Leon_transparent.png" alt="Diente de León"></span>
     <span style="font-family:'Antropos',sans-serif; font-size:20px; color:var(--green); letter-spacing:1px;">Diente de León</span>
     <div class="header-spacer"></div>
@@ -420,13 +430,21 @@
     <!-- DASHBOARD GENERAL -->
     <div class="view" id="view-dashboard-general">
       <div class="view-title">📊 Dashboard General</div>
-      <iframe class="view-iframe" src="dashboard-general.html" id="iframe-dash-general"></iframe>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">El dashboard se abre en una pestaña separada para una mejor experiencia.</p>
+      <a href="dashboard-general.html" target="_blank"
+        style="display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#fff;padding:13px 24px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">
+        📊 Abrir Dashboard General ↗
+      </a>
     </div>
 
     <!-- DASHBOARD REFERENTES -->
     <div class="view" id="view-dashboard-referentes">
       <div class="view-title">📈 Dashboard Referentes</div>
-      <iframe class="view-iframe" src="dashboard-referentes.html" id="iframe-dash-ref"></iframe>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">El dashboard se abre en una pestaña separada para una mejor experiencia.</p>
+      <a href="dashboard-referentes.html" target="_blank"
+        style="display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#fff;padding:13px 24px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">
+        📈 Abrir Dashboard Referentes ↗
+      </a>
     </div>
 
   </main>
@@ -672,6 +690,15 @@ window.addEventListener('popstate', function(e) {
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebar-overlay').classList.toggle('visible');
+}
+
+var _sidebarCollapsed = false;
+function collapseSidebar() {
+  _sidebarCollapsed = !_sidebarCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed', _sidebarCollapsed);
+  document.querySelector('.app-main').classList.toggle('collapsed', _sidebarCollapsed);
+  document.getElementById('btn-collapse-sidebar').textContent = _sidebarCollapsed ? '▶' : '◀';
+  document.getElementById('btn-collapse-sidebar').title = _sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú';
 }
 
 // ══════════════════════════════════════
