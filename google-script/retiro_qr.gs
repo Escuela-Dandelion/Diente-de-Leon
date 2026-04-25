@@ -133,6 +133,12 @@ function doGetInterno(e) {
     return paginaConfirmar(orderId, generarToken(orderId), null, pass);
   }
 
+  if (action === 'getRetiros') {
+    var retiros = getRetirosData();
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, retiros: retiros }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action === 'api_dashboard') {
     var res = apiDashboard(pin, e.parameter.email || '');
     return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
@@ -1347,4 +1353,36 @@ function apiVerifyOTP(tel, code) {
 
   var user = AUTH_REFERENTES[tel];
   return { ok: true, role: user.role, name: user.name };
+}
+
+// ── RETIROS CON ESTADO ENTREGADO/PENDIENTE ───────────────────
+function getRetirosData() {
+  var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
+  var sheet = ss.getSheetByName('Retiros');
+  if (!sheet) return [];
+  var data = sheet.getDataRange().getValues();
+  var rows = [];
+  for (var i = 1; i < data.length; i++) {
+    var row    = data[i];
+    if (!row[0]) continue;
+    var estado        = String(row[7] || '');
+    var entregado     = estado.indexOf('ENTREGADO') !== -1;
+    var fechaEntrega  = entregado ? estado.replace('ENTREGADO ✓ — ', '').trim() : '';
+    var staff         = String(row[8] || '').replace('.', ' ').trim();
+    var fechaPedido   = '';
+    try { fechaPedido = row[6] ? Utilities.formatDate(new Date(row[6]), 'America/Argentina/Cordoba', 'dd/MM/yyyy') : ''; } catch(e) {}
+    rows.push({
+      id:           String(row[0]),
+      numero:       row[1],
+      nombre:       String(row[2] || ''),
+      email:        String(row[3] || ''),
+      productos:    String(row[4] || ''),
+      total:        String(row[5] || ''),
+      fecha:        fechaPedido,
+      estado:       entregado ? 'Entregado' : 'Pendiente',
+      fechaEntrega: fechaEntrega,
+      staff:        staff
+    });
+  }
+  return rows.reverse();
 }
