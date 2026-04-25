@@ -1770,7 +1770,7 @@ async function ejecutarAccion() {
     try { json = JSON.parse(text); }
     catch(e) { throw new Error('Respuesta inválida del servidor: ' + text.slice(0, 120)); }
 
-    if (json.ok) {
+    if (json.ok && json.updated !== false) {
       cerrarModal();
 
       // Actualizar estado local — siempre en ambos: pedidoActual y todosLosPedidos
@@ -1793,7 +1793,7 @@ async function ejecutarAccion() {
         mostrarFlash('✅ Estado actualizado a "' + nuevoEstado + '"', 'ok');
       }
     } else {
-      throw new Error(json.error || 'Error desconocido');
+      throw new Error(json.error || (json.updated === false ? 'El GAS no está actualizado. Redesplegá retiroProveedor.' : 'Error desconocido'));
     }
   } catch (err) {
     cerrarModal();

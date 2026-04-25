@@ -159,13 +159,13 @@ function doGet(e) {
         notas:  e.parameter.notas  || ''
       });
       return ContentService
-        .createTextOutput(JSON.stringify({ ok: true, mensaje: resultado }))
+        .createTextOutput(JSON.stringify({ ok: true, updated: true, mensaje: resultado }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
     // Health check
     return ContentService
-      .createTextOutput(JSON.stringify({ ok: true, status: 'DdL Retiro API activa' }))
+      .createTextOutput(JSON.stringify({ ok: true, updated: false, status: 'DdL Retiro API activa' }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
