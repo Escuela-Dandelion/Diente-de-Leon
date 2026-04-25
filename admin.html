@@ -126,6 +126,16 @@
     display: none; background: none; border: none; color: var(--text);
     font-size: 22px; cursor: pointer; padding: 4px;
   }
+  .btn-collapse {
+    background: none; border: none; cursor: pointer; padding: 6px 8px;
+    border-radius: 6px; color: var(--muted); font-size: 20px; line-height: 1;
+    display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+  }
+  .btn-collapse:hover { background: var(--green-light); color: var(--green); }
+  .btn-collapse .bar { display: block; width: 18px; height: 2px; background: currentColor; border-radius: 2px; transition: all .2s; }
+  .btn-collapse.collapsed .bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .btn-collapse.collapsed .bar:nth-child(2) { opacity: 0; }
+  .btn-collapse.collapsed .bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
   /* Sidebar */
   .app-sidebar {
@@ -134,11 +144,10 @@
     overflow-y: auto; overflow-x: hidden; z-index: 90; transition: width .2s ease, transform .25s ease;
   }
   .app-sidebar.collapsed { width: 56px; }
-  .app-sidebar.collapsed .nav-section-label,
-  .app-sidebar.collapsed .nav-item span:not(.nav-icon),
-  .app-sidebar.collapsed .nav-item[data-roles] > span:last-child { display: none; }
-  .app-sidebar.collapsed .nav-item { padding: 11px 0; justify-content: center; }
-  .app-sidebar.collapsed .nav-item .nav-icon { width: 56px; text-align: center; }
+  .app-sidebar.collapsed .nav-section-label { display: none; }
+  .app-sidebar.collapsed .nav-item { padding: 12px 0; justify-content: center; border-left-color: transparent !important; }
+  .app-sidebar.collapsed .nav-item .nav-icon { width: 56px; text-align: center; font-size: 20px; }
+  .app-sidebar.collapsed .nav-item > *:not(.nav-icon) { display: none; }
   .app-main.collapsed { margin-left: 56px; }
   .btn-collapse { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 6px; color: var(--muted); font-size: 16px; line-height: 1; }
   .btn-collapse:hover { background: var(--green-light); color: var(--green); }
@@ -257,7 +266,9 @@
   <!-- Header -->
   <header class="app-header">
     <button class="btn-hamburger" onclick="toggleSidebar()">☰</button>
-    <button class="btn-collapse" id="btn-collapse-sidebar" onclick="collapseSidebar()" title="Colapsar menú">◀</button>
+    <button class="btn-collapse" id="btn-collapse-sidebar" onclick="collapseSidebar()" title="Colapsar menú">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
     <span class="header-logo"><img src="Logo_Diente_de_Leon_transparent.png" alt="Diente de León"></span>
     <span style="font-family:'Antropos',sans-serif; font-size:20px; color:var(--green); letter-spacing:1px;">Diente de León</span>
     <div class="header-spacer"></div>
@@ -700,8 +711,7 @@ function collapseSidebar() {
   _sidebarCollapsed = !_sidebarCollapsed;
   document.getElementById('sidebar').classList.toggle('collapsed', _sidebarCollapsed);
   document.querySelector('.app-main').classList.toggle('collapsed', _sidebarCollapsed);
-  document.getElementById('btn-collapse-sidebar').textContent = _sidebarCollapsed ? '▶' : '◀';
-  document.getElementById('btn-collapse-sidebar').title = _sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú';
+  document.getElementById('btn-collapse-sidebar').classList.toggle('collapsed', _sidebarCollapsed);
 }
 
 // ══════════════════════════════════════
