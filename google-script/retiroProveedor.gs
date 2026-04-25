@@ -385,7 +385,13 @@ function updateEstadoPedido(data) {
   const fila  = resultado.fila;
   const hoy   = Utilities.formatDate(new Date(), 'America/Argentina/Cordoba', 'dd/MM/yyyy');
 
-  sheet.getRange(fila, COL.ESTADO + 1).setValue(estado);
+  // Actualizar validación de la columna con todos los estados actuales
+  const estadosValidos = ['Solicitado','Confirmado','En Camino','Entregado en Escuela','Cerrado','Cancelado'];
+  const regla = SpreadsheetApp.newDataValidation()
+    .requireValueInList(estadosValidos)
+    .setAllowInvalid(false)
+    .build();
+  sheet.getRange(fila, COL.ESTADO + 1).setDataValidation(regla).setValue(estado);
   sheet.getRange(fila, COL.FECHA_EST + 1).setValue(hoy);
   if (quien) sheet.getRange(fila, COL.QUIEN + 1).setValue(quien);
   if (notas) sheet.getRange(fila, COL.NOTAS + 1).setValue(notas);
@@ -556,6 +562,18 @@ function subirComprobanteEnDrive(data) {
  * Ejecutar UNA VEZ desde el editor GAS para ver el estado actual de la Sheet.
  * Ver Registros (Ctrl+Enter) para leer el resultado.
  */
+// Ejecutar UNA VEZ para actualizar la validación de estados en todo el Sheet
+function actualizarValidacionEstados() {
+  const sheet = getPedidosSheet();
+  const estadosValidos = ['Solicitado','Confirmado','En Camino','Entregado en Escuela','Cerrado','Cancelado'];
+  const regla = SpreadsheetApp.newDataValidation()
+    .requireValueInList(estadosValidos)
+    .setAllowInvalid(false)
+    .build();
+  sheet.getRange('F2:F1000').setDataValidation(regla);
+  Logger.log('Validación actualizada con: ' + estadosValidos.join(', '));
+}
+
 function diagnosticarSheet() {
   const sheet = getPedidosSheet();
   const data  = sheet.getDataRange().getValues();
