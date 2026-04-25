@@ -182,6 +182,8 @@
   .filtro-btn { padding:6px 14px; border-radius:20px; border:1.5px solid #d1d5db; background:#fff; font-size:13px; font-weight:600; cursor:pointer; color:#6b7280; transition:all .15s; white-space:nowrap; }
   .filtro-btn:hover { border-color:#2d5a27; color:#2d5a27; }
   .filtro-btn.active { background:#2d5a27; color:#fff; border-color:#2d5a27; }
+  #vfilt-Pendiente.active { background:#fef9c3; color:#854d0e; border-color:#fde68a; }
+  #vfilt-Entregado.active { background:#f0fdf4; color:#15803d; border-color:#4ade80; }
 
   /* Cards de bienvenida */
   .welcome-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
@@ -373,6 +375,9 @@
         <button onclick="cargarVentas()" style="margin-left:auto;padding:6px 12px;background:#f3f4f6;border:none;border-radius:8px;font-size:12px;color:#6b7280;cursor:pointer;font-weight:600">↺ Actualizar</button>
       </div>
 
+      <!-- Meses rápidos -->
+      <div id="v-meses" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+
       <!-- Filtros adicionales -->
       <div class="v-filtros">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -382,13 +387,15 @@
             </select>
           </div>
           <div><label>Producto</label>
-            <input id="vfilt-producto" oninput="aplicarFiltrosVentas()" placeholder="Buscar…">
+            <select id="vfilt-producto" onchange="aplicarFiltrosVentas()">
+              <option value="">Todos</option>
+            </select>
           </div>
-          <div><label>Desde</label>
-            <input id="vfilt-desde" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
+          <div><label>Desde (dd/mm/aaaa)</label>
+            <input id="vfilt-desde" type="text" inputmode="numeric" maxlength="10" placeholder="01/04/2026" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
           </div>
-          <div><label>Hasta</label>
-            <input id="vfilt-hasta" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
+          <div><label>Hasta (dd/mm/aaaa)</label>
+            <input id="vfilt-hasta" type="text" inputmode="numeric" maxlength="10" placeholder="30/04/2026" oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()">
           </div>
         </div>
       </div>
@@ -689,6 +696,15 @@ function ocultarMensajes() {
 var _ventas = [];
 var _ventasFiltroEstado = 'Pendiente';
 
+function toggleVRow(i) {
+  var row = document.getElementById('vrow-' + i);
+  var chev = document.getElementById('vchev-' + i);
+  if (!row) return;
+  var open = row.style.display !== 'none';
+  row.style.display = open ? 'none' : 'table-row';
+  if (chev) chev.textContent = open ? '↓' : '↑';
+}
+
 function autoFmtV(input) {
   var v = input.value.replace(/\D/g,'');
   if (v.length >= 3) v = v.slice(0,2)+'/'+v.slice(2);
@@ -732,14 +748,56 @@ function cargarVentas(forzar) {
     });
 }
 
+var MESES_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
 function poblarFiltrosVentas() {
-  var sel = document.getElementById('vfilt-referente');
-  var staffSet = {};
-  _ventas.forEach(function(v){ if (v.staff) staffSet[v.staff] = true; });
-  while (sel.options.length > 1) sel.remove(1);
-  Object.keys(staffSet).sort().forEach(function(s){
-    var o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o);
+  var staffSet = {}, prodSet = {}, mesSet = {};
+  _ventas.forEach(function(v){
+    if (v.staff) staffSet[v.staff] = true;
+    v.productos.split(' | ').forEach(function(p){
+      var nom = p.replace(/^\d+x /, '').trim();
+      if (nom) prodSet[nom] = true;
+    });
+    if (v.fecha) {
+      var parts = v.fecha.split('/');
+      if (parts.length === 3) { var key = parts[2] + '-' + parts[1]; mesSet[key] = true; }
+    }
   });
+
+  // Referentes
+  var sel = document.getElementById('vfilt-referente');
+  var cur = sel.value;
+  while (sel.options.length > 1) sel.remove(1);
+  Object.keys(staffSet).sort().forEach(function(s){ var o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+  sel.value = cur;
+
+  // Productos
+  var selP = document.getElementById('vfilt-producto');
+  var curP = selP.value;
+  while (selP.options.length > 1) selP.remove(1);
+  Object.keys(prodSet).sort().forEach(function(p){ var o = document.createElement('option'); o.value=p; o.textContent=p; selP.appendChild(o); });
+  selP.value = curP;
+
+  // Meses rápidos
+  var cont = document.getElementById('v-meses');
+  if (cont) {
+    cont.innerHTML = '';
+    Object.keys(mesSet).sort().reverse().forEach(function(key){
+      var parts = key.split('-');
+      var label = MESES_ES[parseInt(parts[1])-1] + ' ' + parts[0];
+      var btn = document.createElement('button');
+      btn.className = 'filtro-btn'; btn.textContent = label;
+      btn.onclick = function() {
+        var lastDay = new Date(parseInt(parts[0]), parseInt(parts[1]), 0).getDate();
+        document.getElementById('vfilt-desde').value = '01/' + parts[1] + '/' + parts[0];
+        document.getElementById('vfilt-hasta').value = String(lastDay).padStart(2,'0') + '/' + parts[1] + '/' + parts[0];
+        document.querySelectorAll('#v-meses .filtro-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        aplicarFiltrosVentas();
+      };
+      cont.appendChild(btn);
+    });
+  }
 }
 
 function setFiltroEstado(estado) {
@@ -788,21 +846,25 @@ function renderVentas(rows) {
     cont.style.display = 'block'; return;
   }
   cont.innerHTML = '<div class="v-table-wrap"><div style="overflow-x:auto"><table class="v-table">' +
-    '<thead><tr>' +
-    '<th>Pedido</th><th>Comprador</th><th>Productos</th><th>Total</th><th>Estado</th><th>Referente</th>' +
-    '</tr></thead><tbody>' +
-    rows.map(function(v) {
+    '<thead><tr><th>Pedido</th><th>Comprador</th><th>Productos</th><th>Total</th><th>Estado</th><th>Quién entregó</th></tr></thead><tbody>' +
+    rows.map(function(v, i) {
       var entregado = v.estado === 'Entregado';
       var pill = entregado
         ? '<span style="background:#f0fdf4;color:#15803d;border:1px solid #4ade80;border-radius:100px;font-size:10px;font-weight:700;padding:2px 10px;white-space:nowrap">✅ Entregado</span>'
         : '<span style="background:#fef9c3;color:#854d0e;border:1px solid #fde68a;border-radius:100px;font-size:10px;font-weight:700;padding:2px 10px;white-space:nowrap">⏳ Pendiente</span>';
-      return '<tr>' +
+      var prods = v.productos.split(' | ');
+      var resumen = prods.length + ' prod. <span id="vchev-' + i + '">↓</span>';
+      var detalle = prods.map(function(p){ return '<div style="padding:2px 0;font-size:12px;color:#374151">• ' + p + '</div>'; }).join('');
+      return '<tr style="cursor:pointer" onclick="toggleVRow(' + i + ')">' +
         '<td><strong style="color:#2d5a27">#' + v.numero + '</strong><div style="font-size:10px;color:#9ca3af;margin-top:2px">' + v.fecha + '</div></td>' +
         '<td>' + v.nombre + '</td>' +
-        '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + v.productos + '</td>' +
+        '<td><button style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#2d5a27;padding:0">' + resumen + '</button></td>' +
         '<td style="font-weight:700;color:#2d5a27;white-space:nowrap">$ ' + v.total + '</td>' +
         '<td>' + pill + (entregado && v.fechaEntrega ? '<div style="font-size:10px;color:#9ca3af;margin-top:3px">' + v.fechaEntrega + '</div>' : '') + '</td>' +
         '<td>' + (v.staff || '—') + '</td>' +
+      '</tr>' +
+      '<tr id="vrow-' + i + '" style="display:none;background:#f9fafb">' +
+        '<td colspan="6" style="padding:8px 16px 12px">' + detalle + '</td>' +
       '</tr>';
     }).join('') + '</tbody></table></div></div>';
   cont.style.display = 'block';
