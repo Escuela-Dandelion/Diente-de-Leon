@@ -134,6 +134,20 @@ function doGetInterno(e) {
     return paginaConfirmar(orderId, generarToken(orderId), null, pass);
   }
 
+  if (action === 'addNotasRetiro') {
+    var ordId  = e.parameter.id    || '';
+    var notas  = e.parameter.notas || '';
+    var sheet  = getSheet();
+    var data   = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(ordId)) {
+        sheet.getRange(i + 1, 10).setValue(notas);
+        return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'Pedido no encontrado' })).setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action === 'getRetiros') {
     var estadoFiltro = e.parameter.estado || '';  // 'Pendiente', 'Entregado', o '' = todos
     var diasFiltro   = parseInt(e.parameter.dias || '0');
