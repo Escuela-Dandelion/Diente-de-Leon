@@ -292,7 +292,7 @@
         <span class="nav-icon">📦</span> Pedidos
       </button>
       <button class="nav-item" data-view="qr" data-roles="admin,staff,referente" onclick="showView('qr', this)">
-        <span class="nav-icon">📷</span> Registrar Entrega QR
+        <span class="nav-icon">📷</span> Registrar Entrega
       </button>
       <button class="nav-item" data-view="ventas" data-roles="admin,staff,fgp" onclick="showView('ventas', this)">
         <span class="nav-icon">🛍️</span> Ventas
@@ -329,7 +329,7 @@
 
     <!-- QR -->
     <div class="view" id="view-qr">
-      <div class="view-title">📷 Registrar Entrega QR</div>
+      <div class="view-title">📷 Registrar Entrega</div>
 
       <!-- Estado: escáner -->
       <div id="qr-scanner-wrap">
@@ -338,10 +338,17 @@
         <p id="qr-scan-error" style="color:var(--red);font-size:13px;margin-top:12px;display:none"></p>
       </div>
 
+      <!-- Loading post-escaneo -->
+      <div id="qr-loading" style="display:none;text-align:center;padding:40px 20px">
+        <div style="display:inline-block;width:36px;height:36px;border:4px solid #c8e6c9;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:16px"></div>
+        <p style="font-size:15px;font-weight:600;color:var(--text)">Verificando pedido…</p>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Un momento por favor</p>
+      </div>
+
       <!-- Estado: pedido encontrado -->
       <div id="qr-pedido-wrap" style="display:none">
         <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:20px;margin-bottom:16px">
-          <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pedido verificado</div>
+          <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pedido</div>
           <div style="font-size:20px;font-weight:800;color:#166534" id="qr-pedido-numero"></div>
           <div style="font-size:14px;color:#374151;margin-top:4px" id="qr-pedido-nombre"></div>
           <div style="font-size:13px;color:#6b7280;margin-top:8px" id="qr-pedido-productos"></div>
@@ -618,7 +625,7 @@ function aplicarPermisos(role) {
 function renderWelcomeCards(role) {
   var cards = [
     { view:'pedidos',              icon:'📦', name:'Órdenes de Pedido Proveedores',             desc:'Ver y gestionar pedidos',       roles:['admin','staff','fgp'] },
-    { view:'qr',                   icon:'📷', name:'Registrar Entrega QR', desc:'Confirmar entregas con QR',     roles:['admin','staff','referente'] },
+    { view:'qr',                   icon:'📷', name:'Registrar Entrega', desc:'Confirmar entregas con QR',     roles:['admin','staff','referente'] },
     { view:'ventas',               icon:'🛍️', name:'Ventas',              desc:'Historial de ventas',            roles:['admin','staff','fgp'] },
     { view:'dashboard-general',    icon:'📊', name:'Dashboard General',   desc:'Ventas y métricas globales',    roles:['admin','staff','fgp'] },
     { view:'dashboard-referentes', icon:'📈', name:'Mis ventas',          desc:'Dashboard de tu grado',        roles:['admin','staff','fgp','referente'] },
@@ -980,9 +987,14 @@ function detenerQR() {
 
 function onQRScanned(url) {
   detenerQR();
+  document.getElementById('qr-scanner-wrap').style.display = 'none';
+  document.getElementById('qr-loading').style.display = 'block';
+
   var params = new URLSearchParams((url.split('?')[1] || ''));
   var id = params.get('id'), token = params.get('token');
   if (!id || !token) {
+    document.getElementById('qr-loading').style.display = 'none';
+    document.getElementById('qr-scanner-wrap').style.display = 'block';
     var el = document.getElementById('qr-scan-error');
     el.textContent = 'QR inválido — no es un pedido de Diente de León.'; el.style.display = 'block';
     setTimeout(function(){ reiniciarQR(); }, 2500); return;
@@ -990,19 +1002,19 @@ function onQRScanned(url) {
   fetch(GAS_URL + '?action=api_verificar&id=' + id + '&token=' + token)
     .then(function(r){ return r.json(); })
     .then(function(d){
+      document.getElementById('qr-loading').style.display = 'none';
       if (d.entregado) {
-        document.getElementById('qr-scanner-wrap').style.display = 'none';
         document.getElementById('qr-ya-entregado').style.display = 'block';
         document.getElementById('qr-entregado-msg').textContent = d.estado || 'Este pedido ya fue entregado.';
         return;
       }
       if (!d.ok) {
+        document.getElementById('qr-scanner-wrap').style.display = 'block';
         var el = document.getElementById('qr-scan-error');
         el.textContent = d.error || 'Error al verificar.'; el.style.display = 'block';
         setTimeout(function(){ reiniciarQR(); }, 2500); return;
       }
       _qrData = { id: id, token: token, order: d.order };
-      document.getElementById('qr-scanner-wrap').style.display = 'none';
       document.getElementById('qr-pedido-numero').textContent = 'Pedido #' + d.order.number;
       document.getElementById('qr-pedido-nombre').textContent = d.order.contact_name;
       document.getElementById('qr-pedido-productos').textContent = (d.order.products||[]).map(function(p){ return p.quantity + 'x ' + p.name; }).join(' · ');
@@ -1010,6 +1022,8 @@ function onQRScanned(url) {
       document.getElementById('qr-pedido-wrap').style.display = 'block';
     })
     .catch(function(){
+      document.getElementById('qr-loading').style.display = 'none';
+      document.getElementById('qr-scanner-wrap').style.display = 'block';
       var el = document.getElementById('qr-scan-error');
       el.textContent = 'Error de conexión.'; el.style.display = 'block';
       setTimeout(function(){ reiniciarQR(); }, 2500);
@@ -1047,6 +1061,7 @@ function confirmarEntregaQR() {
 function reiniciarQR() {
   _qrData = null;
   document.getElementById('qr-scanner-wrap').style.display = 'block';
+  document.getElementById('qr-loading').style.display = 'none';
   document.getElementById('qr-pedido-wrap').style.display = 'none';
   document.getElementById('qr-ya-entregado').style.display = 'none';
   document.getElementById('qr-scan-error').style.display = 'none';
