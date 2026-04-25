@@ -322,6 +322,11 @@
           <input id="qr-pin" type="password" maxlength="8" placeholder="••••••"
             style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:16px;font-weight:700;letter-spacing:4px;text-align:center">
         </div>
+        <div style="margin-bottom:16px">
+          <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;display:block;margin-bottom:6px">Notas (opcional)</label>
+          <textarea id="qr-notas" rows="2" placeholder="Ej: se entregó sin el jabón, faltaba stock…"
+            style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical"></textarea>
+        </div>
         <button onclick="confirmarEntregaQR()" id="qr-btn-confirmar"
           style="width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
           ✅ Confirmar entrega
@@ -346,13 +351,41 @@
     <div class="view" id="view-ventas">
       <div class="view-title">🛍️ Ventas</div>
 
-      <!-- Filtros -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
-        <button onclick="filtrarVentas('Todos')" class="filtro-btn active" id="vfilt-Todos">Todos</button>
-        <button onclick="filtrarVentas('Pendiente')" class="filtro-btn" id="vfilt-Pendiente">⏳ Pendiente</button>
-        <button onclick="filtrarVentas('Entregado')" class="filtro-btn" id="vfilt-Entregado">✅ Entregado</button>
+      <!-- Filtros estado -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+        <button onclick="aplicarFiltrosVentas()" class="filtro-btn active" id="vfilt-Todos">Todos</button>
+        <button onclick="setFiltroEstado('Pendiente')" class="filtro-btn" id="vfilt-Pendiente">⏳ Pendiente</button>
+        <button onclick="setFiltroEstado('Entregado')" class="filtro-btn" id="vfilt-Entregado">✅ Entregado</button>
         <button onclick="cargarVentas()" style="margin-left:auto;padding:6px 12px;background:#f3f4f6;border:none;border-radius:8px;font-size:12px;color:#6b7280;cursor:pointer;font-weight:600">↺ Actualizar</button>
       </div>
+
+      <!-- Filtros adicionales -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+        <div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Referente</div>
+          <select id="vfilt-referente" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
+            <option value="">Todos los referentes</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Producto</div>
+          <input id="vfilt-producto" oninput="aplicarFiltrosVentas()" placeholder="Buscar producto…"
+            style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Desde</div>
+          <input id="vfilt-desde" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa"
+            oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()"
+            style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">Hasta</div>
+          <input id="vfilt-hasta" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa"
+            oninput="autoFmtV(this)" onblur="aplicarFiltrosVentas()"
+            style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
+        </div>
+      </div>
+      <div id="ventas-contador" style="font-size:12px;color:#9ca3af;margin-bottom:8px"></div>
 
       <div id="ventas-loading" style="text-align:center;padding:40px;color:#9ca3af">Cargando ventas…</div>
       <div id="ventas-tabla" style="display:none;overflow-x:auto"></div>
@@ -647,7 +680,21 @@ function ocultarMensajes() {
 // VENTAS
 // ══════════════════════════════════════
 var _ventas = [];
-var _ventasFiltro = 'Todos';
+var _ventasFiltroEstado = 'Todos';
+
+function autoFmtV(input) {
+  var v = input.value.replace(/\D/g,'');
+  if (v.length >= 3) v = v.slice(0,2)+'/'+v.slice(2);
+  if (v.length >= 6) v = v.slice(0,5)+'/'+v.slice(5,9);
+  input.value = v;
+}
+
+function parseFechaVentas(str) {
+  if (!str) return null;
+  var p = str.split('/');
+  if (p.length !== 3 || p[2].length !== 4) return null;
+  return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+}
 
 function cargarVentas() {
   document.getElementById('ventas-loading').style.display = 'block';
@@ -658,22 +705,64 @@ function cargarVentas() {
       document.getElementById('ventas-loading').style.display = 'none';
       if (!d.ok) return;
       _ventas = d.retiros || [];
-      renderVentas();
+      poblarFiltrosVentas();
+      aplicarFiltrosVentas();
     })
     .catch(function(){
       document.getElementById('ventas-loading').textContent = 'Error al cargar. Intentá de nuevo.';
     });
 }
 
-function filtrarVentas(estado) {
-  _ventasFiltro = estado;
-  document.querySelectorAll('[id^="vfilt-"]').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('vfilt-' + estado).classList.add('active');
-  renderVentas();
+function poblarFiltrosVentas() {
+  var sel = document.getElementById('vfilt-referente');
+  var staffSet = {};
+  _ventas.forEach(function(v){ if (v.staff) staffSet[v.staff] = true; });
+  while (sel.options.length > 1) sel.remove(1);
+  Object.keys(staffSet).sort().forEach(function(s){
+    var o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o);
+  });
 }
 
-function renderVentas() {
-  var rows = _ventasFiltro === 'Todos' ? _ventas : _ventas.filter(function(v){ return v.estado === _ventasFiltro; });
+function setFiltroEstado(estado) {
+  _ventasFiltroEstado = estado;
+  document.querySelectorAll('[id^="vfilt-Todos"],[id^="vfilt-Pendiente"],[id^="vfilt-Entregado"]').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('vfilt-' + estado).classList.add('active');
+  aplicarFiltrosVentas();
+}
+
+function aplicarFiltrosVentas() {
+  // Estado
+  if (document.getElementById('vfilt-Todos')) {
+    document.getElementById('vfilt-Todos').classList.toggle('active', _ventasFiltroEstado === 'Todos');
+    document.getElementById('vfilt-Pendiente').classList.toggle('active', _ventasFiltroEstado === 'Pendiente');
+    document.getElementById('vfilt-Entregado').classList.toggle('active', _ventasFiltroEstado === 'Entregado');
+  }
+  var referente = document.getElementById('vfilt-referente') ? document.getElementById('vfilt-referente').value : '';
+  var producto  = (document.getElementById('vfilt-producto') ? document.getElementById('vfilt-producto').value : '').toLowerCase();
+  var desde     = parseFechaVentas(document.getElementById('vfilt-desde') ? document.getElementById('vfilt-desde').value : '');
+  var hasta     = parseFechaVentas(document.getElementById('vfilt-hasta') ? document.getElementById('vfilt-hasta').value : '');
+
+  var rows = _ventas.filter(function(v) {
+    if (_ventasFiltroEstado !== 'Todos' && v.estado !== _ventasFiltroEstado) return false;
+    if (referente && v.staff !== referente) return false;
+    if (producto && v.productos.toLowerCase().indexOf(producto) === -1) return false;
+    if (desde || hasta) {
+      var fv = parseFechaVentas(v.fecha);
+      if (fv) {
+        if (desde && fv < desde) return false;
+        if (hasta && fv > hasta) return false;
+      }
+    }
+    return true;
+  });
+
+  var contador = document.getElementById('ventas-contador');
+  if (contador) contador.textContent = rows.length + ' resultado' + (rows.length !== 1 ? 's' : '');
+  renderVentas(rows);
+}
+
+function renderVentas(rows) {
+  if (!rows) rows = _ventas;
   var cont = document.getElementById('ventas-tabla');
   if (!rows.length) {
     cont.innerHTML = '<p style="color:#9ca3af;font-size:14px;padding:20px 0">Sin registros.</p>';
@@ -732,6 +821,21 @@ var QR_STAFF_NAMES = [
 })();
 
 function iniciarQR() {
+  // Pre-seleccionar el usuario logueado si coincide con un staff
+  if (currentUser) {
+    var sel = document.getElementById('qr-staff');
+    if (sel && sel.options.length <= 1) {
+      QR_STAFF_NAMES.forEach(function(n){ var o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
+    }
+    // Intentar pre-seleccionar por nombre
+    if (sel && currentUser.name) {
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value.toLowerCase().indexOf(currentUser.name.split(' ')[0].toLowerCase()) !== -1) {
+          sel.selectedIndex = i; break;
+        }
+      }
+    }
+  }
   var sel = document.getElementById('qr-staff');
   if (sel && sel.options.length <= 1) {
     QR_STAFF_NAMES.forEach(function(n){ var o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
@@ -799,8 +903,11 @@ function confirmarEntregaQR() {
   if (!staff) { fb.textContent='⚠️ Seleccioná tu nombre.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
   if (!pin)   { fb.textContent='⚠️ Ingresá tu PIN.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
   btn.disabled = true; btn.textContent = 'Confirmando…'; fb.style.display = 'none';
+  var notas    = document.getElementById('qr-notas') ? document.getElementById('qr-notas').value.trim() : '';
   var staffKey = staff.replace(' ', '.') + ' '; // formato del GAS
-  fetch(GAS_URL + '?action=api_entregar&id=' + _qrData.id + '&token=' + _qrData.token + '&staff=' + encodeURIComponent(staffKey) + '&pin=' + encodeURIComponent(pin))
+  var url = GAS_URL + '?action=api_entregar&id=' + _qrData.id + '&token=' + _qrData.token + '&staff=' + encodeURIComponent(staffKey) + '&pin=' + encodeURIComponent(pin);
+  if (notas) url += '&notas=' + encodeURIComponent(notas);
+  fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(d){
       btn.disabled = false; btn.textContent = '✅ Confirmar entrega';
@@ -824,6 +931,7 @@ function reiniciarQR() {
   document.getElementById('qr-scan-error').style.display = 'none';
   document.getElementById('qr-pin').value = '';
   document.getElementById('qr-staff').selectedIndex = 0;
+  if (document.getElementById('qr-notas')) document.getElementById('qr-notas').value = '';
   document.getElementById('qr-confirm-feedback').style.display = 'none';
   iniciarQR();
 }
