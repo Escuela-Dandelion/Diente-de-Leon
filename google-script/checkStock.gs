@@ -194,19 +194,23 @@ function registrarNuevaOrden(marca, fgp, items) {
   const descripcionProductos = items.map(function(i) { return i.descripcion; }).join('\n');
   const fecha = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
 
-  // Columnas: N°Orden · Fecha · Proveedor · FGP · Productos · Estado · Fecha Estado · Quien · Comprobante · Notas · Total
+  // Columnas (nuevo formato 13 cols):
+  // A:N°Orden · B:Fecha · C:Proveedor · D:FGP · E:Productos · F:Estado · G:FechaEst
+  // H:Quien · I:Total · J:Notas · K:EstadoPago · L:FechaPago · M:Comprobante
   pedidos.appendRow([
-    nOrden,
-    fecha,
-    marca,
-    fgp.nombre,
-    descripcionProductos,
-    'Solicitado',
-    fecha,
-    '',  // Quien (asignado al agendar retiro)
-    '',  // Comprobante (link al pagar)
-    '',  // Notas
-    ''   // Total (se actualiza desde orden-de-pedido.html)
+    nOrden,           // A: N° Orden
+    fecha,            // B: Fecha
+    marca,            // C: Proveedor
+    fgp.nombre,       // D: FGP
+    descripcionProductos, // E: Productos
+    'Solicitado',     // F: Estado
+    fecha,            // G: Fecha Estado
+    '',               // H: Quien
+    '',               // I: Total
+    '',               // J: Notas
+    'No pagado',      // K: Estado Pago
+    '',               // L: Fecha Pago
+    ''                // M: Comprobante
   ]);
 
   Logger.log('Orden registrada: ' + nOrden + ' | ' + marca + ' | ' + fgp.nombre);
@@ -229,7 +233,7 @@ function inicializarSheet() {
   let pedidos = ss.getSheetByName('Pedidos');
   if (!pedidos) pedidos = ss.insertSheet('Pedidos');
   pedidos.clearContents();
-  const headers = ['N° Orden', 'Fecha', 'Marca/Proveedor', 'FGP', 'Producto(s)', 'Estado', 'Fecha Estado', 'Notas'];
+  const headers = ['N° Orden', 'Fecha', 'Proveedor', 'FGP', 'Productos', 'Estado', 'Fecha Estado', 'Quien retira', 'Total', 'Notas', 'Estado Pago', 'Fecha de Pago', 'Comprobante'];
   pedidos.getRange(1, 1, 1, headers.length).setValues([headers]);
   pedidos.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#e8f5e9').setFontColor('#3a7d44');
   pedidos.setColumnWidth(1, 130);
