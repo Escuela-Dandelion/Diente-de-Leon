@@ -758,7 +758,12 @@ function restaurarDesdeUrl() {
   showView(view, null, opts);
   // Si es QR con id y token → modo de confirmación directa (sin cámara)
   if (view === 'qr' && id && token) {
-    setTimeout(function() { onQRScanned('https://dummy?id=' + id + '&token=' + token); }, 400);
+    // Dar tiempo a que la vista cargue, luego simular escaneo sin abrir cámara
+    setTimeout(function() {
+      detenerQR(); // asegurar que la cámara no arranca
+      document.getElementById('qr-scan-error').style.display = 'none';
+      onQRScanned('https://x?id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(token));
+    }, 300);
   }
 }
 
@@ -1128,6 +1133,9 @@ var QR_STAFF_NAMES = [
 })();
 
 function iniciarQR() {
+  // Si hay id+token en la URL, no necesitamos la cámara
+  var urlP = new URLSearchParams(window.location.search);
+  if (urlP.get('id') && urlP.get('token')) return;
   // Pre-seleccionar el usuario logueado si coincide con un staff
   if (currentUser) {
     var sel = document.getElementById('qr-staff');
