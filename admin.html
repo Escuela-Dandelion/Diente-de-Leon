@@ -1020,7 +1020,9 @@ function poblarFiltrosVentas() {
     }
   });
 
-  // Referentes
+  // Referentes: lista base + los que aparecen en datos
+  var REFERENTES_BASE = ['Yuliana Longhi','Maria Martini','Ines Robertson','Delfina Salvetti','Dolo Dominguez','Gaby Dominguez','Juan Diaz','Karina','Monica Chesta','Paola','Pia','Sabi','Yana','Elina','Claudio'];
+  REFERENTES_BASE.forEach(function(n){ staffSet[n] = true; });
   var sel = document.getElementById('vfilt-referente');
   var cur = sel.value;
   while (sel.options.length > 1) sel.remove(1);
