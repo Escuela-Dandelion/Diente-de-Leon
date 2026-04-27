@@ -480,9 +480,16 @@
           <div id="d-retiro-edit" style="display:none">
             <div style="margin-bottom:10px">
               <div class="det-info-label">Quién retira</div>
-              <select id="input-retiro-quien" style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:13px;background:#fff;margin-top:4px">
+              <select id="input-retiro-quien" onchange="onRetiroQuienChange()" style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:13px;background:#fff;margin-top:4px">
                 <option value="">— Seleccioná —</option>
               </select>
+              <div id="input-retiro-nueva-wrap" style="display:none;margin-top:8px;display:none">
+                <input id="input-retiro-nueva-nombre" type="text" placeholder="Nombre completo"
+                  style="width:100%;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;margin-bottom:6px">
+                <input id="input-retiro-nueva-tel" type="tel" inputmode="numeric" placeholder="Teléfono (ej: 3512112050)"
+                  style="width:100%;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px">
+                <div style="font-size:11px;color:#9ca3af;margin-top:4px">Se guardará para futuras asignaciones</div>
+              </div>
             </div>
             <div style="margin-bottom:10px">
               <div class="det-info-label">Fecha de Retiro</div>
@@ -1340,17 +1347,62 @@ function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&
 
 // ── EDITAR PROVEEDOR ──────────────────────────────────────────
 // ── RETIRO ────────────────────────────────────────────────────
-var POOL_NAMES = ['Ines Robertson','Jose Carranza','Yuliana Longhi','Maria Martini','Luli del Castillo','Valeria Pierobon','Andrea Truppia','Otra Persona del Pool'];
-var POOL_PHONES = { 'Ines Robertson':'5493512112050','Jose Carranza':'5493516529993','Yuliana Longhi':'5493513645612','Maria Martini':'5493516865078','Luli del Castillo':'5493513003789','Valeria Pierobon':'5493512389386','Andrea Truppia':'5493515640578' };
+// Pool base hardcodeado
+var POOL_BASE = [
+  { nombre:'Ines Robertson',    tel:'5493512112050' },
+  { nombre:'Jose Carranza',     tel:'5493516529993' },
+  { nombre:'Yuliana Longhi',    tel:'5493513645612' },
+  { nombre:'Maria Martini',     tel:'5493516865078' },
+  { nombre:'Luli del Castillo', tel:'5493513003789' },
+  { nombre:'Valeria Pierobon',  tel:'5493512389386' },
+  { nombre:'Andrea Truppia',    tel:'5493515640578' }
+];
+// Compatibilidad legacy
+var POOL_NAMES  = POOL_BASE.map(function(p){ return p.nombre; });
+var POOL_PHONES = {};
+POOL_BASE.forEach(function(p){ POOL_PHONES[p.nombre] = p.tel; });
+
+function obtenerPoolLocal() {
+  try {
+    var extra = JSON.parse(localStorage.getItem('ddl_pool_extra') || '[]');
+    return POOL_BASE.concat(extra);
+  } catch(e) { return POOL_BASE.slice(); }
+}
+
+function guardarPersonaPoolLocal(nombre, tel) {
+  try {
+    var extra = JSON.parse(localStorage.getItem('ddl_pool_extra') || '[]');
+    var existe = extra.findIndex(function(p){ return p.nombre.toLowerCase() === nombre.toLowerCase(); });
+    if (existe !== -1) extra[existe].tel = tel;
+    else extra.push({ nombre: nombre, tel: tel });
+    localStorage.setItem('ddl_pool_extra', JSON.stringify(extra));
+    POOL_PHONES[nombre] = tel;
+  } catch(e) {}
+}
+
+function onRetiroQuienChange() {
+  var sel  = document.getElementById('input-retiro-quien');
+  var wrap = document.getElementById('input-retiro-nueva-wrap');
+  if (sel.value === '__otra__') {
+    wrap.style.display = 'block';
+    document.getElementById('input-retiro-nueva-nombre').focus();
+  } else {
+    wrap.style.display = 'none';
+  }
+}
 
 function toggleEditRetiro() {
   var view = document.getElementById('d-retiro-view');
   var edit = document.getElementById('d-retiro-edit');
   var btn  = document.getElementById('btn-toggle-retiro');
   if (edit.style.display === 'none') {
-    // Poblar selector
+    // Poblar selector con pool base + personas guardadas
     var sel = document.getElementById('input-retiro-quien');
-    if (sel.options.length <= 1) POOL_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+    sel.innerHTML = '<option value="">— Seleccioná —</option>';
+    var poolActual = obtenerPoolLocal();
+    poolActual.forEach(function(p){ var o=document.createElement('option'); o.value=p.nombre; o.textContent=p.nombre; sel.appendChild(o); });
+    var optOtra = document.createElement('option'); optOtra.value='__otra__'; optOtra.textContent='➕ Otra persona…'; sel.appendChild(optOtra);
+    document.getElementById('input-retiro-nueva-wrap').style.display = 'none';
     // Pre-llenar
     sel.value = pedidoActual.quien || '';
     document.getElementById('input-retiro-fecha').value   = pedidoActual.fechaRetiro   ? isoFecha(pedidoActual.fechaRetiro)   : '';
@@ -1372,8 +1424,20 @@ function isoFecha(str) {
 }
 
 function guardarRetiro() {
-  var quien       = document.getElementById('input-retiro-quien').value;
-  var fechaRetiro = document.getElementById('input-retiro-fecha').value;   // yyyy-mm-dd
+  var quienSel    = document.getElementById('input-retiro-quien').value;
+  var quien       = quienSel;
+  if (quienSel === '__otra__') {
+    var nuevoNombre = document.getElementById('input-retiro-nueva-nombre').value.trim();
+    var nuevoTel    = document.getElementById('input-retiro-nueva-tel').value.trim().replace(/\D/g,'');
+    if (!nuevoNombre) {
+      var fb2 = document.getElementById('d-retiro-feedback');
+      fb2.textContent = '⚠️ Ingresá el nombre de la persona.'; fb2.style.color='#b45309'; fb2.style.display='block';
+      return;
+    }
+    quien = nuevoNombre;
+    if (nuevoTel) guardarPersonaPoolLocal(nuevoNombre, nuevoTel);
+  }
+  var fechaRetiro = document.getElementById('input-retiro-fecha').value;
   var lugar       = document.getElementById('input-retiro-lugar').value.trim();
   var fechaEsc    = document.getElementById('input-retiro-escuela').value;
   var fb  = document.getElementById('d-retiro-feedback');
@@ -1447,7 +1511,7 @@ function armarMensajeRetiro(p) {
     '📲 *Cuando retires la mercadería, actualizá el estado acá:*',
     'https://escuela-dandelion.github.io/Comision-Recursos/pedidos.html?id=' + (p.norden||''),
     '',
-    '¡Gracias! Coordiná con *' + fgp + '*.'
+    '¡Gracias por tu ayuda! Cualquier inconveniente coordiná con *' + fgp + '*.'
   ].filter(function(l){ return l !== null; }).join('\n');
 }
 
