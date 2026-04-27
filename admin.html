@@ -997,8 +997,16 @@ function cargarVentas(forzar) {
       document.getElementById('ventas-loading').style.display = 'none';
       if (!d.ok) { document.getElementById('ventas-loading').textContent = 'Error al cargar.'; return; }
       // Mergear en _ventas eliminando los del mismo estado
+      var SGMAP = {'Yuliana.Longhi ':'Jardín','Maria.Martini ':'Jardín','Ines.Robertson':'4to','Delfina.Salvetti':'6to','Dolo.Dominguez':'2do','Gaby.Dominguez':'5to','Juan.Diaz':'8vo','Karina':'7mo','Monica.Chesta':'Maestros/Docentes','Paola':'2do','Pia':'11vo','Sabi':'9no','Yana':'5to','Elina':'3ro','Claudio':'Tiendita'};
+      var retiros = (d.retiros || []).map(function(v){
+        if (!v.grado && v.staff) {
+          var k = v.staff.trim();
+          v.grado = SGMAP[k+' '] || SGMAP[k] || Object.keys(SGMAP).reduce(function(g,key){ return (!g && key.trim().toLowerCase()===k.toLowerCase()) ? SGMAP[key] : g; }, '');
+        }
+        return v;
+      });
       _ventas = _ventas.filter(function(v){ return v.estado !== estado && estado !== 'Todos'; });
-      _ventas = _ventas.concat(d.retiros || []);
+      _ventas = _ventas.concat(retiros);
       _ventasCargadoEstado[estado] = true;
       poblarFiltrosVentas();
       aplicarFiltrosVentas();
@@ -1101,6 +1109,9 @@ function aplicarFiltrosVentas() {
   }
   var grado      = document.getElementById('vfilt-grado') ? document.getElementById('vfilt-grado').value : '';
   var referente  = document.getElementById('vfilt-referente') ? document.getElementById('vfilt-referente').value : '';
+  // Referentes solo ven sus propias entregas
+  var esReferente = currentUser && currentUser.role === 'referente';
+  if (esReferente && currentUser.name && !referente) referente = currentUser.name;
   var producto   = (document.getElementById('vfilt-producto') ? document.getElementById('vfilt-producto').value : '').toLowerCase();
   var comprador  = (document.getElementById('vfilt-comprador') ? document.getElementById('vfilt-comprador').value : '').toLowerCase();
   var desde     = parseFechaVentas(document.getElementById('vfilt-desde') ? document.getElementById('vfilt-desde').value : '');
