@@ -713,6 +713,15 @@ document.addEventListener('DOMContentLoaded', function() {
   isEmbedded = params.get('auth') === '1';
   if (isEmbedded) document.body.classList.add('embedded');
 
+  // Verificar sesión Google del admin
+  var adminSession = null;
+  try {
+    var s = JSON.parse(localStorage.getItem('dl_admin_session') || 'null');
+    if (s && s.email && Date.now() < s.expires) adminSession = s;
+  } catch(e) {}
+  // Si hay sesión Google válida, marcar como autenticado
+  if (adminSession) sessionStorage.setItem('ddl_auth', '1');
+
   if (idParam) {
     // URL directa: mostrar loading inmediato, buscar pedido directo del GAS
     mostrar('detalleView');
@@ -723,6 +732,12 @@ document.addEventListener('DOMContentLoaded', function() {
       '<div style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#9ca3af">' +
       '<div style="width:14px;height:14px;border:2px solid #c8e6c9;border-top-color:#2d5a27;border-radius:50%;animation:spin .7s linear infinite"></div>' +
       'Cargando pedido…</div>';
+    // Si no está autenticado → modo colaborador (solo puede marcar entregado)
+    var autenticado = sessionStorage.getItem('ddl_auth') === '1';
+    if (!autenticado) {
+      isEmbedded = false; // no es embedded, pero tampoco muestra nav completo
+      document.getElementById('backBtn').style.display = 'none'; // ocultar Volver
+    }
     // Buscar pedido específico en el GAS (rápido)
     fetch(SCRIPT_URL + '?action=getPedido&id=' + encodeURIComponent(idParam), { redirect: 'follow' })
       .then(function(r){ return r.json(); })
@@ -1858,7 +1873,25 @@ function renderDetalle(p) {
   // CTA sticky al pie — acción principal (primera acción no Cancelar)
   var ctaWrap = document.getElementById('d-cta-wrap');
   var ctaBtn  = document.getElementById('d-cta-btn');
-  var accionPrincipal = sig.filter(function(e){ return e !== 'Cancelado'; })[0];
+  var tieneGoogle = (function(){ try { var s=JSON.parse(localStorage.getItem('dl_admin_session')||'null'); return s&&s.email&&Date.now()<s.expires; } catch(e){ return false; } })();
+  var esSoloLink  = !sessionStorage.getItem('ddl_auth') && !tieneGoogle; // acceso por link WA sin auth
+  // Filtrar acciones según rol:
+  // - Sin auth (link WA): solo Entregado en Escuela
+  // - Con PIN (sin Google): todo menos Cerrado
+  // - Con Google: todo
+  var accionesFiltradas = sig.filter(function(e){
+    if (e === 'Cancelado') return false;
+    if (esSoloLink) return e === 'Entregado en Escuela';
+    if (!tieneGoogle && e === 'Cerrado') return false;
+    return true;
+  });
+  // También ocultar Cerrar en topbar si no es admin Google
+  if (!tieneGoogle) {
+    document.querySelectorAll('.btn-accion-top').forEach(function(b){
+      if (b.textContent && b.textContent.trim() === 'Cerrar Pedido') b.style.display = 'none';
+    });
+  }
+  var accionPrincipal = accionesFiltradas[0];
   if (accionPrincipal && ctaWrap && ctaBtn) {
     ctaBtn.textContent = (EMOJI_ESTADO[accionPrincipal]||'') + ' ' + (LABEL_ACCION[accionPrincipal] || accionPrincipal);
     ctaBtn.className = '';
