@@ -359,7 +359,7 @@ function getPedidosSheet() {
 function filaAObjeto(fila) {
   return {
     norden:      fila[COL.NORDEN],
-    fecha:       fila[COL.FECHA],
+    fecha:       fila[COL.FECHA] ? Utilities.formatDate(new Date(fila[COL.FECHA]), 'America/Argentina/Cordoba', 'dd/MM/yyyy') : '',
     proveedor:   fila[COL.PROVEEDOR],
     fgp:         fila[COL.FGP],
     productos:   fila[COL.PRODUCTOS],
