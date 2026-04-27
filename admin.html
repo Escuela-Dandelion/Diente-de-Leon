@@ -352,7 +352,7 @@
       <div class="view-title">📷 Registrar Entrega</div>
 
       <!-- Estado 0: LOGIN (siempre primero) -->
-      <div id="qr-login-wrap">
+      <div id="qr-login-wrap" style="display:none">
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:24px;max-width:380px;margin:0 auto">
           <div style="text-align:center;margin-bottom:20px">
             <div style="font-size:32px;margin-bottom:8px">🔐</div>
@@ -1207,7 +1207,7 @@ function iniciarQRLogin() {
   if (sel && sel.options.length <= 1) {
     QR_STAFF_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
   }
-  // Si ya hay sesión QR activa o Google, saltar login
+  // Si ya hay sesión QR activa o Google, saltar login sin mostrar el form
   var sesionQR = leerSesionQR();
   var sesion = getSession();
   if (sesionQR || sesion || (currentUser && currentUser.name)) {
@@ -1215,6 +1215,8 @@ function iniciarQRLogin() {
     qrPostLogin();
     return;
   }
+  // No hay sesión — mostrar formulario de login
+  document.getElementById('qr-login-wrap').style.display = 'block';
   // Mostrar Google button
   if (typeof google !== 'undefined') {
     google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: function(resp) {
