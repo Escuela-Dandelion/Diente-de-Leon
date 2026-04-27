@@ -447,12 +447,12 @@
           <div style="grid-column:1/-1"><label>Comprador</label>
             <input id="vfilt-comprador" oninput="aplicarFiltrosVentas()" placeholder="Buscar por nombre…" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
           </div>
-          <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div><label>Desde</label>
-              <input id="vfilt-desde" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
+          <div style="grid-column:1/-1;display:flex;gap:6px;align-items:flex-end;flex-wrap:nowrap">
+            <div style="flex:1;min-width:0"><label style="font-size:10px">Desde</label>
+              <input id="vfilt-desde" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:5px 6px;border:1px solid #d1d5db;border-radius:8px;font-size:12px;background:#fff">
             </div>
-            <div><label>Hasta</label>
-              <input id="vfilt-hasta" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
+            <div style="flex:1;min-width:0"><label style="font-size:10px">Hasta</label>
+              <input id="vfilt-hasta" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:5px 6px;border:1px solid #d1d5db;border-radius:8px;font-size:12px;background:#fff">
             </div>
           </div>
         </div>
@@ -1002,9 +1002,13 @@ function poblarFiltrosVentas() {
       var btn = document.createElement('button');
       btn.className = 'filtro-btn'; btn.textContent = label;
       btn.onclick = function() {
-        var lastDay = new Date(parseInt(parts[0]), parseInt(parts[1]), 0).getDate();
+        var hoy = new Date();
+        var esMesActual = (parseInt(parts[0]) === hoy.getFullYear() && parseInt(parts[1]) === hoy.getMonth()+1);
+        var fmtHoy = hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-'+String(hoy.getDate()).padStart(2,'0');
+        var lastDay = esMesActual ? String(hoy.getDate()).padStart(2,'0')
+                                  : String(new Date(parseInt(parts[0]), parseInt(parts[1]), 0).getDate()).padStart(2,'0');
         document.getElementById('vfilt-desde').value = parts[0] + '-' + parts[1] + '-01';
-        document.getElementById('vfilt-hasta').value = parts[0] + '-' + parts[1] + '-' + String(lastDay).padStart(2,'0');
+        document.getElementById('vfilt-hasta').value = esMesActual ? fmtHoy : parts[0] + '-' + parts[1] + '-' + lastDay;
         document.querySelectorAll('#v-meses .filtro-btn').forEach(function(b){ b.classList.remove('active'); });
         btn.classList.add('active');
         aplicarFiltrosVentas();
