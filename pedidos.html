@@ -454,6 +454,7 @@
               <div class="det-info-item">
                 <div class="det-info-label">Quién retira</div>
                 <div id="d-retiro-quien" style="font-size:13px">—</div>
+                <div id="d-retiro-tel" style="font-size:12px;color:#6b7280;margin-top:2px"></div>
               </div>
               <div class="det-info-item">
                 <div class="det-info-label">Fecha de Retiro</div>
@@ -483,6 +484,12 @@
               <select id="input-retiro-quien" onchange="onRetiroQuienChange()" style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:13px;background:#fff;margin-top:4px">
                 <option value="">— Seleccioná —</option>
               </select>
+              <div id="input-retiro-tel-wrap" style="display:none;margin-top:6px">
+                <div class="det-info-label" style="margin-bottom:4px">Teléfono</div>
+                <input id="input-retiro-tel" type="tel" inputmode="numeric" placeholder="Ej: 3512112050"
+                  style="width:100%;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px">
+                <div style="font-size:11px;color:#9ca3af;margin-top:3px">Se guarda para futuras asignaciones</div>
+              </div>
               <div id="input-retiro-nueva-wrap" style="display:none;margin-top:8px;display:none">
                 <input id="input-retiro-nueva-nombre" type="text" placeholder="Nombre completo"
                   style="width:100%;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;margin-bottom:6px">
@@ -1381,13 +1388,21 @@ function guardarPersonaPoolLocal(nombre, tel) {
 }
 
 function onRetiroQuienChange() {
-  var sel  = document.getElementById('input-retiro-quien');
-  var wrap = document.getElementById('input-retiro-nueva-wrap');
+  var sel      = document.getElementById('input-retiro-quien');
+  var wrapNuev = document.getElementById('input-retiro-nueva-wrap');
+  var wrapTel  = document.getElementById('input-retiro-tel-wrap');
+  var inputTel = document.getElementById('input-retiro-tel');
   if (sel.value === '__otra__') {
-    wrap.style.display = 'block';
+    wrapNuev.style.display = 'block';
+    wrapTel.style.display  = 'none';
     document.getElementById('input-retiro-nueva-nombre').focus();
+  } else if (sel.value) {
+    wrapNuev.style.display = 'none';
+    wrapTel.style.display  = 'block';
+    inputTel.value = POOL_PHONES[sel.value] || '';
   } else {
-    wrap.style.display = 'none';
+    wrapNuev.style.display = 'none';
+    wrapTel.style.display  = 'none';
   }
 }
 
@@ -1436,6 +1451,10 @@ function guardarRetiro() {
     }
     quien = nuevoNombre;
     if (nuevoTel) guardarPersonaPoolLocal(nuevoNombre, nuevoTel);
+  } else if (quienSel) {
+    // Si editó el teléfono del seleccionado, actualizar
+    var telEditado = document.getElementById('input-retiro-tel').value.trim().replace(/\D/g,'');
+    if (telEditado) guardarPersonaPoolLocal(quienSel, telEditado);
   }
   var fechaRetiro = document.getElementById('input-retiro-fecha').value;
   var lugar       = document.getElementById('input-retiro-lugar').value.trim();
@@ -1476,7 +1495,10 @@ function guardarRetiro() {
 
 function actualizarRetiroView() {
   var p = pedidoActual;
-  document.getElementById('d-retiro-quien').textContent   = p.quien       || '—';
+  document.getElementById('d-retiro-quien').textContent   = p.quien || '—';
+  var telRetiro = p.quien ? (POOL_PHONES[p.quien] || '') : '';
+  var telEl = document.getElementById('d-retiro-tel');
+  if (telEl) telEl.textContent = telRetiro ? '📞 ' + telRetiro : '';
   document.getElementById('d-retiro-fecha').textContent   = p.fechaRetiro  || '—';
   document.getElementById('d-retiro-lugar').textContent   = p.lugarRetiro  || '—';
   document.getElementById('d-retiro-escuela').textContent = p.fechaEscuela || '—';
