@@ -840,11 +840,19 @@ async function cargarLista(incluyeCerrados) {
   try {
     var gasUrl = SCRIPT_URL + '?action=getPedidos' + (_incluyeCerrados ? '&incluirCerrados=1' : '');
     const [respPedidos, respTel] = await Promise.all([
-      fetch(gasUrl, { redirect: 'follow' }).then(r => r.json()),
+      fetch(gasUrl, { redirect: 'follow' }).then(r => r.json()).catch(() => ({ ok: false, _usarCSV: true })),
       fetch(SCRIPT_URL + '?action=getTelProveedores').then(r => r.json()).catch(() => ({ ok: false }))
     ]);
-    if (!respPedidos.ok) throw new Error(respPedidos.error || 'Error al cargar');
-    todosLosPedidos = respPedidos.pedidos || [];
+
+    if (!respPedidos.ok || respPedidos._usarCSV || !respPedidos.pedidos) {
+      // Fallback al CSV
+      const csvResp = await fetch(SHEET_CSV + '&t=' + Date.now());
+      const text = await csvResp.text();
+      todosLosPedidos = csvAObjetos(text);
+      if (!_incluyeCerrados) todosLosPedidos = todosLosPedidos.filter(p => p.estado !== 'Cerrado');
+    } else {
+      todosLosPedidos = respPedidos.pedidos || [];
+    }
     var btnC = document.getElementById('btn-toggle-cerrados');
     if (btnC) btnC.textContent = _incluyeCerrados ? '🔒 Ocultar Cerrados' : '🔒 Ver Cerrados';
 
