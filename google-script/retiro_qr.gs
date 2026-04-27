@@ -187,7 +187,15 @@ function doGetInterno(e) {
     return HtmlService.createHtmlOutput('<p style="font-family:sans-serif;padding:24px;color:red">QR inválido o expirado.</p>');
   }
 
-  if (action === 'verificar')  return paginaVerificar(orderId, token);
+  if (action === 'verificar') {
+    // Redirigir al nuevo admin en lugar del HTML viejo del GAS
+    var adminUrl = 'https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=qr&id='
+                   + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token);
+    return HtmlService.createHtmlOutput(
+      '<html><head><meta http-equiv="refresh" content="0;url=' + adminUrl + '"></head>' +
+      '<body><a href="' + adminUrl + '">Redirigiendo…</a></body></html>'
+    );
+  }
   if (action === 'confirmar')  return paginaConfirmar(orderId, token);
 
   return HtmlService.createHtmlOutput('<p>URL inválida.</p>');
