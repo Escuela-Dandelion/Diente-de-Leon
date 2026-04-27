@@ -1451,7 +1451,10 @@ function verMisEntregas() {
 }
 
 function reiniciarQR() {
-  _qrData = null;
+  _qrData         = null;
+  _qrModoDirecto  = false;  // resetear para permitir la cámara
+  _qrPendingId    = null;
+  _qrPendingToken = null;
   document.getElementById('qr-loading').style.display = 'none';
   document.getElementById('qr-pedido-wrap').style.display = 'none';
   document.getElementById('qr-ya-entregado').style.display = 'none';
