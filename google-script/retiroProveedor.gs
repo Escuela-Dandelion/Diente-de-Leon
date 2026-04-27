@@ -151,6 +151,13 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (action === 'updateRetiroData') {
+      const resultado = actualizarRetiroEnSheet(e.parameter);
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, mensaje: resultado }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (action === 'updateEstado') {
       const resultado = updateEstadoPedido({
         norden: e.parameter.norden || '',
@@ -508,6 +515,56 @@ function updateProveedorPedido(data) {
   // Guardar tel en tab Proveedores para reusar en futuras alertas
   if (tel) guardarTelProveedor(proveedor, tel);
   return 'Proveedor actualizado: ' + norden;
+}
+
+// Actualiza datos de retiro en Sheet y sincroniza con Google Calendar
+function actualizarRetiroEnSheet(params) {
+  const norden       = params.norden       || '';
+  const quien        = params.quien        || '';
+  const fechaRetiro  = params.fecha_retiro || '';
+  const lugar        = params.lugar        || '';
+  const fechaEscuela = params.fecha_escuela|| '';
+  const proveedor    = params.proveedor    || '';
+  const producto     = params.producto     || '';
+  const fgp          = params.fgp          || '';
+
+  if (!norden) throw new Error('Falta norden');
+
+  const resultado = leerPedidoPorId(norden);
+  if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
+
+  const sheet = getPedidosSheet();
+  const fila  = resultado.fila;
+  if (quien)        sheet.getRange(fila, COL.QUIEN + 1).setValue(quien);
+  if (fechaRetiro)  sheet.getRange(fila, COL.FECHA_RETIRO + 1).setValue(fechaRetiro);
+  if (lugar)        sheet.getRange(fila, COL.LUGAR_RETIRO + 1).setValue(lugar);
+  if (fechaEscuela) sheet.getRange(fila, COL.FECHA_ESCUELA + 1).setValue(fechaEscuela);
+
+  // Actualizar Google Calendar: eliminar evento anterior y crear nuevo
+  if (fechaRetiro) {
+    try {
+      const cal = CalendarApp.getCalendarById(CONFIG_RETIRO.CALENDAR_ID);
+      // Buscar y eliminar evento anterior del mismo norden
+      const buscarDesde = new Date(fechaRetiro + 'T00:00:00');
+      buscarDesde.setDate(buscarDesde.getDate() - 30);
+      const buscarHasta = new Date(fechaRetiro + 'T23:59:59');
+      buscarHasta.setDate(buscarHasta.getDate() + 60);
+      cal.getEvents(buscarDesde, buscarHasta).forEach(function(ev) {
+        if (ev.getDescription().indexOf(norden) !== -1) ev.deleteEvent();
+      });
+      // Crear nuevo evento
+      const data = {
+        proveedor: proveedor, producto: producto, retira: quien,
+        lugar: lugar, fecha_retiro: fechaRetiro, fecha_escuela: fechaEscuela,
+        norden: norden, fgp: fgp
+      };
+      crearEventoCalendario(data);
+      Logger.log('Calendario actualizado para: ' + norden);
+    } catch(e) {
+      Logger.log('Error actualizando calendario: ' + e.message);
+    }
+  }
+  return 'Retiro actualizado: ' + norden;
 }
 
 // data: { action:'eliminarPedido', norden }

@@ -441,6 +441,67 @@
         </div>
       </div>
 
+      <!-- Card retiro -->
+      <div class="det-card" id="d-retiro-card">
+        <div class="det-card-header">
+          <span class="det-card-title">Retiro</span>
+          <button class="btn-edit-small" id="btn-toggle-retiro" onclick="toggleEditRetiro()">✏️ Editar</button>
+        </div>
+        <div class="det-card-body">
+          <!-- Vista lectura -->
+          <div id="d-retiro-view">
+            <div class="det-info-row">
+              <div class="det-info-item">
+                <div class="det-info-label">Quién retira</div>
+                <div id="d-retiro-quien" style="font-size:13px">—</div>
+              </div>
+              <div class="det-info-item">
+                <div class="det-info-label">Fecha de retiro</div>
+                <div id="d-retiro-fecha" style="font-size:13px">—</div>
+              </div>
+              <div class="det-info-item">
+                <div class="det-info-label">Lugar</div>
+                <div id="d-retiro-lugar" style="font-size:13px">—</div>
+              </div>
+              <div class="det-info-item">
+                <div class="det-info-label">Entrega en escuela</div>
+                <div id="d-retiro-escuela" style="font-size:13px">—</div>
+              </div>
+            </div>
+            <div style="margin-top:10px" id="d-retiro-wa-wrap" style="display:none">
+              <a id="btn-wa-retiro" href="#" target="_blank"
+                style="display:inline-flex;align-items:center;gap:5px;background:#25d366;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;text-decoration:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Reenviar aviso de retiro
+              </a>
+            </div>
+          </div>
+          <!-- Vista edición -->
+          <div id="d-retiro-edit" style="display:none">
+            <div style="margin-bottom:10px">
+              <div class="det-info-label">Quién retira</div>
+              <select id="input-retiro-quien" style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:13px;background:#fff;margin-top:4px">
+                <option value="">— Seleccioná —</option>
+              </select>
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="det-info-label">Fecha de retiro</div>
+              <input id="input-retiro-fecha" type="date" style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;margin-top:4px">
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="det-info-label">Lugar</div>
+              <input id="input-retiro-lugar" type="text" placeholder="Dirección del proveedor" style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;margin-top:4px">
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="det-info-label">Entrega en escuela</div>
+              <input id="input-retiro-escuela" type="date" style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;margin-top:4px">
+            </div>
+            <button onclick="guardarRetiro()" id="btn-guardar-retiro" style="width:100%;padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">💾 Guardar y actualizar calendario</button>
+            <div id="d-retiro-feedback" style="font-size:12px;margin-top:6px;display:none;font-weight:600;text-align:center;"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Card estado -->
       <div class="det-card">
         <div class="det-card-header"><span class="det-card-title">Estado</span></div>
@@ -783,9 +844,12 @@ function csvAObjetos(csv) {
         quien:       cols[7]  || '',
         total:       cols[8]  || '',   // I — nuevo
         notas:       cols[9]  || '',   // J
-        estadoPago:  cols[10] || 'No pagado', // K — nuevo
-        fechaPago:   cols[11] || '',   // L — nuevo
-        comprobante: cols[12] || ''    // M — movido
+        estadoPago:   cols[10] || 'No pagado',
+        fechaPago:    cols[11] || '',
+        comprobante:  cols[12] || '',
+        fechaRetiro:  cols[13] || '',  // N
+        lugarRetiro:  cols[14] || '',  // O
+        fechaEscuela: cols[15] || ''   // P
       };
       order.push(norden);
     }
@@ -1275,6 +1339,118 @@ function renderProdEdit(productosStr) {
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
 // ── EDITAR PROVEEDOR ──────────────────────────────────────────
+// ── RETIRO ────────────────────────────────────────────────────
+var POOL_NAMES = ['Ines Robertson','Jose Carranza','Yuliana Longhi','Maria Martini','Luli del Castillo','Valeria Pierobon','Andrea Truppia','Otra Persona del Pool'];
+var POOL_PHONES = { 'Ines Robertson':'5493512112050','Jose Carranza':'5493516529993','Yuliana Longhi':'5493513645612','Maria Martini':'5493516865078','Luli del Castillo':'5493513003789','Valeria Pierobon':'5493512389386','Andrea Truppia':'5493515640578' };
+
+function toggleEditRetiro() {
+  var view = document.getElementById('d-retiro-view');
+  var edit = document.getElementById('d-retiro-edit');
+  var btn  = document.getElementById('btn-toggle-retiro');
+  if (edit.style.display === 'none') {
+    // Poblar selector
+    var sel = document.getElementById('input-retiro-quien');
+    if (sel.options.length <= 1) POOL_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+    // Pre-llenar
+    sel.value = pedidoActual.quien || '';
+    document.getElementById('input-retiro-fecha').value   = pedidoActual.fechaRetiro   ? isoFecha(pedidoActual.fechaRetiro)   : '';
+    document.getElementById('input-retiro-lugar').value   = pedidoActual.lugarRetiro   || '';
+    document.getElementById('input-retiro-escuela').value = pedidoActual.fechaEscuela ? isoFecha(pedidoActual.fechaEscuela) : '';
+    view.style.display = 'none'; edit.style.display = 'block'; btn.textContent = '✕ Cancelar';
+  } else {
+    edit.style.display = 'none'; view.style.display = 'block'; btn.textContent = '✏️ Editar';
+    document.getElementById('d-retiro-feedback').style.display = 'none';
+  }
+}
+
+function isoFecha(str) {
+  if (!str) return '';
+  // dd/mm/yyyy → yyyy-mm-dd
+  var p = str.split('/');
+  if (p.length === 3) return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
+  return str;
+}
+
+function guardarRetiro() {
+  var quien       = document.getElementById('input-retiro-quien').value;
+  var fechaRetiro = document.getElementById('input-retiro-fecha').value;   // yyyy-mm-dd
+  var lugar       = document.getElementById('input-retiro-lugar').value.trim();
+  var fechaEsc    = document.getElementById('input-retiro-escuela').value;
+  var fb  = document.getElementById('d-retiro-feedback');
+  var btn = document.getElementById('btn-guardar-retiro');
+
+  btn.disabled = true; btn.style.opacity = '0.6';
+  fb.textContent = '⏳ Guardando y actualizando calendario…'; fb.style.color='#6b7280'; fb.style.display='block';
+
+  var url = SCRIPT_URL + '?action=updateRetiroData'
+    + '&norden='      + encodeURIComponent(pedidoActual.norden)
+    + '&quien='       + encodeURIComponent(quien)
+    + '&fecha_retiro=' + encodeURIComponent(fechaRetiro)
+    + '&lugar='       + encodeURIComponent(lugar)
+    + '&fecha_escuela=' + encodeURIComponent(fechaEsc)
+    + '&proveedor='   + encodeURIComponent(pedidoActual.proveedor)
+    + '&producto='    + encodeURIComponent(pedidoActual.productos || '')
+    + '&fgp='         + encodeURIComponent(pedidoActual.fgp || '');
+
+  fetch(url, { redirect: 'follow' })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      btn.disabled = false; btn.style.opacity = '';
+      if (!data.ok) { fb.textContent='❌ ' + (data.error||'Error.'); fb.style.color='#dc2626'; return; }
+      pedidoActual.quien       = quien;
+      pedidoActual.fechaRetiro = fechaRetiro;
+      pedidoActual.lugarRetiro = lugar;
+      pedidoActual.fechaEscuela= fechaEsc;
+      var idx = todosLosPedidos.findIndex(function(p){ return p.norden===pedidoActual.norden; });
+      if (idx !== -1) { todosLosPedidos[idx].quien=quien; todosLosPedidos[idx].fechaRetiro=fechaRetiro; todosLosPedidos[idx].lugarRetiro=lugar; todosLosPedidos[idx].fechaEscuela=fechaEsc; }
+      actualizarRetiroView();
+      toggleEditRetiro();
+      mostrarFlashDetalle('✅ Retiro actualizado y calendario sincronizado.', 'success');
+    })
+    .catch(function(){ btn.disabled=false; btn.style.opacity=''; fb.textContent='❌ Error de conexión.'; fb.style.color='#dc2626'; });
+}
+
+function actualizarRetiroView() {
+  var p = pedidoActual;
+  document.getElementById('d-retiro-quien').textContent   = p.quien       || '—';
+  document.getElementById('d-retiro-fecha').textContent   = p.fechaRetiro  || '—';
+  document.getElementById('d-retiro-lugar').textContent   = p.lugarRetiro  || '—';
+  document.getElementById('d-retiro-escuela').textContent = p.fechaEscuela || '—';
+  // WA de reenvío si hay quien y fecha
+  var waBtn = document.getElementById('btn-wa-retiro');
+  var waWrap = document.getElementById('d-retiro-wa-wrap');
+  if (p.quien && p.quien !== 'Otra Persona del Pool' && POOL_PHONES[p.quien]) {
+    var tel = POOL_PHONES[p.quien];
+    waBtn.href = 'https://wa.me/' + tel + '?text=' + encodeURIComponent(armarMensajeRetiro(p));
+    if (waWrap) waWrap.style.display = '';
+  } else {
+    if (waWrap) waWrap.style.display = 'none';
+  }
+}
+
+function armarMensajeRetiro(p) {
+  var nombre = p.quien ? p.quien.split(' ')[0] : '';
+  var fgp = p.fgp || 'la FGP';
+  return [
+    '🌼 *Diente de León — Retiro de Mercadería*',
+    '',
+    'Hola ' + nombre + '! Te asignaron un retiro:',
+    '',
+    '━━━━━━━━━━━━━━━━',
+    '📦 *Proveedor:* ' + p.proveedor,
+    p.lugarRetiro  ? '📍 *Lugar:* '           + p.lugarRetiro  : null,
+    p.fechaRetiro  ? '📅 *Fecha de retiro:* '  + p.fechaRetiro  : null,
+    p.fechaEscuela ? '🏫 *Entrega en escuela:* '+ p.fechaEscuela : null,
+    p.norden       ? '📋 *N° Orden:* '          + p.norden       : null,
+    '━━━━━━━━━━━━━━━━',
+    '',
+    '📲 *Cuando retires la mercadería, actualizá el estado acá:*',
+    'https://escuela-dandelion.github.io/Comision-Recursos/pedidos.html?id=' + (p.norden||''),
+    '',
+    '¡Gracias! Coordiná con *' + fgp + '*.'
+  ].filter(function(l){ return l !== null; }).join('\n');
+}
+
 // ── ARMAR MENSAJE WHATSAPP PARA PROVEEDOR ─────────────────────
 function armarMensajePedido(p) {
   var rows = parseProductos(p.productos || '').filter(function(r){ return r.nombre; });
@@ -1515,6 +1691,11 @@ function renderDetalle(p) {
   const badgeHtml = `<span class="badge-estado ${claseEstado(p.estado)}" style="font-size:14px;padding:5px 12px">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
   document.getElementById('d-estadoBadge').innerHTML  = badgeHtml;
   document.getElementById('d-estadoBadge2').innerHTML = badgeHtml;
+  // Retiro
+  document.getElementById('d-retiro-edit').style.display = 'none';
+  document.getElementById('d-retiro-view').style.display = 'block';
+  document.getElementById('btn-toggle-retiro').textContent = '✏️ Editar';
+  actualizarRetiroView();
   document.getElementById('d-estadoBadge-top').innerHTML = `<span class="badge-estado ${claseEstado(p.estado)}">${EMOJI_ESTADO[p.estado]||''} ${p.estado}</span>`;
   document.getElementById('d-fechaEstado').textContent = p.fechaEstado ? 'Actualizado: ' + p.fechaEstado : '';
 
