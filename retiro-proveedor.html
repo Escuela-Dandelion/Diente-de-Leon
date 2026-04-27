@@ -131,19 +131,19 @@
         <label>Teléfono de quien retira</label>
         <input type="tel" id="telefono_manual" name="telefono_manual" placeholder="Ej: 5493512000000">
       </div>
-      <div class="field">
-        <label>Lugar de retiro</label>
-        <input type="text" id="lugar" name="lugar" placeholder="Dirección del proveedor">
-      </div>
       <div class="grid grid-2">
         <div class="field">
-          <label>Fecha de retiro</label>
+          <label>Fecha de Retiro</label>
           <input type="date" id="fecha_retiro" name="fecha_retiro" required>
         </div>
         <div class="field">
-          <label>Entrega en escuela</label>
+          <label>Fecha Máx. Entrega a Escuela</label>
           <input type="date" id="fecha_escuela" name="fecha_escuela">
         </div>
+      </div>
+      <div class="field">
+        <label>Dirección de Retiro</label>
+        <input type="text" id="lugar" name="lugar" placeholder="Ej: Av. Colón 1234, local, etc.">
       </div>
       <div class="field" id="notas-pedido-wrap" style="display:none">
         <label>Notas del pedido</label>
@@ -230,9 +230,9 @@ function armarMensaje(data) {
   ];
   if (data.cantidad) lineas.push('📏 *Cantidad:* ' + data.cantidad + (data.unidad ? ' ' + data.unidad : ''));
   lineas.push(
-    '📍 *Lugar de retiro:* ' + (data.lugar || 'A confirmar'),
     '📅 *Fecha de retiro:* ' + formatearFecha(data.fecha_retiro),
-    '🏫 *Entregar en escuela:* ' + (data.fecha_escuela ? formatearFecha(data.fecha_escuela) : 'A confirmar')
+    data.fecha_escuela ? '🏫 *Fecha máx. entrega en escuela:* ' + formatearFecha(data.fecha_escuela) : null,
+    data.lugar ? '📍 *Dirección de retiro:* ' + data.lugar : null
   );
   if (data.norden) lineas.push('📋 *N° Orden:* ' + data.norden);
   if (data.notas)  lineas.push('📝 *Notas del pedido:* ' + data.notas);
