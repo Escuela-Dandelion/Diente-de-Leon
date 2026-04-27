@@ -705,10 +705,35 @@ document.addEventListener('DOMContentLoaded', function() {
   if (isEmbedded) document.body.classList.add('embedded');
 
   if (idParam) {
-    // URL directa al detalle: cargar lista en segundo plano y mostrar detalle
-    cargarLista().then(function() {
-      mostrarDetallePorId(idParam);
-    });
+    // URL directa: mostrar loading inmediato, buscar pedido directo del GAS
+    mostrar('detalleView');
+    document.getElementById('flashDetalle').style.display = 'none';
+    // Mostrar loading en el topbar mientras carga
+    document.getElementById('d-norden-top').textContent = idParam;
+    document.getElementById('d-acciones-top').innerHTML =
+      '<div style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#9ca3af">' +
+      '<div style="width:14px;height:14px;border:2px solid #c8e6c9;border-top-color:#2d5a27;border-radius:50%;animation:spin .7s linear infinite"></div>' +
+      'Cargando pedido…</div>';
+    // Buscar pedido específico en el GAS (rápido)
+    fetch(SCRIPT_URL + '?action=getPedido&id=' + encodeURIComponent(idParam), { redirect: 'follow' })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data.ok && data.pedido) {
+          var p = data.pedido.pedido || data.pedido;
+          pedidoActual = p;
+          todosLosPedidos = [p];
+          renderDetalle(p);
+        } else {
+          document.getElementById('d-acciones-top').innerHTML =
+            '<span style="color:#dc2626;font-size:13px">❌ Pedido no encontrado</span>';
+        }
+      })
+      .catch(function(){
+        document.getElementById('d-acciones-top').innerHTML =
+          '<span style="color:#dc2626;font-size:13px">❌ Error de conexión</span>';
+      });
+    // Cargar lista completa en segundo plano para poder navegar
+    cargarLista();
   } else if (sessionStorage.getItem('ddl_auth') === '1' || isEmbedded) {
     sessionStorage.setItem('ddl_auth', '1');
     mostrar('listaView');
