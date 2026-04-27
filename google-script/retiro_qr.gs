@@ -120,7 +120,8 @@ function doGetInterno(e) {
   // Endpoint JSON para verificación de PIN desde el cliente (AJAX)
   if (action === 'api_entregar') {
     var notasParam = e.parameter.notas || '';
-    var resultado = apiEntregar(orderId, staffName, pin, pass, token, notasParam);
+    var emailParam = e.parameter.email || '';
+    var resultado = apiEntregar(orderId, staffName, pin, pass, token, notasParam, emailParam);
     return ContentService
       .createTextOutput(JSON.stringify(resultado))
       .setMimeType(ContentService.MimeType.JSON);
@@ -859,26 +860,30 @@ function getOrderNumber(orderId) {
 // ──────────────────────────────────────────────────────────
 
 // Lógica de verificación de PIN + entrega — usada por api_entregar (AJAX)
-function apiEntregar(orderId, staffName, pin, adminPass, token, notas) {
+function apiEntregar(orderId, staffName, pin, adminPass, token, notas, email) {
   // Validar acceso: o viene del portal (adminPass) o tiene un token QR válido
   if (adminPass) {
     if (adminPass !== CONFIG.STAFF_TOKEN) return { ok: false, error: 'Acceso no autorizado.' };
   } else {
     if (!orderId || !verificarToken(orderId, token)) return { ok: false, error: 'QR inválido o expirado.' };
   }
-  var pins = CONFIG.STAFF_PINS;
-  var staffKey = staffName ? staffName.trim() : '';
-  // Buscar clave en STAFF_PINS ignorando espacios en los keys
-  var pinEsperado = null;
-  var keys = Object.keys(pins);
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i].trim() === staffKey) { pinEsperado = pins[keys[i]]; break; }
-  }
-  if (!pinEsperado || pinEsperado !== pin) {
-    return { ok: false, error: 'PIN incorrecto. Intentá de nuevo.' };
-  }
-  if (CONFIG.RETIRO_PINS.indexOf(pin) === -1) {
-    return { ok: false, error: 'Tu acceso es solo al dashboard de ventas. No tenés permiso para confirmar entregas.' };
+  // Validar identidad: email Google O PIN
+  var emailValido = email && AUTH_EMAILS[email.toLowerCase().trim()];
+  if (!emailValido) {
+    // Validar por PIN
+    var pins = CONFIG.STAFF_PINS;
+    var staffKey = staffName ? staffName.trim() : '';
+    var pinEsperado = null;
+    var keys = Object.keys(pins);
+    for (var i = 0; i < keys.length; i++) {
+      if (keys[i].trim() === staffKey) { pinEsperado = pins[keys[i]]; break; }
+    }
+    if (!pinEsperado || pinEsperado !== pin) {
+      return { ok: false, error: 'PIN incorrecto. Intentá de nuevo.' };
+    }
+    if (CONFIG.RETIRO_PINS.indexOf(pin) === -1) {
+      return { ok: false, error: 'Sin permiso para confirmar entregas.' };
+    }
   }
   try {
     marcarEntregado(orderId, staffKey, notas || '');
