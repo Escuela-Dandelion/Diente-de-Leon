@@ -1189,6 +1189,15 @@ function onQRScanned(url) {
   if (sel && sel.options.length <= 1) {
     QR_STAFF_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
   }
+  // Pre-seleccionar usuario logueado (Google o PIN)
+  if (sel && currentUser && currentUser.name) {
+    var firstName = currentUser.name.split(' ')[0].toLowerCase();
+    for (var si = 0; si < sel.options.length; si++) {
+      if (sel.options[si].value.toLowerCase().indexOf(firstName) !== -1) {
+        sel.selectedIndex = si; break;
+      }
+    }
+  }
   document.getElementById('qr-scanner-wrap').style.display = 'none';
   document.getElementById('qr-loading').style.display = 'block';
 

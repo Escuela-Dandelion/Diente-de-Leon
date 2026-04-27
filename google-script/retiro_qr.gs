@@ -202,6 +202,7 @@ function doGetInterno(e) {
       '<div class="title">✅ Pedido listo para confirmar</div>' +
       '<div class="sub">Tocá el botón para registrar la entrega</div>' +
       '<a class="btn" href="' + adminUrl + '" target="_blank" rel="noopener">Confirmar entrega →</a>' +
+      '<button onclick="window.close()" style="margin-top:12px;width:100%;padding:12px;background:none;border:1px solid #d1d5db;border-radius:10px;font-size:14px;color:#6b7280;cursor:pointer">✕ Cerrar</button>' +
       '</div></body></html>'
     ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
