@@ -542,11 +542,20 @@ window.onload = function() {
   // Modo QR directo (link del email del cliente): no requiere login
   var params = new URLSearchParams(window.location.search);
   if (params.get('view') === 'qr' && params.get('id') && params.get('token')) {
+    // Si hay sesión Google activa, usarla para pre-seleccionar quien entrega
+    var sesionQR = getSession();
+    if (sesionQR) {
+      currentUser = sesionQR;
+      document.getElementById('header-name').textContent = sesionQR.name || 'Referente';
+      document.getElementById('header-role').textContent = 'Entrega QR';
+      aplicarPermisos(sesionQR.role || 'referente');
+    } else {
+      document.getElementById('header-name').textContent = 'Referente';
+      document.getElementById('header-role').textContent = 'Entrega QR';
+      aplicarPermisos('referente');
+    }
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('header-name').textContent = 'Referente';
-    document.getElementById('header-role').textContent = 'Entrega QR';
-    aplicarPermisos('referente');
     restaurarDesdeUrl();
     return;
   }
