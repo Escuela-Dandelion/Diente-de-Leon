@@ -1310,7 +1310,8 @@ var AUTH_EMAILS = {
   'yuliana.longhi@dandelion.edu.ar': { role: 'ADMIN', name: 'Yuliana' },
   'martinimaria39@gmail.com':   { role: 'FGP',   name: 'Maria' },
   'lourdelcastillo@gmail.com':       { role: 'FGP',   name: 'Luli' },
-  'belen.ravaza@dandelion.edu.ar':   { role: 'FGP',   name: 'Belén' }
+  'belen.ravaza@dandelion.edu.ar':   { role: 'FGP',   name: 'Belén' },
+  'avilaclaudio1905@gmail.com':      { role: 'referente', name: 'Claudio' }
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
 
