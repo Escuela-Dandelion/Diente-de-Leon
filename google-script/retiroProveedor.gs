@@ -74,7 +74,13 @@ function doGet(e) {
     const action = e.parameter.action || '';
 
     if (action === 'getPedidos') {
-      const pedidos = leerPedidos();
+      const excluir        = e.parameter.excluir || 'Cerrado'; // por defecto excluye Cerrados
+      const incluirCerrados = e.parameter.incluirCerrados === '1';
+      let pedidos = leerPedidos();
+      if (!incluirCerrados && excluir) {
+        const excluidos = excluir.split(',').map(function(s){ return s.trim(); });
+        pedidos = pedidos.filter(function(p){ return excluidos.indexOf(p.estado) === -1; });
+      }
       return ContentService
         .createTextOutput(JSON.stringify({ ok: true, pedidos: pedidos }))
         .setMimeType(ContentService.MimeType.JSON);

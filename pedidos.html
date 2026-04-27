@@ -96,11 +96,11 @@
   /* DETALLE VIEW */
   #detalleView { display: none; }
   .back-btn { background: none; border: none; color: #2d5a27; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 0; }
-  .btn-cta-confirmar  { background: #1d4ed8 !important; }
-  .btn-cta-enproceso  { background: #5b21b6 !important; }
-  .btn-cta-listo      { background: #92400e !important; }
-  .btn-cta-cerrado    { background: #2d5a27 !important; }
-  .btn-cta-cancelado  { background: #dc2626 !important; }
+  .btn-cta-confirmar  { background: #1d4ed8 !important; color: #fff !important; }
+  .btn-cta-enproceso  { background: #5b21b6 !important; color: #fff !important; }
+  .btn-cta-listo      { background: #f59e0b !important; color: #fff !important; }
+  .btn-cta-cerrado    { background: #2d5a27 !important; color: #fff !important; }
+  .btn-cta-cancelado  { background: #dc2626 !important; color: #fff !important; }
   .detalle-field { margin-bottom: 14px; }
   .detalle-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; margin-bottom: 3px; }
   .detalle-value { font-size: 15px; color: #2d2d2d; font-weight: 500; }
@@ -240,6 +240,7 @@
   <div class="detalle-topbar">
     <span style="font-size:15px;font-weight:800;color:#2d5a27;flex:1;">Órdenes de Pedido</span>
     <button class="btn-accion-top btn-nueva-orden" onclick="abrirNuevaOrden()">📋 Nueva Orden</button>
+    <button id="btn-toggle-cerrados" class="btn-accion-top" onclick="toggleCerrados()" style="background:#f9fafb;border:1px solid #e5e7eb;color:#6b7280">🔒 Ver Cerrados</button>
     <a href="https://calendar.google.com/calendar/embed?src=d464a84a472a8802d4b6cd6641f19b2c71d71f257b5409e975d0cc4ee66bf0ad%40group.calendar.google.com&ctz=America%2FArgentina%2FCordoba&hl=es" target="_blank" class="btn-accion-top btn-pool" style="text-decoration:none">📅 Calendario de Retiros</a>
   </div>
 
@@ -797,14 +798,20 @@ function leerTelLocal(proveedor) {
 }
 
 // ── CARGA DE DATOS ────────────────────────────────────────────
-async function cargarLista() {
+var _incluyeCerrados = false;
+
+async function cargarLista(incluyeCerrados) {
+  if (incluyeCerrados !== undefined) _incluyeCerrados = incluyeCerrados;
   try {
-    const [respCsv, respTel] = await Promise.all([
-      fetch(SHEET_CSV + '&t=' + Date.now()),
+    var gasUrl = SCRIPT_URL + '?action=getPedidos' + (_incluyeCerrados ? '&incluirCerrados=1' : '');
+    const [respPedidos, respTel] = await Promise.all([
+      fetch(gasUrl, { redirect: 'follow' }).then(r => r.json()),
       fetch(SCRIPT_URL + '?action=getTelProveedores').then(r => r.json()).catch(() => ({ ok: false }))
     ]);
-    const text = await respCsv.text();
-    todosLosPedidos = csvAObjetos(text);
+    if (!respPedidos.ok) throw new Error(respPedidos.error || 'Error al cargar');
+    todosLosPedidos = respPedidos.pedidos || [];
+    var btnC = document.getElementById('btn-toggle-cerrados');
+    if (btnC) btnC.textContent = _incluyeCerrados ? '🔒 Ocultar Cerrados' : '🔒 Ver Cerrados';
 
     // 1. Mergear desde GAS (fuente de verdad)
     if (respTel.ok && respTel.proveedores) {
@@ -1862,6 +1869,10 @@ function renderDetalle(p) {
   } else if (ctaWrap) {
     ctaWrap.style.display = 'none';
   }
+}
+
+function toggleCerrados() {
+  cargarLista(!_incluyeCerrados);
 }
 
 function abrirNuevaOrden() {
