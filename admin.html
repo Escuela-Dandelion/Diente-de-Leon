@@ -351,8 +351,39 @@
     <div class="view" id="view-qr">
       <div class="view-title">📷 Registrar Entrega</div>
 
-      <!-- Estado: escáner -->
-      <div id="qr-scanner-wrap">
+      <!-- Estado 0: LOGIN (siempre primero) -->
+      <div id="qr-login-wrap">
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:24px;max-width:380px;margin:0 auto">
+          <div style="text-align:center;margin-bottom:20px">
+            <div style="font-size:32px;margin-bottom:8px">🔐</div>
+            <div style="font-size:16px;font-weight:700;color:var(--text)">Identificate para continuar</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px">Ingresá con Google o con tu PIN</div>
+          </div>
+          <div id="qr-google-btn" style="display:flex;justify-content:center;margin-bottom:12px"></div>
+          <div id="qr-login-loading" style="display:none;text-align:center;padding:8px;color:var(--muted);font-size:13px">
+            <div style="display:inline-block;width:16px;height:16px;border:2px solid #c8e6c9;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px"></div>
+            Verificando…
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin:12px 0">
+            <div style="flex:1;height:1px;background:#e5e7eb"></div>
+            <span style="font-size:11px;color:var(--muted)">o con PIN</span>
+            <div style="flex:1;height:1px;background:#e5e7eb"></div>
+          </div>
+          <select id="qr-login-staff" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;background:#fff;margin-bottom:10px">
+            <option value="">— Tu nombre —</option>
+          </select>
+          <input id="qr-login-pin" type="password" maxlength="8" placeholder="Tu PIN" onkeydown="if(event.key==='Enter')qrLoginPin()"
+            style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:16px;font-weight:700;letter-spacing:4px;text-align:center;margin-bottom:10px">
+          <button onclick="qrLoginPin()" id="qr-login-btn"
+            style="width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
+            Ingresar
+          </button>
+          <div id="qr-login-error" style="font-size:12px;color:var(--red);text-align:center;margin-top:8px;display:none"></div>
+        </div>
+      </div>
+
+      <!-- Estado 1: escáner (solo si llegó sin id en URL) -->
+      <div id="qr-scanner-wrap" style="display:none">
         <p style="font-size:14px;color:var(--muted);margin-bottom:16px">Apuntá la cámara al código QR del pedido del cliente.</p>
         <div id="qr-reader" style="width:100%;max-width:400px;margin:0 auto;border-radius:12px;overflow:hidden"></div>
         <p id="qr-scan-error" style="color:var(--red);font-size:13px;margin-top:12px;display:none"></p>
@@ -374,17 +405,8 @@
           <div style="font-size:13px;color:#6b7280;margin-top:8px" id="qr-pedido-productos"></div>
           <div style="font-size:16px;font-weight:700;color:#2d5a27;margin-top:8px" id="qr-pedido-total"></div>
         </div>
-
-        <div style="margin-bottom:12px">
-          <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;display:block;margin-bottom:6px">¿Quién entrega?</label>
-          <select id="qr-staff" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;background:#fff">
-            <option value="">— Seleccioná tu nombre —</option>
-          </select>
-        </div>
-        <div style="margin-bottom:16px">
-          <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;display:block;margin-bottom:6px">Tu PIN personal</label>
-          <input id="qr-pin" type="password" maxlength="8" placeholder="••••••"
-            style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:16px;font-weight:700;letter-spacing:4px;text-align:center">
+        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#374151">
+          Entregando como: <strong id="qr-quien-label">—</strong>
         </div>
         <div style="margin-bottom:16px">
           <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;display:block;margin-bottom:6px">Notas (opcional)</label>
@@ -1131,9 +1153,10 @@ function renderVentas(rows) {
 // ══════════════════════════════════════
 // QR SCANNER
 // ══════════════════════════════════════
-var _qrScanner = null;
-var _qrData    = null;
-var _qrModoDirecto = false; // true cuando llega via URL con id+token, sin cámara
+var _qrScanner     = null;
+var _qrData        = null;
+var _qrModoDirecto = false;
+var _qrUser        = null; // usuario autenticado para QR
 var _ventasCargadas = false;
 
 var QR_STAFF_NAMES = [
@@ -1148,10 +1171,90 @@ var QR_STAFF_NAMES = [
   showView = function(viewId, navBtn, opts) {
     orig(viewId, navBtn, opts);
     if (viewId === 'ventas' && !_ventasCargadas) { _ventasCargadas = true; cargarVentas(); }
-    if (viewId === 'qr') iniciarQR();
+    if (viewId === 'qr') iniciarQRLogin();
     if (viewId !== 'qr' && _qrScanner) detenerQR();
   };
 })();
+
+function iniciarQRLogin() {
+  // Poblar selector de staff del login
+  var sel = document.getElementById('qr-login-staff');
+  if (sel && sel.options.length <= 1) {
+    QR_STAFF_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+  }
+  // Si ya hay sesión Google, saltar login
+  var sesion = getSession();
+  if (sesion || (currentUser && currentUser.name)) {
+    _qrUser = sesion || currentUser;
+    qrPostLogin();
+    return;
+  }
+  // Mostrar Google button
+  if (typeof google !== 'undefined') {
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: function(resp) {
+      var payload = JSON.parse(atob(resp.credential.split('.')[1]));
+      document.getElementById('qr-google-btn').style.display = 'none';
+      document.getElementById('qr-login-loading').style.display = 'block';
+      fetch(GAS_URL + '?action=verificarEmail&email=' + encodeURIComponent(payload.email))
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          document.getElementById('qr-login-loading').style.display = 'none';
+          if (d.ok) {
+            _qrUser = { name: payload.name, email: payload.email, role: d.role };
+            qrPostLogin();
+          } else {
+            document.getElementById('qr-google-btn').style.display = 'flex';
+            document.getElementById('qr-login-error').textContent = 'Sin acceso. Usá tu PIN.';
+            document.getElementById('qr-login-error').style.display = 'block';
+          }
+        }).catch(function(){
+          document.getElementById('qr-login-loading').style.display = 'none';
+          document.getElementById('qr-google-btn').style.display = 'flex';
+        });
+    }});
+    google.accounts.id.renderButton(document.getElementById('qr-google-btn'),
+      { theme:'outline', size:'large', width:280, text:'signin_with', locale:'es' });
+  }
+}
+
+function qrLoginPin() {
+  var staff = document.getElementById('qr-login-staff').value;
+  var pin   = document.getElementById('qr-login-pin').value.trim();
+  var errEl = document.getElementById('qr-login-error');
+  if (!staff) { errEl.textContent='Seleccioná tu nombre.'; errEl.style.display='block'; return; }
+  if (!pin)   { errEl.textContent='Ingresá tu PIN.'; errEl.style.display='block'; return; }
+  var btn = document.getElementById('qr-login-btn');
+  btn.disabled = true; btn.textContent = 'Verificando…';
+  errEl.style.display = 'none';
+  var staffKey = staff.replace(' ', '.') + ' ';
+  fetch(GAS_URL + '?action=api_dashboard&pin=' + encodeURIComponent(pin))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false; btn.textContent = 'Ingresar';
+      if (d.ok) {
+        _qrUser = { name: staff, pin: pin, role: 'referente' };
+        qrPostLogin();
+      } else {
+        errEl.textContent = 'PIN incorrecto.'; errEl.style.display = 'block';
+      }
+    })
+    .catch(function(){ btn.disabled=false; btn.textContent='Ingresar'; errEl.textContent='Error de conexión.'; errEl.style.display='block'; });
+}
+
+function qrPostLogin() {
+  // Login exitoso — mostrar quién es y continuar
+  document.getElementById('qr-login-wrap').style.display = 'none';
+  if (_qrModoDirecto) {
+    // Ya tenemos id+token en URL — ir directo a verificar
+    var params = new URLSearchParams(window.location.search);
+    document.getElementById('qr-loading').style.display = 'block';
+    onQRScanned('https://x?id=' + encodeURIComponent(params.get('id')) + '&token=' + encodeURIComponent(params.get('token')));
+  } else {
+    // Mostrar scanner
+    document.getElementById('qr-scanner-wrap').style.display = 'block';
+    iniciarQR();
+  }
+}
 
 function iniciarQR() {
   if (_qrModoDirecto) return; // llegó via URL directa, no necesita cámara
@@ -1239,6 +1342,7 @@ function onQRScanned(url) {
       document.getElementById('qr-pedido-nombre').textContent = d.order.contact_name;
       document.getElementById('qr-pedido-productos').textContent = (d.order.products||[]).map(function(p){ return p.quantity + 'x ' + p.name; }).join(' · ');
       document.getElementById('qr-pedido-total').textContent = fmtPesosAR(d.order.total);
+      document.getElementById('qr-quien-label').textContent = _qrUser ? _qrUser.name : '—';
       document.getElementById('qr-pedido-wrap').style.display = 'block';
     })
     .catch(function(){
@@ -1251,12 +1355,11 @@ function onQRScanned(url) {
 }
 
 function confirmarEntregaQR() {
-  var staff = document.getElementById('qr-staff').value;
-  var pin   = document.getElementById('qr-pin').value.trim();
+  var staff = _qrUser ? _qrUser.name : '';
+  var pin   = _qrUser ? (_qrUser.pin || '') : '';
   var fb    = document.getElementById('qr-confirm-feedback');
   var btn   = document.getElementById('qr-btn-confirmar');
-  if (!staff) { fb.textContent='⚠️ Seleccioná tu nombre.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
-  if (!pin)   { fb.textContent='⚠️ Ingresá tu PIN.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
+  if (!staff) { fb.textContent='⚠️ No hay usuario autenticado.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
   btn.disabled = true;
   btn.innerHTML = '<div style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px"></div> Confirmando…';
   fb.style.display = 'none';
@@ -1307,16 +1410,22 @@ function verMisEntregas() {
 
 function reiniciarQR() {
   _qrData = null;
-  document.getElementById('qr-scanner-wrap').style.display = 'block';
   document.getElementById('qr-loading').style.display = 'none';
   document.getElementById('qr-pedido-wrap').style.display = 'none';
   document.getElementById('qr-ya-entregado').style.display = 'none';
   document.getElementById('qr-scan-error').style.display = 'none';
-  document.getElementById('qr-pin').value = '';
-  document.getElementById('qr-staff').selectedIndex = 0;
   if (document.getElementById('qr-notas')) document.getElementById('qr-notas').value = '';
   document.getElementById('qr-confirm-feedback').style.display = 'none';
-  iniciarQR();
+  // Si ya hay sesión QR activa, saltar login directo al scanner
+  if (_qrUser) {
+    document.getElementById('qr-login-wrap').style.display = 'none';
+    document.getElementById('qr-scanner-wrap').style.display = 'block';
+    iniciarQR();
+  } else {
+    document.getElementById('qr-scanner-wrap').style.display = 'none';
+    document.getElementById('qr-login-wrap').style.display = 'block';
+    iniciarQRLogin();
+  }
 }
 </script>
 <!-- Modal: Agregar Notas -->
