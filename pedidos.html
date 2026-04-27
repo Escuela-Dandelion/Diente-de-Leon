@@ -244,7 +244,6 @@
   <div class="detalle-topbar">
     <span style="font-size:15px;font-weight:800;color:#2d5a27;flex:1;">Órdenes de Pedido</span>
     <button class="btn-accion-top btn-nueva-orden" onclick="abrirNuevaOrden()">📋 Nueva Orden</button>
-    <button id="btn-toggle-cerrados" class="btn-accion-top" onclick="toggleCerrados()" style="background:#f9fafb;border:1px solid #e5e7eb;color:#6b7280">🔒 Ver Cerrados</button>
     <a href="https://calendar.google.com/calendar/embed?src=d464a84a472a8802d4b6cd6641f19b2c71d71f257b5409e975d0cc4ee66bf0ad%40group.calendar.google.com&ctz=America%2FArgentina%2FCordoba&hl=es" target="_blank" class="btn-accion-top btn-pool" style="text-decoration:none">📅 Calendario de Retiros</a>
   </div>
 
@@ -257,12 +256,13 @@
     <div class="filter-bar">
       <!-- Filtro por estado -->
       <div class="filtros" id="filtros">
-        <button class="filtro-btn active" data-estado="Todos" onclick="filtrar(this)">Todos</button>
+        <button class="filtro-btn active" data-estado="Todos" onclick="filtrar(this)">En proceso</button>
         <button class="filtro-btn" data-estado="Solicitado" onclick="filtrar(this)">Solicitado</button>
         <button class="filtro-btn" data-estado="Confirmado" onclick="filtrar(this)">Confirmado</button>
+        <button class="filtro-btn" data-estado="En Camino" onclick="filtrar(this)">En Camino</button>
         <button class="filtro-btn" data-estado="Entregado en Escuela" onclick="filtrar(this)">Entregado</button>
-        <button class="filtro-btn" data-estado="Recibido" onclick="filtrar(this)">Recibido</button>
-        <button class="filtro-btn" data-estado="Cerrado" onclick="filtrar(this)">Cerrado</button>
+        <button class="filtro-btn" data-estado="Cerrado" onclick="filtrar(this)" id="filtro-cerrado" style="display:none">Cerrado</button>
+        <button class="filtro-btn" id="btn-todos-incl-cerrados" onclick="mostrarTodos()" style="color:#6b7280">Todos</button>
       </div>
     </div>
 
@@ -857,6 +857,16 @@ async function cargarLista(incluyeCerrados) {
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('listaContent').style.display  = '';
     generarMesesRapidos();
+    // Aplicar filtro de últimos 30 días por defecto (solo si no hay filtro activo)
+    var desdeEl = document.getElementById('fechaDesde');
+    var hastaEl = document.getElementById('fechaHasta');
+    if (desdeEl && !desdeEl.value) {
+      var hoy  = new Date();
+      var hace30 = new Date(); hace30.setDate(hoy.getDate() - 30);
+      var fmt = function(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+      desdeEl.value = fmt(hace30);
+      hastaEl.value = fmt(hoy);
+    }
     renderLista(todosLosPedidos);
     cargarProveedoresMap();
   } catch (err) {
@@ -1914,6 +1924,21 @@ function renderDetalle(p) {
 
 function toggleCerrados() {
   cargarLista(!_incluyeCerrados);
+}
+
+function mostrarTodos() {
+  // Incluir cerrados y mostrar filtro Cerrado
+  if (!_incluyeCerrados) {
+    cargarLista(true);
+  } else {
+    // Ya están cargados, solo filtrar por Todos
+    estadoFiltro = 'Todos';
+    document.querySelectorAll('.filtro-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('btn-todos-incl-cerrados').classList.add('active');
+    document.getElementById('filtro-cerrado').style.display = '';
+    renderLista(todosLosPedidos);
+    actualizarContador();
+  }
 }
 
 function abrirNuevaOrden() {
