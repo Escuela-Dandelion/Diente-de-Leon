@@ -755,10 +755,11 @@ function restaurarDesdeUrl() {
   if (!view) return;
   var opts = { skipHistory: true, id: id };
   if (view === 'retiro' && id) opts.retiroUrl = 'retiro-proveedor.html?id=' + encodeURIComponent(id);
+  // Setear flag ANTES de showView para que iniciarQR() lo vea
+  if (view === 'qr' && id && token) _qrModoDirecto = true;
   showView(view, null, opts);
-  // Si es QR con id y token → modo de confirmación directa (sin cámara)
+  // Modo de confirmación directa (sin cámara)
   if (view === 'qr' && id && token) {
-    _qrModoDirecto = true;
     setTimeout(function() {
       detenerQR();
       document.getElementById('qr-scan-error').style.display = 'none';
