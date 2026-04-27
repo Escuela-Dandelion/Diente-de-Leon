@@ -201,7 +201,7 @@ function doGetInterno(e) {
       '<img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon_transparent.png">' +
       '<div class="title">✅ Pedido listo para confirmar</div>' +
       '<div class="sub">Tocá el botón para registrar la entrega</div>' +
-      '<a class="btn" href="' + adminUrl + '">Confirmar entrega →</a>' +
+      '<a class="btn" href="' + adminUrl + '" target="_blank" rel="noopener">Confirmar entrega →</a>' +
       '</div></body></html>'
     ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
