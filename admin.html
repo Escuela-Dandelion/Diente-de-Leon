@@ -314,7 +314,7 @@
       <button class="nav-item" data-view="qr" data-roles="admin,staff,referente" onclick="showView('qr', this)">
         <span class="nav-icon">📷</span> Registrar Entrega
       </button>
-      <button class="nav-item" data-view="ventas" data-roles="admin,staff,fgp" onclick="showView('ventas', this)">
+      <button class="nav-item" data-view="ventas" data-roles="admin,staff,fgp,referente" onclick="showView('ventas', this)">
         <span class="nav-icon">🛍️</span> Ventas
       </button>
 
@@ -700,7 +700,7 @@ function renderWelcomeCards(role) {
   var cards = [
     { view:'pedidos',              icon:'📦', name:'Órdenes de Pedido Proveedores',             desc:'Ver y gestionar pedidos',       roles:['admin','staff','fgp'] },
     { view:'qr',                   icon:'📷', name:'Registrar Entrega', desc:'Confirmar entregas con QR',     roles:['admin','staff','referente'] },
-    { view:'ventas',               icon:'🛍️', name:'Ventas',              desc:'Historial de ventas',            roles:['admin','staff','fgp'] },
+    { view:'ventas',               icon:'🛍️', name:'Ventas',              desc:'Historial de ventas',            roles:['admin','staff','fgp','referente'] },
     { view:'dashboard-general',    icon:'📊', name:'Dashboard General',   desc:'Ventas y métricas globales',    roles:['admin','staff','fgp'] },
     { view:'dashboard-referentes', icon:'📈', name:'Mis ventas',          desc:'Dashboard de tu grado',        roles:['admin','staff','fgp','referente'] },
   ];
@@ -1207,10 +1207,11 @@ function iniciarQRLogin() {
   if (sel && sel.options.length <= 1) {
     QR_STAFF_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
   }
-  // Si ya hay sesión Google, saltar login
+  // Si ya hay sesión QR activa o Google, saltar login
+  var sesionQR = leerSesionQR();
   var sesion = getSession();
-  if (sesion || (currentUser && currentUser.name)) {
-    _qrUser = sesion || currentUser;
+  if (sesionQR || sesion || (currentUser && currentUser.name)) {
+    _qrUser = sesionQR || sesion || currentUser;
     qrPostLogin();
     return;
   }
@@ -1266,8 +1267,16 @@ function qrLoginPin() {
     .catch(function(){ btn.disabled=false; btn.textContent='Ingresar'; errEl.textContent='Error de conexión.'; errEl.style.display='block'; });
 }
 
+function salvarSesionQR(user) {
+  try { sessionStorage.setItem('ddl_qr_user', JSON.stringify(user)); } catch(e) {}
+}
+function leerSesionQR() {
+  try { return JSON.parse(sessionStorage.getItem('ddl_qr_user') || 'null'); } catch(e) { return null; }
+}
+
 function qrPostLogin() {
   // Login exitoso — mostrar quién es y continuar
+  salvarSesionQR(_qrUser); // persistir para que no pida login de nuevo
   document.getElementById('qr-login-wrap').style.display = 'none';
   if (_qrModoDirecto && _qrPendingId && _qrPendingToken) {
     // Ya tenemos id+token — verificar el pedido
