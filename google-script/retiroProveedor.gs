@@ -331,6 +331,7 @@ const COL = {
   FECHA_RETIRO:  13,  // N
   LUGAR_RETIRO:  14,  // O
   FECHA_ESCUELA: 15   // P
+};
 
 function getPedidosSheet() {
   const ss = SpreadsheetApp.openById(CONFIG_RETIRO.PEDIDOS_SHEET_ID);
