@@ -755,9 +755,18 @@ function restaurarDesdeUrl() {
   if (!view) return;
   var opts = { skipHistory: true, id: id };
   if (view === 'retiro' && id) opts.retiroUrl = 'retiro-proveedor.html?id=' + encodeURIComponent(id);
-  // Setear flag ANTES de showView para que iniciarQR() lo vea
-  if (view === 'qr' && id && token) _qrModoDirecto = true;
-  showView(view, null, opts);
+  if (view === 'qr' && id && token) {
+    // Modo directo: mostrar vista QR sin pasar por el interceptor (evita la cámara)
+    _qrModoDirecto = true;
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    var vQR = document.getElementById('view-qr');
+    if (vQR) vQR.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
+    var btnQR = document.querySelector('.nav-item[data-view="qr"]');
+    if (btnQR) btnQR.classList.add('active');
+  } else {
+    showView(view, null, opts);
+  }
   // Modo de confirmación directa (sin cámara)
   if (view === 'qr' && id && token) {
     setTimeout(function() {

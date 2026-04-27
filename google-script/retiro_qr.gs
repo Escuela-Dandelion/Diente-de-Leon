@@ -188,13 +188,15 @@ function doGetInterno(e) {
   }
 
   if (action === 'verificar') {
-    // Redirigir al nuevo admin en lugar del HTML viejo del GAS
     var adminUrl = 'https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=qr&id='
                    + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token);
     return HtmlService.createHtmlOutput(
-      '<html><head><meta http-equiv="refresh" content="0;url=' + adminUrl + '"></head>' +
-      '<body><a href="' + adminUrl + '">Redirigiendo…</a></body></html>'
-    );
+      '<html><head></head><body style="font-family:sans-serif;padding:32px;text-align:center">' +
+      '<p style="color:#6b7280">Redirigiendo al Admin…</p>' +
+      '<script>window.top.location.href=' + JSON.stringify(adminUrl) + ';<\/script>' +
+      '<a href="' + adminUrl + '" style="color:#2d5a27">Tocar acá si no redirige automáticamente</a>' +
+      '</body></html>'
+    ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
   if (action === 'confirmar')  return paginaConfirmar(orderId, token);
 
