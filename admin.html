@@ -1184,6 +1184,11 @@ function detenerQR() {
 
 function onQRScanned(url) {
   detenerQR();
+  // Poblar selector de staff si no está poblado
+  var sel = document.getElementById('qr-staff');
+  if (sel && sel.options.length <= 1) {
+    QR_STAFF_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+  }
   document.getElementById('qr-scanner-wrap').style.display = 'none';
   document.getElementById('qr-loading').style.display = 'block';
 

@@ -191,11 +191,18 @@ function doGetInterno(e) {
     var adminUrl = 'https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=qr&id='
                    + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token);
     return HtmlService.createHtmlOutput(
-      '<html><head></head><body style="font-family:sans-serif;padding:32px;text-align:center">' +
-      '<p style="color:#6b7280">Redirigiendo al Admin…</p>' +
-      '<script>window.top.location.href=' + JSON.stringify(adminUrl) + ';<\/script>' +
-      '<a href="' + adminUrl + '" style="color:#2d5a27">Tocar acá si no redirige automáticamente</a>' +
-      '</body></html>'
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;background:#f0fdf4;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}' +
+      '.card{background:#fff;border-radius:16px;padding:32px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.1)}' +
+      'img{width:80px;margin-bottom:16px}.title{font-size:20px;font-weight:800;color:#166534;margin-bottom:8px}.sub{font-size:14px;color:#6b7280;margin-bottom:28px}' +
+      '.btn{display:block;width:100%;padding:16px;background:#2d5a27;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer}</style></head>' +
+      '<body><div class="card">' +
+      '<img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon_transparent.png">' +
+      '<div class="title">✅ Pedido listo para confirmar</div>' +
+      '<div class="sub">Tocá el botón para registrar la entrega</div>' +
+      '<a class="btn" href="' + adminUrl + '">Confirmar entrega →</a>' +
+      '</div></body></html>'
     ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
   if (action === 'confirmar')  return paginaConfirmar(orderId, token);
