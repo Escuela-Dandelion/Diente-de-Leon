@@ -758,12 +758,13 @@ function restaurarDesdeUrl() {
   showView(view, null, opts);
   // Si es QR con id y token → modo de confirmación directa (sin cámara)
   if (view === 'qr' && id && token) {
-    // Dar tiempo a que la vista cargue, luego simular escaneo sin abrir cámara
+    _qrModoDirecto = true;
     setTimeout(function() {
-      detenerQR(); // asegurar que la cámara no arranca
+      detenerQR();
       document.getElementById('qr-scan-error').style.display = 'none';
+      document.getElementById('qr-loading').style.display = 'block';
       onQRScanned('https://x?id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(token));
-    }, 300);
+    }, 200);
   }
 }
 
@@ -1113,6 +1114,7 @@ function renderVentas(rows) {
 // ══════════════════════════════════════
 var _qrScanner = null;
 var _qrData    = null;
+var _qrModoDirecto = false; // true cuando llega via URL con id+token, sin cámara
 var _ventasCargadas = false;
 
 var QR_STAFF_NAMES = [
@@ -1133,9 +1135,7 @@ var QR_STAFF_NAMES = [
 })();
 
 function iniciarQR() {
-  // Si hay id+token en la URL, no necesitamos la cámara
-  var urlP = new URLSearchParams(window.location.search);
-  if (urlP.get('id') && urlP.get('token')) return;
+  if (_qrModoDirecto) return; // llegó via URL directa, no necesita cámara
   // Pre-seleccionar el usuario logueado si coincide con un staff
   if (currentUser) {
     var sel = document.getElementById('qr-staff');
