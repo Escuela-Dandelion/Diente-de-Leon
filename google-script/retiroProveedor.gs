@@ -192,16 +192,20 @@ function agendarRetiro(data) {
   // 1. Crear evento en Google Calendar
   crearEventoCalendario(data);
 
-  // 2. Registrar quién retira en la planilla (sin cambiar estado — lo hace el FGP manualmente)
-  if (norden && retira) {
+  // 2. Guardar todos los datos del retiro en la planilla
+  if (norden) {
     try {
       const resultado = leerPedidoPorId(norden);
       if (resultado) {
         const sheet = getPedidosSheet();
-        sheet.getRange(resultado.fila, COL.QUIEN + 1).setValue(retira);
+        const fila  = resultado.fila;
+        if (retira)        sheet.getRange(fila, COL.QUIEN + 1).setValue(retira);
+        if (fecha_retiro)  sheet.getRange(fila, COL.FECHA_RETIRO + 1).setValue(fecha_retiro);
+        if (lugar)         sheet.getRange(fila, COL.LUGAR_RETIRO + 1).setValue(lugar);
+        if (fecha_escuela) sheet.getRange(fila, COL.FECHA_ESCUELA + 1).setValue(fecha_escuela);
       }
     } catch(e) {
-      Logger.log('No se pudo registrar quien retira: ' + e.message);
+      Logger.log('No se pudo registrar datos de retiro: ' + e.message);
     }
   }
 
@@ -321,10 +325,12 @@ const COL = {
   QUIEN:       7,   // H
   TOTAL:       8,   // I
   NOTAS:       9,   // J
-  ESTADO_PAGO: 10,  // K  — Pagado / No pagado
-  FECHA_PAGO:  11,  // L
-  COMPROBANTE: 12   // M
-};
+  ESTADO_PAGO:   10,  // K
+  FECHA_PAGO:    11,  // L
+  COMPROBANTE:   12,  // M
+  FECHA_RETIRO:  13,  // N
+  LUGAR_RETIRO:  14,  // O
+  FECHA_ESCUELA: 15   // P
 
 function getPedidosSheet() {
   const ss = SpreadsheetApp.openById(CONFIG_RETIRO.PEDIDOS_SHEET_ID);
