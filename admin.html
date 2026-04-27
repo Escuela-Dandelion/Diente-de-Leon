@@ -539,6 +539,17 @@ function logout() {
 // GOOGLE SIGN-IN
 // ══════════════════════════════════════
 window.onload = function() {
+  // Modo QR directo (link del email del cliente): no requiere login
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('view') === 'qr' && params.get('id') && params.get('token')) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('header-name').textContent = 'Referente';
+    document.getElementById('header-role').textContent = 'Entrega QR';
+    aplicarPermisos('referente');
+    restaurarDesdeUrl();
+    return;
+  }
   var session = getSession();
   if (session) { iniciarApp(session); return; }
 
@@ -740,10 +751,15 @@ function restaurarDesdeUrl() {
   var params = new URLSearchParams(window.location.search);
   var view   = params.get('view');
   var id     = params.get('id');
+  var token  = params.get('token');
   if (!view) return;
   var opts = { skipHistory: true, id: id };
   if (view === 'retiro' && id) opts.retiroUrl = 'retiro-proveedor.html?id=' + encodeURIComponent(id);
   showView(view, null, opts);
+  // Si es QR con id y token → modo de confirmación directa (sin cámara)
+  if (view === 'qr' && id && token) {
+    setTimeout(function() { onQRScanned('https://dummy?id=' + id + '&token=' + token); }, 400);
+  }
 }
 
 // Manejar botón atrás/adelante del navegador

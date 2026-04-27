@@ -206,9 +206,10 @@ function procesarPedido(order) {
     return p.quantity + 'x ' + p.name;
   }).join('\n');
 
-  var webAppUrl  = ScriptApp.getService().getUrl();
   var token      = generarToken(orderId);
-  var verifyUrl  = webAppUrl + '?action=verificar&id=' + orderId + '&token=' + token;
+  // Usar el nuevo admin en lugar del HTML del GAS
+  var verifyUrl  = 'https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=qr&id='
+                   + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token);
   var qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='
                    + encodeURIComponent(verifyUrl);
 
