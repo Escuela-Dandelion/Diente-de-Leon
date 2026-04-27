@@ -1269,11 +1269,17 @@ function qrLoginPin() {
     .catch(function(){ btn.disabled=false; btn.textContent='Ingresar'; errEl.textContent='Error de conexión.'; errEl.style.display='block'; });
 }
 
+var QR_SESSION_TTL = 4 * 60 * 60 * 1000; // 4 horas
 function salvarSesionQR(user) {
-  try { sessionStorage.setItem('ddl_qr_user', JSON.stringify(user)); } catch(e) {}
+  try { localStorage.setItem('ddl_qr_user', JSON.stringify({ user: user, ts: Date.now() })); } catch(e) {}
 }
 function leerSesionQR() {
-  try { return JSON.parse(sessionStorage.getItem('ddl_qr_user') || 'null'); } catch(e) { return null; }
+  try {
+    var s = JSON.parse(localStorage.getItem('ddl_qr_user') || 'null');
+    if (!s) return null;
+    if (Date.now() - s.ts > QR_SESSION_TTL) { localStorage.removeItem('ddl_qr_user'); return null; }
+    return s.user;
+  } catch(e) { return null; }
 }
 
 function qrPostLogin() {
