@@ -363,8 +363,11 @@ function filaAObjeto(fila) {
     comprobante: fila[COL.COMPROBANTE],
     notas:       fila[COL.NOTAS],
     total:       fila[COL.TOTAL] || '',
-    estadoPago:  fila[COL.ESTADO_PAGO] || '',
-    fechaPago:   fila[COL.FECHA_PAGO] || ''
+    estadoPago:   fila[COL.ESTADO_PAGO]  || '',
+    fechaPago:    fila[COL.FECHA_PAGO]   || '',
+    fechaRetiro:  fila[COL.FECHA_RETIRO] || '',
+    lugarRetiro:  fila[COL.LUGAR_RETIRO] || '',
+    fechaEscuela: fila[COL.FECHA_ESCUELA]|| ''
   };
 }
 
