@@ -470,7 +470,14 @@
                 <div class="step-num" style="background:#5d7a4a">2B</div>
                 <div class="step-body">
                   <div class="step-title">FGP asigna colaborador del pool <span class="badge badge-active" style="font-size:10px;vertical-align:middle;margin-left:6px">✓ Activo</span> <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;vertical-align:middle;margin-left:4px;background:#e8f5e9;color:#2e7d32">FGP</span></div>
-                  <p class="step-desc">Desde el detalle del pedido en <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=pedidos" style="color:var(--earth)">Admin — Pedidos</a>, la FGP hace clic en <strong>"Agendar Retiro con el Pool"</strong>. Se abre <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=retiro" style="color:var(--earth)">Admin — Agendar Retiro</a> con los datos del pedido pre-completados. La FGP elige el colaborador, la fecha y el lugar.</p>
+                  <p class="step-desc">Desde el detalle del pedido en <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=pedidos" style="color:var(--earth)">Admin — Pedidos</a>, la FGP hace clic en <strong>"Solicitar Pool"</strong>. Se abre <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=retiro" style="color:var(--earth)">Admin — Agendar Retiro</a> con los datos del pedido pre-completados. La FGP elige el colaborador, la fecha de retiro, la fecha máxima de entrega y la dirección.</p>
+                  <div class="callout callout-info" style="margin-top:8px">
+                    <div class="icon">💡</div>
+                    <div>
+                      <div class="callout-title">¿Cuándo se puede agendar?</div>
+                      El pool se puede asignar en dos momentos: cuando el proveedor confirma el stock (<strong>estado Confirmado</strong>) o cuando avisa que la mercadería está lista (<strong>estado En Camino</strong>). También se puede <strong>cambiar quién retira</strong> en cualquier momento editando la sección Retiro en el detalle del pedido — útil si el colaborador original no puede ir.
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -480,7 +487,41 @@
                 <div class="step-num" style="background:#5d7a4a">3B</div>
                 <div class="step-body">
                   <div class="step-title">WhatsApp automático al colaborador <span class="badge badge-active" style="font-size:10px;vertical-align:middle;margin-left:6px">✓ Activo</span> <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;vertical-align:middle;margin-left:4px;background:#f5f5f5;color:#616161">⚙ Sistema</span></div>
-                  <p class="step-desc">Al confirmar el agendamiento desde <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=retiro" style="color:var(--earth)">Admin — Agendar Retiro</a>, el sistema envía automáticamente un WhatsApp al colaborador con: proveedor, producto, cantidad, lugar, fecha de retiro y fecha de entrega en escuela. También crea el evento en Google Calendar.</p>
+                  <p class="step-desc">Al confirmar el agendamiento desde <a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html?view=retiro" style="color:var(--earth)">Admin — Agendar Retiro</a>, el sistema envía automáticamente un WhatsApp al colaborador. También crea el evento en Google Calendar.</p>
+
+                  <!-- Simulación del WhatsApp -->
+                  <div class="wa-phone" style="margin-top:12px">
+                    <div class="wa-phone-header">
+                      <div class="wa-phone-avatar">🚗</div>
+                      <div>
+                        <div class="wa-phone-name">Colaborador del Pool</div>
+                        <div class="wa-phone-sub">WhatsApp recibido</div>
+                      </div>
+                    </div>
+                    <div class="wa-bubble">
+🌼 *Diente de León — Retiro de Mercadería*
+
+Hola Lucas! Te asignaron un retiro:
+
+━━━━━━━━━━━━━━━━
+🏪 *Proveedor:* CABALLO NEGRO
+📅 *Fecha de retiro:* 28/04/2026
+🏫 *Fecha máx. entrega escuela:* 29/04/2026
+📍 *Dirección:* Av. Colón 1234, Local 5
+📋 *N° Orden:* ORD-2026-011
+
+📦 *Productos a retirar:*
+• Yerba Caballo Negro Trad. — 10 Kg
+• Yerba Caballo Negro Barbacoa — 5 Kg
+
+━━━━━━━━━━━━━━━━
+
+📲 *Cuando retires la mercadería, actualizá el estado acá:*
+https://escuela-dandelion.github.io/Comision-Recursos/pedidos.html?id=ORD-2026-011
+
+¡Gracias por tu ayuda! Coordiná con <em>Maria Martini</em>.</div>
+                    <div class="wa-time">✓✓</div>
+                  </div>
                 </div>
               </div>
 
@@ -489,8 +530,8 @@
               <div class="step">
                 <div class="step-num" style="background:#5d7a4a">4B</div>
                 <div class="step-body">
-                  <div class="step-title">Colaborador entrega en la escuela y actualiza el estado <span class="badge badge-active" style="font-size:10px;vertical-align:middle;margin-left:6px">✓ Activo</span> <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;vertical-align:middle;margin-left:4px;background:#e3f2fd;color:#1565c0">Pool</span></div>
-                  <p class="step-desc">El colaborador entra al pedido desde el link del WhatsApp. Desde el detalle puede marcar el pedido como <strong>"Entregado en Escuela"</strong> con un toque.</p>
+                  <div class="step-title">Colaborador retira y actualiza el estado <span class="badge badge-active" style="font-size:10px;vertical-align:middle;margin-left:6px">✓ Activo</span> <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;vertical-align:middle;margin-left:4px;background:#e3f2fd;color:#1565c0">Pool</span></div>
+                  <p class="step-desc">El colaborador retira la mercadería y la traslada a la escuela. Al llegar, entra al pedido desde el link del WhatsApp y marca el estado como <strong>"Entregar a la Escuela"</strong> con un toque desde el botón que aparece al pie de la pantalla. No necesita buscar nada — el sistema lo guía.</p>
                 </div>
               </div>
             </div>
