@@ -1311,7 +1311,8 @@ var AUTH_EMAILS = {
   'martinimaria39@gmail.com':   { role: 'FGP',   name: 'Maria' },
   'lourdelcastillo@gmail.com':       { role: 'FGP',   name: 'Luli' },
   'belen.ravaza@dandelion.edu.ar':   { role: 'FGP',   name: 'Belén' },
-  'avilaclaudio1905@gmail.com':      { role: 'referente', name: 'Claudio' }
+  'avilaclaudio1905@gmail.com':      { role: 'referente', name: 'Claudio' },
+  'pialucarno@gmail.com':            { role: 'referente', name: 'Pia' }
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
 
