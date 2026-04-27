@@ -772,10 +772,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       })
       .catch(function(){
+        ocultarPageLoading();
         document.getElementById('d-acciones-top').innerHTML =
           '<span style="color:#dc2626;font-size:13px">❌ Error de conexión</span>';
       });
-    // Cargar lista completa en segundo plano para poder navegar
+    // Cargar lista completa en segundo plano (sin tocar el overlay)
     cargarLista();
   } else if (sessionStorage.getItem('ddl_auth') === '1' || isEmbedded) {
     sessionStorage.setItem('ddl_auth', '1');
@@ -865,7 +866,8 @@ async function cargarLista(incluyeCerrados) {
       }
     });
 
-    ocultarPageLoading();\n    document.getElementById('loadingSpinner').style.display = 'none';
+    ocultarPageLoading();
+    document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('listaContent').style.display  = '';
     generarMesesRapidos();
     // Aplicar filtro de últimos 30 días por defecto (solo si no hay filtro activo)
@@ -889,7 +891,8 @@ async function cargarLista(incluyeCerrados) {
 function mostrarDetallePorId(norden) {
   const pedido = todosLosPedidos.find(p => p.norden === norden);
   if (!pedido) {
-    ocultarPageLoading();\n    document.getElementById('loadingSpinner').style.display = 'none';
+    ocultarPageLoading();
+    document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('listaContent').style.display  = '';
     mostrar('listaView');
     return;
