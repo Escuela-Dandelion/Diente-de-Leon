@@ -456,6 +456,11 @@
       <!-- Filtros adicionales -->
       <div class="v-filtros">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label>Grado</label>
+            <select id="vfilt-grado" onchange="aplicarFiltrosVentas()">
+              <option value="">Todos</option>
+            </select>
+          </div>
           <div><label>Referente</label>
             <select id="vfilt-referente" onchange="aplicarFiltrosVentas()">
               <option value="">Todos</option>
@@ -1020,8 +1025,26 @@ function poblarFiltrosVentas() {
     }
   });
 
+  // Grados: desde los datos + mapeo conocido
+  var gradoSet = {};
+  var STAFF_GRADO_MAP = {
+    'Yuliana Longhi':'Jardín','Maria Martini':'Jardín','Ines Robertson':'4to',
+    'Delfina Salvetti':'6to','Dolo Dominguez':'2do','Gaby Dominguez':'5to',
+    'Juan Diaz':'8vo','Karina':'7mo','Monica Chesta':'Maestros/Docentes',
+    'Paola':'2do','Pia':'11vo','Sabi':'9no','Yana':'5to','Elina':'3ro','Claudio':'Tiendita'
+  };
+  _ventas.forEach(function(v){ if (v.grado) gradoSet[v.grado] = true; });
+  Object.values(STAFF_GRADO_MAP).forEach(function(g){ gradoSet[g] = true; });
+  var selG = document.getElementById('vfilt-grado');
+  if (selG) {
+    var curG = selG.value;
+    while (selG.options.length > 1) selG.remove(1);
+    Object.keys(gradoSet).sort().forEach(function(g){ var o=document.createElement('option'); o.value=g; o.textContent=g; selG.appendChild(o); });
+    selG.value = curG;
+  }
+
   // Referentes: lista base + los que aparecen en datos
-  var REFERENTES_BASE = ['Yuliana Longhi','Maria Martini','Ines Robertson','Delfina Salvetti','Dolo Dominguez','Gaby Dominguez','Juan Diaz','Karina','Monica Chesta','Paola','Pia','Sabi','Yana','Elina','Claudio'];
+  var REFERENTES_BASE = Object.keys(STAFF_GRADO_MAP);
   REFERENTES_BASE.forEach(function(n){ staffSet[n] = true; });
   var sel = document.getElementById('vfilt-referente');
   var cur = sel.value;
@@ -1076,6 +1099,7 @@ function aplicarFiltrosVentas() {
     document.getElementById('vfilt-Pendiente').classList.toggle('active', _ventasFiltroEstado === 'Pendiente');
     document.getElementById('vfilt-Entregado').classList.toggle('active', _ventasFiltroEstado === 'Entregado');
   }
+  var grado      = document.getElementById('vfilt-grado') ? document.getElementById('vfilt-grado').value : '';
   var referente  = document.getElementById('vfilt-referente') ? document.getElementById('vfilt-referente').value : '';
   var producto   = (document.getElementById('vfilt-producto') ? document.getElementById('vfilt-producto').value : '').toLowerCase();
   var comprador  = (document.getElementById('vfilt-comprador') ? document.getElementById('vfilt-comprador').value : '').toLowerCase();
@@ -1084,6 +1108,7 @@ function aplicarFiltrosVentas() {
 
   var rows = _ventas.filter(function(v) {
     if (_ventasFiltroEstado !== 'Todos' && v.estado !== _ventasFiltroEstado) return false;
+    if (grado && v.grado !== grado) return false;
     if (referente && v.staff !== referente) return false;
     if (producto && v.productos.toLowerCase().indexOf(producto) === -1) return false;
     if (comprador && v.nombre.toLowerCase().indexOf(comprador) === -1) return false;
@@ -1113,7 +1138,7 @@ function renderVentas(rows) {
     cont.style.display = 'block'; return;
   }
   cont.innerHTML = '<div class="v-table-wrap"><div style="overflow-x:auto"><table class="v-table">' +
-    '<thead><tr><th>Pedido</th><th>Comprador</th><th>Productos</th><th>Total</th><th>Estado</th><th>Quién entregó</th><th>Notas</th><th style="width:40px"></th></tr></thead><tbody>' +
+    '<thead><tr><th>Pedido</th><th>Comprador</th><th>Productos</th><th>Total</th><th>Estado</th><th>Grado</th><th>Quién entregó</th><th>Notas</th><th style="width:40px"></th></tr></thead><tbody>' +
     rows.map(function(v, i) {
       var entregado = v.estado === 'Entregado';
       var pill = entregado
@@ -1128,6 +1153,7 @@ function renderVentas(rows) {
         '<td><button style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#2d5a27;padding:0">' + resumen + '</button></td>' +
         '<td style="font-weight:700;color:#2d5a27;white-space:nowrap">' + fmtPesosAR(v.total) + '</td>' +
         '<td>' + pill + (entregado && v.fechaEntrega ? '<div style="font-size:10px;color:#9ca3af;margin-top:3px">' + v.fechaEntrega + '</div>' : '') + '</td>' +
+        '<td style="font-size:12px;color:#6b7280">' + (v.grado || '—') + '</td>' +
         '<td>' + (v.staff || '—') + '</td>' +
         '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6b7280;font-size:12px" title="' + (v.notas||'') + '">' + (v.notas ? v.notas : '—') + '</td>' +
         '<td style="text-align:right;padding:6px 8px">' +

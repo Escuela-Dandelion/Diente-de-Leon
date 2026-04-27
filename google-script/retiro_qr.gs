@@ -1397,6 +1397,38 @@ function apiVerifyOTP(tel, code) {
   return { ok: true, role: user.role, name: user.name };
 }
 
+// Mapeo staff → grado
+var STAFF_GRADOS = {
+  'Yuliana.Longhi ':  'Jardín',
+  'Maria.Martini ':   'Jardín',
+  'Ines.Robertson':   '4to',
+  'Delfina.Salvetti': '6to',
+  'Dolo.Dominguez':   '2do',
+  'Gaby.Dominguez':   '5to',
+  'Juan.Diaz':        '8vo',
+  'Karina':           '7mo',
+  'Monica.Chesta':    'Maestros/Docentes',
+  'Paola':            '2do',
+  'Pia':              '11vo',
+  'Sabi':             '9no',
+  'Yana':             '5to',
+  'Elina':            '3ro',
+  'Claudio':          'Tiendita'
+};
+
+function staffToGrado(staffKey) {
+  if (!staffKey) return '';
+  var k = staffKey.trim();
+  if (STAFF_GRADOS[k + ' '] !== undefined) return STAFF_GRADOS[k + ' '];
+  if (STAFF_GRADOS[k] !== undefined) return STAFF_GRADOS[k];
+  // buscar por nombre parcial
+  var keys = Object.keys(STAFF_GRADOS);
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i].trim().toLowerCase() === k.toLowerCase()) return STAFF_GRADOS[keys[i]];
+  }
+  return '';
+}
+
 // ── RETIROS CON ESTADO ENTREGADO/PENDIENTE ───────────────────
 function getRetirosData(estadoFiltro, diasFiltro) {
   var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
@@ -1438,6 +1470,7 @@ function getRetirosData(estadoFiltro, diasFiltro) {
       estado:       entregado ? 'Entregado' : 'Pendiente',
       fechaEntrega: fechaEntrega,
       staff:        staff,
+      grado:        staffToGrado(staff),
       notas:        String(row[9] || '')
     });
   }
