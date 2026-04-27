@@ -1109,10 +1109,10 @@ function renderLista(pedidos) {
     const totalNum = p.total ? parseFloat(String(p.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0 : 0;
     const total = totalNum > 0 ? totalNum : calcTotalProductos(p.productos || '');
     const totalStr = total > 0 ? formatPesos(total) : '';
-    // Sumar unidades totales
-    const totalUnidades = prods.reduce((sum, l) => {
-      const m = parseProdLinea(l);
-      return sum + (m.cant || 1);
+    // Sumar unidades totales usando parseProductos (igual que el detalle)
+    const prodsParsed = parseProductos(p.productos || '').filter(function(r){ return r.nombre; });
+    const totalUnidades = prodsParsed.reduce(function(sum, r) {
+      return sum + (parseFloat(r.cantidad) || 0);
     }, 0);
     const unidStr = totalUnidades > 0 ? totalUnidades.toLocaleString('es-AR') + ' unid.' : '';
 
