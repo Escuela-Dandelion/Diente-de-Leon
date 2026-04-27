@@ -214,6 +214,15 @@
 </head>
 <body>
 
+<!-- Overlay de carga inicial -->
+<div id="page-loading" style="position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon_transparent.png" style="width:80px;height:80px;object-fit:contain" alt="">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div style="width:32px;height:32px;border:3px solid #c8e6c9;border-top-color:#2d5a27;border-radius:50%;animation:spin .7s linear infinite"></div>
+    <div style="font-size:14px;color:#6b7280;font-weight:500">Cargando pedido…</div>
+  </div>
+</div>
+
 <div class="header">
   <div class="logo-text"><a href="https://escuela-dandelion.github.io/Comision-Recursos/admin.html" target="_blank" style="display:block;-webkit-tap-highlight-color:rgba(0,0,0,0.1)"><img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Tienda Diente de León" style="display:block"></a></div>
   <div class="header-right">
@@ -754,8 +763,10 @@ document.addEventListener('DOMContentLoaded', function() {
           var p = data.pedido.pedido || data.pedido;
           pedidoActual = p;
           todosLosPedidos = [p];
+          ocultarPageLoading();
           renderDetalle(p);
         } else {
+          ocultarPageLoading();
           document.getElementById('d-acciones-top').innerHTML =
             '<span style="color:#dc2626;font-size:13px">❌ Pedido no encontrado</span>';
         }
@@ -854,7 +865,7 @@ async function cargarLista(incluyeCerrados) {
       }
     });
 
-    document.getElementById('loadingSpinner').style.display = 'none';
+    ocultarPageLoading();\n    document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('listaContent').style.display  = '';
     generarMesesRapidos();
     // Aplicar filtro de últimos 30 días por defecto (solo si no hay filtro activo)
@@ -870,6 +881,7 @@ async function cargarLista(incluyeCerrados) {
     renderLista(todosLosPedidos);
     cargarProveedoresMap();
   } catch (err) {
+    ocultarPageLoading();
     document.getElementById('loadingSpinner').textContent = 'Error al cargar. Recargá la página.';
   }
 }
@@ -877,7 +889,7 @@ async function cargarLista(incluyeCerrados) {
 function mostrarDetallePorId(norden) {
   const pedido = todosLosPedidos.find(p => p.norden === norden);
   if (!pedido) {
-    document.getElementById('loadingSpinner').style.display = 'none';
+    ocultarPageLoading();\n    document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('listaContent').style.display  = '';
     mostrar('listaView');
     return;
@@ -1920,6 +1932,11 @@ function renderDetalle(p) {
   } else if (ctaWrap) {
     ctaWrap.style.display = 'none';
   }
+}
+
+function ocultarPageLoading() {
+  var el = document.getElementById('page-loading');
+  if (el) el.style.display = 'none';
 }
 
 function toggleCerrados() {
