@@ -447,11 +447,13 @@
           <div style="grid-column:1/-1"><label>Comprador</label>
             <input id="vfilt-comprador" oninput="aplicarFiltrosVentas()" placeholder="Buscar por nombre…" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
           </div>
-          <div><label>Desde</label>
-            <input id="vfilt-desde" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
-          </div>
-          <div><label>Hasta</label>
-            <input id="vfilt-hasta" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
+          <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div><label>Desde</label>
+              <input id="vfilt-desde" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
+            </div>
+            <div><label>Hasta</label>
+              <input id="vfilt-hasta" type="date" onchange="aplicarFiltrosVentas()" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff">
+            </div>
           </div>
         </div>
       </div>
