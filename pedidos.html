@@ -96,6 +96,11 @@
   /* DETALLE VIEW */
   #detalleView { display: none; }
   .back-btn { background: none; border: none; color: #2d5a27; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 0; }
+  .btn-cta-confirmar  { background: #1d4ed8 !important; }
+  .btn-cta-enproceso  { background: #5b21b6 !important; }
+  .btn-cta-listo      { background: #92400e !important; }
+  .btn-cta-cerrado    { background: #2d5a27 !important; }
+  .btn-cta-cancelado  { background: #dc2626 !important; }
   .detalle-field { margin-bottom: 14px; }
   .detalle-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; margin-bottom: 3px; }
   .detalle-value { font-size: 15px; color: #2d2d2d; font-weight: 500; }
@@ -526,6 +531,12 @@
       </div>
 
     </div>
+  </div>
+
+  <!-- CTA sticky al pie — acción principal del estado actual -->
+  <div id="d-cta-wrap" style="display:none;position:sticky;bottom:0;background:#fff;border-top:1px solid #e5e7eb;padding:12px 16px;margin:0 -16px;z-index:10">
+    <button id="d-cta-btn" style="width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:#2d5a27">
+    </button>
   </div>
 
 </div>
@@ -1541,18 +1552,32 @@ function actualizarRetiroView() {
 
 function armarMensajeRetiro(p) {
   var nombre = p.quien ? p.quien.split(' ')[0] : '';
-  var fgp = p.fgp || 'la FGP';
+  var fgp    = p.fgp || 'la FGP';
+
+  // Productos: solo nombre y cantidad, sin precios
+  var lineasProds = '';
+  if (p.productos) {
+    var rows = parseProductos(p.productos).filter(function(r){ return r.nombre; });
+    lineasProds = rows.map(function(r){
+      var cant = r.cantidad ? r.cantidad + ' ' + r.unidad : '';
+      return '• ' + r.nombre + (cant ? ' — ' + cant : '');
+    }).join('\n');
+  }
+
   return [
     '🌼 *Diente de León — Retiro de Mercadería*',
     '',
     'Hola ' + nombre + '! Te asignaron un retiro:',
     '',
     '━━━━━━━━━━━━━━━━',
-    '📦 *Proveedor:* ' + p.proveedor,
-    p.lugarRetiro  ? '📍 *Lugar:* '           + p.lugarRetiro  : null,
-    p.fechaRetiro  ? '📅 *Fecha de retiro:* '  + p.fechaRetiro  : null,
-    p.fechaEscuela ? '🏫 *Entrega en escuela:* '+ p.fechaEscuela : null,
-    p.norden       ? '📋 *N° Orden:* '          + p.norden       : null,
+    '🏪 *Proveedor:* ' + p.proveedor,
+    p.fechaRetiro  ? '📅 *Fecha de retiro:* '           + p.fechaRetiro  : null,
+    p.fechaEscuela ? '🏫 *Fecha máx. entrega escuela:* ' + p.fechaEscuela : null,
+    p.lugarRetiro  ? '📍 *Dirección:* '                  + p.lugarRetiro  : null,
+    p.norden       ? '📋 *N° Orden:* '                   + p.norden       : null,
+    '',
+    '📦 *Productos a retirar:*',
+    lineasProds || '(ver detalle en el link)',
     '━━━━━━━━━━━━━━━━',
     '',
     '📲 *Cuando retires la mercadería, actualizá el estado acá:*',
@@ -1820,6 +1845,21 @@ function renderDetalle(p) {
   if (sig.includes('Cancelado')) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="confirmarAccion('${p.norden}','Cancelado')">Cancelar</button>`;
   if (p.estado === 'Solicitado' && esAdmin()) botonesTop += `<button class="btn-accion-top btn-cancelar-ord" onclick="eliminarPedido('${p.norden}')">🗑️ Eliminar</button>`;
   document.getElementById('d-acciones-top').innerHTML = botonesTop;
+
+  // CTA sticky al pie — acción principal (primera acción no Cancelar)
+  var ctaWrap = document.getElementById('d-cta-wrap');
+  var ctaBtn  = document.getElementById('d-cta-btn');
+  var accionPrincipal = sig.filter(function(e){ return e !== 'Cancelado'; })[0];
+  if (accionPrincipal && ctaWrap && ctaBtn) {
+    ctaBtn.textContent = (EMOJI_ESTADO[accionPrincipal]||'') + ' ' + (LABEL_ACCION[accionPrincipal] || accionPrincipal);
+    ctaBtn.className = '';
+    var claseMap = { 'Confirmado':'btn-cta-confirmar','En Camino':'btn-cta-enproceso','Entregado en Escuela':'btn-cta-listo','Cerrado':'btn-cta-cerrado' };
+    if (claseMap[accionPrincipal]) ctaBtn.classList.add(claseMap[accionPrincipal]);
+    ctaBtn.onclick = function(){ confirmarAccion(p.norden, accionPrincipal); };
+    ctaWrap.style.display = 'block';
+  } else if (ctaWrap) {
+    ctaWrap.style.display = 'none';
+  }
 }
 
 function abrirNuevaOrden() {

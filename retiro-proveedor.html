@@ -219,32 +219,37 @@ function armarMensaje(data) {
   const fgpNombre  = data.fgp ? data.fgp.trim() : 'la FGP';
   const fgpTel     = PHONE_MAP[data.fgp] || '';
 
+  // Productos: líneas del texto, quitar precios
+  var lineasProds = (data.producto || '').split('\n')
+    .map(function(l){ return l.trim().replace(/\s*\(\$[^)]+\)/g,'').replace(/\s*\[[^\]]+\]/g,''); })
+    .filter(function(l){ return l; })
+    .map(function(l){ return '• ' + l; })
+    .join('\n');
+
   const lineas = [
     '🌼 *Diente de León — Retiro de Mercadería*',
     '',
     'Hola ' + nombre + '! Te asignaron un retiro:',
     '',
     '━━━━━━━━━━━━━━━━',
-    '📦 *Proveedor:* '  + data.proveedor,
-    '🛍️ *Producto:* '   + data.producto,
+    '🏪 *Proveedor:* ' + data.proveedor,
+    data.fecha_retiro  ? '📅 *Fecha de retiro:* '           + formatearFecha(data.fecha_retiro)  : null,
+    data.fecha_escuela ? '🏫 *Fecha máx. entrega escuela:* ' + formatearFecha(data.fecha_escuela) : null,
+    data.lugar         ? '📍 *Dirección:* '                  + data.lugar                         : null,
+    data.norden        ? '📋 *N° Orden:* '                   + data.norden                        : null,
+    '',
+    '📦 *Productos a retirar:*',
+    lineasProds || '(ver detalle en el link)',
   ];
-  if (data.cantidad) lineas.push('📏 *Cantidad:* ' + data.cantidad + (data.unidad ? ' ' + data.unidad : ''));
-  lineas.push(
-    '📅 *Fecha de retiro:* ' + formatearFecha(data.fecha_retiro),
-    data.fecha_escuela ? '🏫 *Fecha máx. entrega en escuela:* ' + formatearFecha(data.fecha_escuela) : null,
-    data.lugar ? '📍 *Dirección de retiro:* ' + data.lugar : null
-  );
-  if (data.norden) lineas.push('📋 *N° Orden:* ' + data.norden);
-  if (data.notas)  lineas.push('📝 *Notas del pedido:* ' + data.notas);
-  if (data.comentarios_retiro) lineas.push('💬 *Comentarios retiro:* ' + data.comentarios_retiro);
+  if (data.notas)             lineas.push('📝 *Notas:* ' + data.notas);
+  if (data.comentarios_retiro) lineas.push('💬 *Comentarios:* ' + data.comentarios_retiro);
   lineas.push(
     '━━━━━━━━━━━━━━━━',
     '',
-    '📲 *Cuando retires la mercadería, actualizá el estado del pedido acá:*',
+    '📲 *Cuando retires la mercadería, actualizá el estado acá:*',
     'https://escuela-dandelion.github.io/Comision-Recursos/pedidos.html?id=' + (data.norden || ''),
     '',
-    '¡Gracias por tu ayuda! 🙏',
-    'Coordiná con *' + fgpNombre + '*' + (fgpTel ? ' al +' + fgpTel : '') + '.'
+    '¡Gracias por tu ayuda! Cualquier inconveniente coordiná con *' + fgpNombre + '*' + (fgpTel ? ' al +' + fgpTel : '') + '.'
   );
   return lineas.join('\n');
 }
