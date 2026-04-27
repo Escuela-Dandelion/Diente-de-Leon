@@ -787,25 +787,20 @@ function restaurarDesdeUrl() {
   var opts = { skipHistory: true, id: id };
   if (view === 'retiro' && id) opts.retiroUrl = 'retiro-proveedor.html?id=' + encodeURIComponent(id);
   if (view === 'qr' && id && token) {
-    // Modo directo: mostrar vista QR sin pasar por el interceptor (evita la cámara)
+    // Modo directo: guardar id/token para usarlos DESPUÉS del login
     _qrModoDirecto = true;
+    _qrPendingId    = id;
+    _qrPendingToken = token;
+    // Mostrar vista QR sin pasar por el interceptor (evita la cámara)
     document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
     var vQR = document.getElementById('view-qr');
     if (vQR) vQR.classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
     var btnQR = document.querySelector('.nav-item[data-view="qr"]');
-    if (btnQR) btnQR.classList.add('active');
+    if (btnQR) { document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); }); btnQR.classList.add('active'); }
+    // Mostrar login (iniciarQRLogin lo manejará)
+    setTimeout(function(){ iniciarQRLogin(); }, 100);
   } else {
     showView(view, null, opts);
-  }
-  // Modo de confirmación directa (sin cámara)
-  if (view === 'qr' && id && token) {
-    setTimeout(function() {
-      detenerQR();
-      document.getElementById('qr-scan-error').style.display = 'none';
-      document.getElementById('qr-loading').style.display = 'block';
-      onQRScanned('https://x?id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(token));
-    }, 200);
   }
 }
 
@@ -1153,10 +1148,12 @@ function renderVentas(rows) {
 // ══════════════════════════════════════
 // QR SCANNER
 // ══════════════════════════════════════
-var _qrScanner     = null;
-var _qrData        = null;
-var _qrModoDirecto = false;
-var _qrUser        = null; // usuario autenticado para QR
+var _qrScanner      = null;
+var _qrData         = null;
+var _qrModoDirecto  = false;
+var _qrUser         = null;
+var _qrPendingId    = null;
+var _qrPendingToken = null;
 var _ventasCargadas = false;
 
 var QR_STAFF_NAMES = [
@@ -1244,11 +1241,10 @@ function qrLoginPin() {
 function qrPostLogin() {
   // Login exitoso — mostrar quién es y continuar
   document.getElementById('qr-login-wrap').style.display = 'none';
-  if (_qrModoDirecto) {
-    // Ya tenemos id+token en URL — ir directo a verificar
-    var params = new URLSearchParams(window.location.search);
+  if (_qrModoDirecto && _qrPendingId && _qrPendingToken) {
+    // Ya tenemos id+token — verificar el pedido
     document.getElementById('qr-loading').style.display = 'block';
-    onQRScanned('https://x?id=' + encodeURIComponent(params.get('id')) + '&token=' + encodeURIComponent(params.get('token')));
+    onQRScanned('https://x?id=' + encodeURIComponent(_qrPendingId) + '&token=' + encodeURIComponent(_qrPendingToken));
   } else {
     // Mostrar scanner
     document.getElementById('qr-scanner-wrap').style.display = 'block';
