@@ -1822,8 +1822,14 @@ async function ejecutarAccion() {
         mostrarFlashDetalle('✅ Estado actualizado a "' + nuevoEstado + '"', 'success');
         renderDetalle(pedidoActual);
       } else {
-        renderLista(todosLosPedidos);
-        mostrarFlash('✅ Estado actualizado a "' + nuevoEstado + '"', 'ok');
+        // Refrescar lista desde el Sheet para traer datos actualizados
+        mostrarFlash('✅ Estado actualizado — actualizando lista…', 'ok');
+        document.getElementById('loadingSpinner').style.display = 'block';
+        document.getElementById('loadingSpinner').textContent = 'Actualizando…';
+        document.getElementById('listaContent').style.display = 'none';
+        cargarLista().then(function() {
+          mostrarFlash('✅ Estado actualizado a "' + nuevoEstado + '"', 'ok');
+        });
       }
     } else {
       throw new Error(json.error || (json.updated === false ? 'El GAS no está actualizado. Redesplegá retiroProveedor.' : 'Error desconocido'));
