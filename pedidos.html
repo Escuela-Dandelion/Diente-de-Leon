@@ -1512,7 +1512,12 @@ function guardarRetiro() {
     .then(function(r){ return r.json(); })
     .then(function(data){
       btn.disabled = false; btn.style.opacity = '';
-      if (!data.ok) { fb.textContent='❌ ' + (data.error||'Error.'); fb.style.color='#dc2626'; return; }
+      if (!data.ok || data.updated === false) {
+        fb.textContent = data.updated === false
+          ? '❌ El GAS no está actualizado. Redesplegá retiroProveedor.'
+          : '❌ ' + (data.error||'Error.');
+        fb.style.color='#dc2626'; return;
+      }
       pedidoActual.quien       = quien;
       pedidoActual.fechaRetiro = fechaRetiro;
       pedidoActual.lugarRetiro = lugar;

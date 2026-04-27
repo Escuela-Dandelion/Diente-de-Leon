@@ -154,7 +154,7 @@ function doGet(e) {
     if (action === 'updateRetiroData') {
       const resultado = actualizarRetiroEnSheet(e.parameter);
       return ContentService
-        .createTextOutput(JSON.stringify({ ok: true, mensaje: resultado }))
+        .createTextOutput(JSON.stringify({ ok: true, updated: true, mensaje: resultado }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
