@@ -700,6 +700,18 @@ function showView(viewId, navBtn, opts) {
     if (iframe) iframe.src = 'pedidos.html?auth=1&id=' + opts.id;
   }
 
+  // Retiro: setear iframe con URL específica del pedido
+  if (viewId === 'retiro') {
+    var retiroIframe = document.getElementById('iframe-retiro');
+    if (retiroIframe) {
+      if (opts.retiroUrl) {
+        retiroIframe.src = opts.retiroUrl;
+      } else if (opts.id) {
+        retiroIframe.src = 'retiro-proveedor.html?id=' + encodeURIComponent(opts.id);
+      }
+    }
+  }
+
   // Cerrar sidebar en mobile
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('visible');
@@ -709,12 +721,14 @@ function showView(viewId, navBtn, opts) {
 window.addEventListener('message', function(e) {
   if (!e.data || e.data.type !== 'ddl-nav') return;
   var view = e.data.view || 'pedidos';
-  // Para vistas con URL dinámica, actualizar el iframe antes de mostrar
+  // Para retiro: extraer id del pedido de la URL del iframe
   if (view === 'retiro' && e.data.url) {
-    var iframe = document.getElementById('iframe-retiro');
-    if (iframe) iframe.src = e.data.url;
+    var retiroParams = new URLSearchParams(e.data.url.split('?')[1] || '');
+    var retiroId = retiroParams.get('id') || null;
+    showView('retiro', null, { id: retiroId, retiroUrl: e.data.url });
+  } else {
+    showView(view, null, { id: e.data.id || null });
   }
-  showView(view, null, { id: e.data.id || null });
 });
 
 // Restaurar vista desde la URL al cargar
@@ -722,7 +736,10 @@ function restaurarDesdeUrl() {
   var params = new URLSearchParams(window.location.search);
   var view   = params.get('view');
   var id     = params.get('id');
-  if (view) showView(view, null, { skipHistory: true, id: id });
+  if (!view) return;
+  var opts = { skipHistory: true, id: id };
+  if (view === 'retiro' && id) opts.retiroUrl = 'retiro-proveedor.html?id=' + encodeURIComponent(id);
+  showView(view, null, opts);
 }
 
 // Manejar botón atrás/adelante del navegador
