@@ -354,11 +354,12 @@
         <div class="det-card-body" id="d-prod-view" style="padding:0 18px"></div>
 
         <!-- Vista edición -->
+        <datalist id="tn-productos-list"></datalist>
         <div id="d-prod-edit" style="display:none; padding:14px 18px">
           <div style="overflow-x:auto">
             <table class="det-prod-table">
               <thead><tr>
-                <th style="min-width:120px">Producto</th>
+                <th style="min-width:160px">Producto</th>
                 <th style="width:85px">Unid.</th>
                 <th style="width:60px">Cant.</th>
                 <th style="width:80px">Precio $</th>
@@ -1458,7 +1459,7 @@ function renderProdEdit(productosStr) {
   var tbody = document.getElementById('det-tbody-productos');
   tbody.innerHTML = rows.map(function(r) {
     return '<tr>' +
-      '<td style="min-width:120px"><input class="dp-nombre" type="text" placeholder="Producto" value="' + escHtml(r.nombre) + '"></td>' +
+      '<td style="min-width:160px"><input class="dp-nombre" type="text" list="tn-productos-list" placeholder="Buscar producto…" value="' + escHtml(r.nombre) + '" oninput="onNombreInput(this)"></td>' +
       '<td><select class="dp-unid"><option' + (r.unidad==='Unidades'?' selected':'') + '>Unidades</option><option' + (r.unidad==='Kg'?' selected':'') + '>Kg</option><option' + (r.unidad==='Cajas'?' selected':'') + '>Cajas</option></select></td>' +
       '<td><input class="dp-cant" type="text" inputmode="numeric" placeholder="Cant." value="' + escHtml(r.cantidad) + '" oninput="recalcularTotalEdit()"></td>' +
       '<td><input class="dp-precio" type="text" inputmode="decimal" placeholder="$" value="' + escHtml(fmtPrecioEdit(r.precio)) + '" onblur="recalcularTotalEdit()"></td>' +
@@ -1808,11 +1809,38 @@ function guardarProveedor() {
   .catch(function(){ btn.disabled=false; btn.style.opacity=''; fb.textContent = '❌ Error de conexión.'; fb.style.color='#dc2626'; });
 }
 
+// ── PRODUCTOS TIENDANUBE (autocomplete) ──────────────────────
+var _productosTN = []; // [{nombre, sku}]
+
+function cargarProductosTN() {
+  if (_productosTN.length > 0) return;
+  fetch(SCRIPT_URL + '?action=getProductosTN')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.ok || !data.productos) return;
+      _productosTN = data.productos;
+      var list = document.getElementById('tn-productos-list');
+      if (list) list.innerHTML = data.productos.map(function(p){
+        return '<option value="' + escHtml(p.nombre) + '">';
+      }).join('');
+    }).catch(function(){});
+}
+
+function onNombreInput(input) {
+  var val = input.value.trim();
+  var prod = _productosTN.find(function(p){ return p.nombre === val; });
+  if (prod) {
+    var tr = input.closest('tr');
+    if (tr) { var s = tr.querySelector('.dp-sku'); if (s) s.value = prod.sku || ''; }
+  }
+}
+
 function toggleEditProductos() {
   var view = document.getElementById('d-prod-view');
   var edit = document.getElementById('d-prod-edit');
   var btn  = document.getElementById('btn-toggle-prods');
   if (edit.style.display === 'none') {
+    cargarProductosTN();
     renderProdEdit(pedidoActual.productos || '');
     view.style.display = 'none';
     edit.style.display = 'block';
