@@ -882,6 +882,7 @@ async function cargarLista(incluyeCerrados) {
     }
     renderLista(todosLosPedidos);
     cargarProveedoresMap();
+    cargarProductosTN();
   } catch (err) {
     ocultarPageLoading();
     document.getElementById('loadingSpinner').textContent = 'Error al cargar. Recargá la página.';
@@ -1814,7 +1815,7 @@ var _productosTN = []; // [{nombre, sku}]
 
 function cargarProductosTN() {
   if (_productosTN.length > 0) return;
-  fetch(SCRIPT_URL + '?action=getProductosTN')
+  fetch(SCRIPT_URL + '?action=getProductosTN', { redirect: 'follow' })
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (!data.ok || !data.productos) return;
