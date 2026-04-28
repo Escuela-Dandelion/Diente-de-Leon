@@ -515,7 +515,8 @@ function updateProductosPedido(data) {
   if (!resultado) throw new Error('Pedido no encontrado: ' + norden);
   const sheet = getPedidosSheet();
   sheet.getRange(resultado.fila, COL.PRODUCTOS + 1).setValue(productos || '');
-  if (data.total) sheet.getRange(resultado.fila, COL.TOTAL + 1).setValue(parseFloat(data.total) || 0);
+  if (data.total !== null && data.total !== undefined) sheet.getRange(resultado.fila, COL.TOTAL + 1).setValue(parseFloat(data.total) || 0);
+  SpreadsheetApp.flush();
   Logger.log('Productos actualizados: ' + norden);
   return 'Productos actualizados: ' + norden;
 }

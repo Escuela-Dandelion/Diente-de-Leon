@@ -1855,7 +1855,6 @@ function guardarProductos() {
     if (totalCalc > 0) document.getElementById('d-total').textContent = formatPesosConDec(totalCalc);
     toggleEditProductos();
     mostrarFlashDetalle('✅ Productos guardados.', 'success');
-    refrescarPedidoActual();
   })
   .catch(function(){ btnProds.disabled=false; btnProds.style.opacity=''; mostrarProdFeedback('❌ Error de conexión.', '#dc2626'); });
 }
