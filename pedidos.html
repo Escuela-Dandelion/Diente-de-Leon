@@ -1132,9 +1132,9 @@ function renderLista(pedidos) {
   const rows = pedidos.map(p => {
     const prods = p.productos ? p.productos.split('\n').map(s => s.trim()).filter(Boolean) : ['—'];
     const count = prods.length || 1;
-    // Usar total guardado en Sheet; calcular desde productos como fallback
-    const totalNum = p.total ? parseFloat(String(p.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0 : 0;
-    const total = totalNum > 0 ? totalNum : calcTotalProductos(p.productos || '');
+    // Preferir cálculo desde productos (más preciso); fallback al total guardado
+    const totalFromProds = calcTotalProductos(p.productos || '');
+    const total = totalFromProds > 0 ? totalFromProds : (p.total ? parseFloat(String(p.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0 : 0);
     const totalStr = total > 0 ? formatPesosConDec(total) : '';
     // Sumar unidades totales usando parseProductos (igual que el detalle)
     const prodsParsed = parseProductos(p.productos || '').filter(function(r){ return r.nombre; });
@@ -1434,7 +1434,7 @@ function renderProdView(productosStr) {
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;min-width:120px">Producto</th>' +
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:85px">Unid.</th>' +
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:60px">Cant.</th>' +
-        '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:140px;white-space:nowrap">Precio $</th>' +
+        '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;min-width:150px;white-space:nowrap">Precio $</th>' +
         (hasSku ? '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:100px">SKU</th>' : '') +
       '</tr></thead><tbody>' +
     rows.map(function(r) {
@@ -1442,7 +1442,7 @@ function renderProdView(productosStr) {
         '<td><span style="' + cell + 'display:block;font-weight:600;color:#374151;">' + escHtml(r.nombre) + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + escHtml(r.unidad||'Unidades') + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + escHtml(r.cantidad) + '</span></td>' +
-        '<td style="white-space:nowrap"><span style="' + cell + 'display:block">' + (r.precio && parsePrecio(r.precio) > 0 ? formatPesosConDec(parsePrecio(r.precio)) : '—') + '</span></td>' +
+        '<td style="white-space:nowrap"><span style="' + cell + 'display:block;white-space:nowrap">' + (r.precio && parsePrecio(r.precio) > 0 ? formatPesosConDec(parsePrecio(r.precio)) : '—') + '</span></td>' +
         (hasSku ? '<td><span style="' + cell + 'display:block;font-family:monospace;font-size:11px;color:#9ca3af">' + escHtml(r.sku||'—') + '</span></td>' : '') +
       '</tr>';
     }).join('') +
