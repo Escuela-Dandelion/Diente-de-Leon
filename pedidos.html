@@ -1208,7 +1208,7 @@ function renderLista(pedidos) {
                   <th style="font-size:11px;font-weight:600;color:#6b7280;padding:8px 16px;text-align:left;letter-spacing:0.5px;text-transform:uppercase;">Producto</th>
                   <th style="font-size:11px;font-weight:600;color:#6b7280;padding:8px 10px;text-align:center;letter-spacing:0.5px;text-transform:uppercase;width:55px;">Cant.</th>
                   <th style="font-size:11px;font-weight:600;color:#6b7280;padding:8px 10px;text-align:center;letter-spacing:0.5px;text-transform:uppercase;width:55px;">Unid.</th>
-                  <th style="font-size:11px;font-weight:600;color:#6b7280;padding:8px 10px;text-align:right;letter-spacing:0.5px;text-transform:uppercase;width:100px;white-space:nowrap;">P. Unit.</th>
+                  <th style="font-size:11px;font-weight:600;color:#6b7280;padding:8px 10px;text-align:right;letter-spacing:0.5px;text-transform:uppercase;width:140px;white-space:nowrap;">P. Unit.</th>
                   <th style="font-size:11px;font-weight:600;color:#6b7280;padding:8px 16px;text-align:right;letter-spacing:0.5px;text-transform:uppercase;width:110px;white-space:nowrap;">Subtotal</th>
                 </tr>
               </thead>
@@ -1434,7 +1434,7 @@ function renderProdView(productosStr) {
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;min-width:120px">Producto</th>' +
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:85px">Unid.</th>' +
         '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:60px">Cant.</th>' +
-        '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:80px">Precio $</th>' +
+        '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:140px;white-space:nowrap">Precio $</th>' +
         (hasSku ? '<th style="background:#f3f4f6;color:#9ca3af;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;text-align:left;border-bottom:1px solid #e5e7eb;width:100px">SKU</th>' : '') +
       '</tr></thead><tbody>' +
     rows.map(function(r) {
@@ -1442,7 +1442,7 @@ function renderProdView(productosStr) {
         '<td><span style="' + cell + 'display:block;font-weight:600;color:#374151;">' + escHtml(r.nombre) + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + escHtml(r.unidad||'Unidades') + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + escHtml(r.cantidad) + '</span></td>' +
-        '<td><span style="' + cell + 'display:block">' + (r.precio && parsePrecio(r.precio) > 0 ? formatPesosConDec(parsePrecio(r.precio)) : '—') + '</span></td>' +
+        '<td style="white-space:nowrap"><span style="' + cell + 'display:block">' + (r.precio && parsePrecio(r.precio) > 0 ? formatPesosConDec(parsePrecio(r.precio)) : '—') + '</span></td>' +
         (hasSku ? '<td><span style="' + cell + 'display:block;font-family:monospace;font-size:11px;color:#9ca3af">' + escHtml(r.sku||'—') + '</span></td>' : '') +
       '</tr>';
     }).join('') +
@@ -1918,7 +1918,8 @@ function renderDetalle(p) {
   document.getElementById('d-prod-edit').style.display = 'none';
   document.getElementById('btn-toggle-prods').textContent = '✏️ Editar';
 
-  const totalNum = p.total ? parseFloat(p.total) : calcTotalProductos(p.productos || '');
+  const totalCalcProd = calcTotalProductos(p.productos || '');
+  const totalNum = totalCalcProd > 0 ? totalCalcProd : parsePrecio(String(p.total || ''));
   document.getElementById('d-total').textContent = totalNum > 0 ? formatPesosConDec(totalNum) : '—';
   document.getElementById('d-total-edit').style.display = 'none';
   document.getElementById('d-total-feedback').style.display = 'none';
