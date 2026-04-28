@@ -1134,7 +1134,7 @@ function renderLista(pedidos) {
     const count = prods.length || 1;
     // Preferir cálculo desde productos (más preciso); fallback al total guardado
     const totalFromProds = calcTotalProductos(p.productos || '');
-    const total = totalFromProds > 0 ? totalFromProds : (p.total ? parseFloat(String(p.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0 : 0);
+    const total = totalFromProds > 0 ? totalFromProds : (parseFloat(p.total) || 0);
     const totalStr = total > 0 ? formatPesosConDec(total) : '';
     // Sumar unidades totales usando parseProductos (igual que el detalle)
     const prodsParsed = parseProductos(p.productos || '').filter(function(r){ return r.nombre; });
