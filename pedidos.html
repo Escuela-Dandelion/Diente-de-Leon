@@ -884,7 +884,7 @@ async function cargarLista(incluyeCerrados) {
     if (desdeEl && !desdeEl.value) {
       var hoy  = new Date();
       var hace30 = new Date(); hace30.setDate(hoy.getDate() - 30);
-      var fmt = function(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+      var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
       desdeEl.value = fmt(hace30);
       hastaEl.value = fmt(hoy);
     }
