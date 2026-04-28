@@ -1082,6 +1082,16 @@ function parseProdLinea(linea) {
   return { nombre: nombre || linea, cant, unidad, precio, subtotal: cant * precio };
 }
 
+function fmtPrecioEdit(raw) {
+  // Formatea el precio para el campo de edición en formato AR: punto=miles, coma=decimal
+  if (!raw) return '';
+  var n = parsePrecio(raw);
+  if (!n) return raw; // si no parsea, dejar el raw
+  var parts = n.toFixed(3).replace(/0+$/, '').replace(/\.$/, '').split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return parts.length > 1 ? parts[0] + ',' + parts[1] : parts[0];
+}
+
 function formatPesos(n) {
   if (!n) return '';
   var num = Math.round(Number(n));
@@ -1423,7 +1433,7 @@ function renderProdView(productosStr) {
         '<td><span style="' + cell + 'display:block;font-weight:600;color:#374151;">' + escHtml(r.nombre) + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + escHtml(r.unidad||'Unidades') + '</span></td>' +
         '<td><span style="' + cell + 'display:block">' + escHtml(r.cantidad) + '</span></td>' +
-        '<td><span style="' + cell + 'display:block">' + (r.precio ? '$ ' + escHtml(r.precio) : '—') + '</span></td>' +
+        '<td><span style="' + cell + 'display:block">' + (r.precio && parsePrecio(r.precio) > 0 ? formatPesosConDec(parsePrecio(r.precio)) : '—') + '</span></td>' +
         (hasSku ? '<td><span style="' + cell + 'display:block;font-family:monospace;font-size:11px;color:#9ca3af">' + escHtml(r.sku||'—') + '</span></td>' : '') +
       '</tr>';
     }).join('') +
@@ -1448,7 +1458,7 @@ function renderProdEdit(productosStr) {
       '<td style="min-width:120px"><input class="dp-nombre" type="text" placeholder="Producto" value="' + escHtml(r.nombre) + '"></td>' +
       '<td><select class="dp-unid"><option' + (r.unidad==='Unidades'?' selected':'') + '>Unidades</option><option' + (r.unidad==='Kg'?' selected':'') + '>Kg</option><option' + (r.unidad==='Cajas'?' selected':'') + '>Cajas</option></select></td>' +
       '<td><input class="dp-cant" type="text" inputmode="numeric" placeholder="Cant." value="' + escHtml(r.cantidad) + '" oninput="recalcularTotalEdit()"></td>' +
-      '<td><input class="dp-precio" type="text" inputmode="decimal" placeholder="$" value="' + escHtml(r.precio) + '" onblur="recalcularTotalEdit()"></td>' +
+      '<td><input class="dp-precio" type="text" inputmode="decimal" placeholder="$" value="' + escHtml(fmtPrecioEdit(r.precio)) + '" onblur="recalcularTotalEdit()"></td>' +
       '<input class="dp-sku" type="hidden" value="' + escHtml(r.sku||'') + '">' +
     '</tr>';
   }).join('');
