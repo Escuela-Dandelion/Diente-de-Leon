@@ -1120,6 +1120,9 @@ function renderLista(pedidos) {
     return;
   }
 
+  // Ordenar de mayor a menor por N° de orden
+  pedidos = pedidos.slice().sort((a, b) => String(b.norden).localeCompare(String(a.norden), undefined, { numeric: true }));
+
   const rows = pedidos.map(p => {
     const prods = p.productos ? p.productos.split('\n').map(s => s.trim()).filter(Boolean) : ['—'];
     const count = prods.length || 1;
