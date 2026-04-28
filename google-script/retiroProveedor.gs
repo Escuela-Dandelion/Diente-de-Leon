@@ -356,24 +356,33 @@ function getPedidosSheet() {
   return ss.getSheets()[0]; // fallback
 }
 
+function fmtCelFecha(val) {
+  if (!val) return '';
+  if (val instanceof Date) return Utilities.formatDate(val, 'America/Argentina/Cordoba', 'dd/MM/yyyy');
+  // Si es string ISO (yyyy-mm-dd), convertir a dd/MM/yyyy
+  var iso = String(val).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return iso[3] + '/' + iso[2] + '/' + iso[1];
+  return String(val);
+}
+
 function filaAObjeto(fila) {
   return {
     norden:      fila[COL.NORDEN],
-    fecha:       fila[COL.FECHA] ? Utilities.formatDate(new Date(fila[COL.FECHA]), 'America/Argentina/Cordoba', 'dd/MM/yyyy') : '',
+    fecha:       fmtCelFecha(fila[COL.FECHA]),
     proveedor:   fila[COL.PROVEEDOR],
     fgp:         fila[COL.FGP],
     productos:   fila[COL.PRODUCTOS],
     estado:      fila[COL.ESTADO],
-    fechaEstado: fila[COL.FECHA_EST],
+    fechaEstado: fmtCelFecha(fila[COL.FECHA_EST]),
     quien:       fila[COL.QUIEN],
     comprobante: fila[COL.COMPROBANTE],
     notas:       fila[COL.NOTAS],
     total:       fila[COL.TOTAL] || '',
     estadoPago:   fila[COL.ESTADO_PAGO]  || '',
-    fechaPago:    fila[COL.FECHA_PAGO]   || '',
-    fechaRetiro:  fila[COL.FECHA_RETIRO] || '',
+    fechaPago:    fmtCelFecha(fila[COL.FECHA_PAGO]),
+    fechaRetiro:  fmtCelFecha(fila[COL.FECHA_RETIRO]),
     lugarRetiro:  fila[COL.LUGAR_RETIRO] || '',
-    fechaEscuela: fila[COL.FECHA_ESCUELA]|| ''
+    fechaEscuela: fmtCelFecha(fila[COL.FECHA_ESCUELA])
   };
 }
 

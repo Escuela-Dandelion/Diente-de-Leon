@@ -1141,7 +1141,7 @@ function renderLista(pedidos) {
     const totalUnidades = prodsParsed.reduce(function(sum, r) {
       return sum + (parseFloat(r.cantidad) || 0);
     }, 0);
-    const unidStr = totalUnidades > 0 ? totalUnidades.toLocaleString('es-AR') + ' unid.' : '';
+    const unidStr = totalUnidades > 0 ? String(Math.round(totalUnidades)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' unid.' : '';
 
     const mainRow = `
       <tr>
@@ -1558,6 +1558,17 @@ function isoFecha(str) {
   // dd/mm/yyyy → yyyy-mm-dd
   var p = str.split('/');
   if (p.length === 3) return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
+  // ya está en yyyy-mm-dd (o con T...)
+  var iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return iso[1] + '-' + iso[2] + '-' + iso[3];
+  return str;
+}
+
+function fmtFechaDisplay(str) {
+  if (!str) return '—';
+  // ISO con timezone: 2026-04-17T03:00:00.000Z → 17/04/2026
+  var iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return iso[3] + '/' + iso[2] + '/' + iso[1];
   return str;
 }
 
@@ -1627,9 +1638,9 @@ function actualizarRetiroView() {
   var telRetiro = p.quien ? (POOL_PHONES[p.quien] || '') : '';
   var telEl = document.getElementById('d-retiro-tel');
   if (telEl) telEl.textContent = telRetiro ? '📞 ' + telRetiro : '';
-  document.getElementById('d-retiro-fecha').textContent   = p.fechaRetiro  || '—';
+  document.getElementById('d-retiro-fecha').textContent   = fmtFechaDisplay(p.fechaRetiro);
   document.getElementById('d-retiro-lugar').textContent   = p.lugarRetiro  || '—';
-  document.getElementById('d-retiro-escuela').textContent = p.fechaEscuela || '—';
+  document.getElementById('d-retiro-escuela').textContent = fmtFechaDisplay(p.fechaEscuela);
   // WA de reenvío si hay quien y fecha
   var waBtn = document.getElementById('btn-wa-retiro');
   var waWrap = document.getElementById('d-retiro-wa-wrap');
@@ -1663,8 +1674,8 @@ function armarMensajeRetiro(p) {
     '',
     '━━━━━━━━━━━━━━━━',
     '🏪 *Proveedor:* ' + p.proveedor,
-    p.fechaRetiro  ? '📅 *Fecha de retiro:* '           + p.fechaRetiro  : null,
-    p.fechaEscuela ? '🏫 *Fecha máx. entrega escuela:* ' + p.fechaEscuela : null,
+    p.fechaRetiro  ? '📅 *Fecha de retiro:* '           + fmtFechaDisplay(p.fechaRetiro)  : null,
+    p.fechaEscuela ? '🏫 *Fecha máx. entrega escuela:* ' + fmtFechaDisplay(p.fechaEscuela) : null,
     p.lugarRetiro  ? '📍 *Dirección:* '                  + p.lugarRetiro  : null,
     p.norden       ? '📋 *N° Orden:* '                   + p.norden       : null,
     '',
@@ -1697,7 +1708,7 @@ function armarMensajePedido(p) {
     '',
     '📦 *Productos solicitados:*',
     lineas.trimEnd(),
-    total > 0   ? '💰 *Total: $ ' + total.toLocaleString('es-AR') + '*' : null,
+    total > 0   ? '💰 *Total: ' + formatPesosConDec(total) + '*' : null,
     '━━━━━━━━━━━━━━━━━━━',
     '✍️ Responsable: ' + (p.fgp || 'FGP Diente de León'),
     '🌻 Escuela Dandelion · Waldorf · Córdoba'
@@ -1850,7 +1861,7 @@ function guardarProductos() {
     var idx = todosLosPedidos.findIndex(function(p){ return p.norden===pedidoActual.norden; });
     if (idx !== -1) { todosLosPedidos[idx].productos = productosStr; if (totalCalc>0) todosLosPedidos[idx].total=String(totalCalc); }
     renderProdView(productosStr);
-    if (totalCalc > 0) document.getElementById('d-total').textContent = '$ ' + totalCalc.toLocaleString('es-AR');
+    if (totalCalc > 0) document.getElementById('d-total').textContent = formatPesosConDec(totalCalc);
     toggleEditProductos();
     mostrarFlashDetalle('✅ Productos guardados.', 'success');
     refrescarPedidoActual();
@@ -2045,7 +2056,7 @@ function guardarTotal() {
     pedidoActual.total = String(valor);
     const idx = todosLosPedidos.findIndex(function(p){ return p.norden === pedidoActual.norden; });
     if (idx !== -1) todosLosPedidos[idx].total = String(valor);
-    document.getElementById('d-total').textContent = '$ ' + valor.toLocaleString('es-AR');
+    document.getElementById('d-total').textContent = formatPesosConDec(valor);
     document.getElementById('d-total-edit').style.display = 'none';
     document.getElementById('btn-editar-total').style.display = '';
     mostrarTotalFeedback('✅ Total guardado.', '#166534');
