@@ -1070,8 +1070,8 @@ function toggleProductos(norden) {
 function parseProdLinea(linea) {
   const cantMatch   = linea.match(/\bx(\d+(?:[.,]\d+)?)\b/i);
   const precioMatch = linea.match(/\(\$([0-9.,]+)\)/);
-  const cant   = cantMatch   ? parseFloat(cantMatch[1].replace(',', '.'))                      : 1;
-  const precio = precioMatch ? parseFloat(precioMatch[1].replace(/\./g, '').replace(',', '.')) : 0;
+  const cant   = cantMatch   ? parseFloat(cantMatch[1].replace(',', '.')) : 1;
+  const precio = precioMatch ? parsePrecio(precioMatch[1]) : 0;
   // Extraer unidad: la palabra que sigue al número de cantidad (ej: "Unid.", "kg", "lt")
   const unidMatch = cantMatch ? linea.slice(linea.indexOf(cantMatch[0]) + cantMatch[0].length).match(/^\s*([A-Za-zÀ-ú]+\.?)/) : null;
   const unidad = unidMatch ? unidMatch[1] : '';
@@ -1434,10 +1434,10 @@ function recalcularTotalEdit() {
   var total = 0;
   document.querySelectorAll('#det-tbody-productos tr').forEach(function(tr) {
     var cant = parseFloat(tr.querySelector('.dp-cant').value) || 0;
-    var prec = parseFloat((tr.querySelector('.dp-precio').value||'').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+    var prec = parsePrecio(tr.querySelector('.dp-precio').value || '');
     total += cant * prec;
   });
-  document.getElementById('d-total').textContent = total > 0 ? '$ ' + total.toLocaleString('es-AR') : '—';
+  document.getElementById('d-total').textContent = total > 0 ? formatPesos(total) : '—';
 }
 
 function renderProdEdit(productosStr) {
