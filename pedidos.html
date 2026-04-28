@@ -373,17 +373,8 @@
         <!-- Total -->
         <div class="det-total-row">
           <span class="det-total-label">Total del pedido</span>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="det-total-value" id="d-total">—</span>
-            <button class="btn-edit-small" id="btn-editar-total" onclick="editarTotal()">✏️</button>
-          </div>
+          <span class="det-total-value" id="d-total">—</span>
         </div>
-        <div id="d-total-edit" style="display:none;padding:12px 18px;flex-direction:column;gap:8px;">
-          <input id="input-total" type="text" placeholder="Ej: 1500" inputmode="decimal"
-            style="width:100%;padding:9px 12px;border:1.5px solid #2d5a27;border-radius:8px;font-size:15px;font-weight:700;">
-          <button onclick="guardarTotal()" style="padding:10px;background:#2d5a27;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Guardar total</button>
-        </div>
-        <div id="d-total-feedback" style="font-size:12px;padding:0 18px 10px;display:none;font-weight:600;"></div>
       </div>
 
       <!-- Notas — debajo de productos -->
@@ -1840,7 +1831,7 @@ function guardarProductos() {
   var totalCalc = 0;
   tbody.querySelectorAll('tr').forEach(function(tr) {
     var cant = parseFloat(tr.querySelector('.dp-cant').value) || 0;
-    var prec = parseFloat((tr.querySelector('.dp-precio').value||'').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+    var prec = parsePrecio(tr.querySelector('.dp-precio').value || '');
     totalCalc += cant * prec;
   });
 
@@ -1921,9 +1912,6 @@ function renderDetalle(p) {
   const totalCalcProd = calcTotalProductos(p.productos || '');
   const totalNum = totalCalcProd > 0 ? totalCalcProd : parsePrecio(String(p.total || ''));
   document.getElementById('d-total').textContent = totalNum > 0 ? formatPesosConDec(totalNum) : '—';
-  document.getElementById('d-total-edit').style.display = 'none';
-  document.getElementById('d-total-feedback').style.display = 'none';
-  document.getElementById('btn-editar-total').style.display = '';
 
   document.getElementById('d-notas').textContent = p.notas || '—';
   document.getElementById('d-notas-wrap').style.display = '';
@@ -2124,7 +2112,7 @@ function confirmarAccion(norden, nuevoEstado) {
       if (pedidoActual && pedidoActual.norden === norden) {
         // Estamos en el detalle → mostrar mensaje y abrir editor inline
         mostrarFlashDetalle(msg, 'error');
-        editarTotal();
+        toggleEditProductos();
       } else {
         // Estamos en el listado → mostrar mensaje y abrir el detalle
         mostrarFlash(msg, 'error');
