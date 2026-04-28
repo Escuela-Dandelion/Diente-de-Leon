@@ -1135,7 +1135,7 @@ function renderLista(pedidos) {
     // Usar total guardado en Sheet; calcular desde productos como fallback
     const totalNum = p.total ? parseFloat(String(p.total).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0 : 0;
     const total = totalNum > 0 ? totalNum : calcTotalProductos(p.productos || '');
-    const totalStr = total > 0 ? formatPesos(total) : '';
+    const totalStr = total > 0 ? formatPesosConDec(total) : '';
     // Sumar unidades totales usando parseProductos (igual que el detalle)
     const prodsParsed = parseProductos(p.productos || '').filter(function(r){ return r.nombre; });
     const totalUnidades = prodsParsed.reduce(function(sum, r) {
@@ -1215,8 +1215,8 @@ function renderLista(pedidos) {
               <tbody>
                 ${prods.map((prod, idx) => {
                   const parsed = parseProdLinea(prod);
-                  const sub    = parsed.subtotal > 0 ? formatPesos(parsed.subtotal) : '—';
-                  const punit  = parsed.precio   > 0 ? formatPesos(parsed.precio)   : '—';
+                  const sub    = parsed.subtotal > 0 ? formatPesosConDec(parsed.subtotal) : '—';
+                  const punit  = parsed.precio   > 0 ? formatPesosConDec(parsed.precio)   : '—';
                   return `
                   <tr style="border-top:1px solid #e5e7eb;background:${idx%2===0?'#ffffff':'#fafafa'};">
                     <td style="padding:10px 16px;font-size:13px;color:#111827;">
@@ -1231,7 +1231,7 @@ function renderLista(pedidos) {
                 ${total > 0 ? `
                 <tr style="border-top:2px solid #c8e6c9;background:#eaf3e6;">
                   <td colspan="4" style="padding:9px 16px;font-size:12px;font-weight:700;color:#2d5a27;text-align:right;text-transform:uppercase;letter-spacing:0.5px;">Total pedido</td>
-                  <td style="padding:9px 16px;font-size:14px;font-weight:800;color:#2d5a27;text-align:right;white-space:nowrap;">${formatPesos(total)}</td>
+                  <td style="padding:9px 16px;font-size:14px;font-weight:800;color:#2d5a27;text-align:right;white-space:nowrap;">${formatPesosConDec(total)}</td>
                 </tr>` : ''}
               </tbody>
             </table>
@@ -1456,7 +1456,7 @@ function recalcularTotalEdit() {
     var prec = parsePrecio(tr.querySelector('.dp-precio').value || '');
     total += cant * prec;
   });
-  document.getElementById('d-total').textContent = total > 0 ? formatPesos(total) : '—';
+  document.getElementById('d-total').textContent = total > 0 ? formatPesosConDec(total) : '—';
 }
 
 function renderProdEdit(productosStr) {
@@ -1919,7 +1919,7 @@ function renderDetalle(p) {
   document.getElementById('btn-toggle-prods').textContent = '✏️ Editar';
 
   const totalNum = p.total ? parseFloat(p.total) : calcTotalProductos(p.productos || '');
-  document.getElementById('d-total').textContent = totalNum > 0 ? formatPesos(totalNum) : '—';
+  document.getElementById('d-total').textContent = totalNum > 0 ? formatPesosConDec(totalNum) : '—';
   document.getElementById('d-total-edit').style.display = 'none';
   document.getElementById('d-total-feedback').style.display = 'none';
   document.getElementById('btn-editar-total').style.display = '';
