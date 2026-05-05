@@ -19,6 +19,7 @@ const PHONE_MAP = {
   'Luli del Castillo':       '5493513003789',
   'Valeria Pierobon':        '5493512389386',
   'Andrea Truppia':          '5493515640578',
+  'Dario Vota':              '5493512414523',
   'Otra Persona del Pool':   null  // teléfono se recibe en data.telefono_manual
 };
 

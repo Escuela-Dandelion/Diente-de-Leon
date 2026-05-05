@@ -100,11 +100,18 @@
         </div>
       </div>
       <div class="field">
-        <label>Producto(s) del pedido</label>
-        <div id="productos-tabla" style="border:1px solid #d1d5db;border-radius:8px;overflow:hidden;background:#f9fafb;min-height:44px;padding:8px 10px;font-size:13px;color:#6b7280">
-          Cargando productos…
+        <label>Producto(s)</label>
+        <textarea id="producto" name="producto" placeholder="Descripción del/los producto(s) a retirar" rows="3" required></textarea>
+      </div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Cantidad</label>
+          <input type="number" id="cantidad" name="cantidad" placeholder="Ej: 30" min="1">
         </div>
-        <input type="hidden" id="producto" name="producto">
+        <div class="field">
+          <label>Unidad</label>
+          <input type="text" id="unidad" name="unidad" placeholder="Ej: unidades, kg, cajas">
+        </div>
       </div>
     </div>
   </div>
@@ -132,28 +139,23 @@
         <label>Teléfono de quien retira</label>
         <input type="tel" id="telefono_manual" name="telefono_manual" placeholder="Ej: 5493512000000">
       </div>
+      <div class="field">
+        <label>Lugar de retiro</label>
+        <input type="text" id="lugar" name="lugar" placeholder="Dirección del proveedor">
+      </div>
       <div class="grid grid-2">
         <div class="field">
-          <label>Fecha de Retiro</label>
+          <label>Fecha de retiro</label>
           <input type="date" id="fecha_retiro" name="fecha_retiro" required>
         </div>
         <div class="field">
-          <label>Fecha Máx. Entrega a Escuela</label>
+          <label>Entrega en escuela</label>
           <input type="date" id="fecha_escuela" name="fecha_escuela">
         </div>
       </div>
       <div class="field">
-        <label>Dirección de Retiro</label>
-        <input type="text" id="lugar" name="lugar" placeholder="Ej: Av. Colón 1234, local, etc.">
-      </div>
-      <div class="field" id="notas-pedido-wrap" style="display:none">
-        <label>Notas del pedido</label>
-        <div id="notas-pedido-texto" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:13px;color:#6b7280;min-height:40px"></div>
-        <input type="hidden" id="notas" name="notas">
-      </div>
-      <div class="field">
-        <label>Comentarios para el retiro</label>
-        <textarea id="comentarios_retiro" name="comentarios_retiro" placeholder="Ej: Llamar antes de ir, traer bolsas. Si retirás solo parte del pedido, indicalo acá." rows="2"></textarea>
+        <label>Notas</label>
+        <textarea id="notas" name="notas" placeholder="Llamar antes de ir, traer bolsas, etc." rows="2"></textarea>
       </div>
     </div>
   </div>
@@ -221,79 +223,30 @@ function armarMensaje(data) {
   const fgpNombre  = data.fgp ? data.fgp.trim() : 'la FGP';
   const fgpTel     = PHONE_MAP[data.fgp] || '';
 
-  // Productos: líneas del texto, quitar precios
-  var lineasProds = (data.producto || '').split('\n')
-    .map(function(l){ return l.trim().replace(/\s*\(\$[^)]+\)/g,'').replace(/\s*\[[^\]]+\]/g,''); })
-    .filter(function(l){ return l; })
-    .map(function(l){ return '• ' + l; })
-    .join('\n');
-
   const lineas = [
     '🌼 *Diente de León — Retiro de Mercadería*',
     '',
     'Hola ' + nombre + '! Te asignaron un retiro:',
     '',
     '━━━━━━━━━━━━━━━━',
-    '🏪 *Proveedor:* ' + data.proveedor,
-    data.fecha_retiro  ? '📅 *Fecha de retiro:* '           + formatearFecha(data.fecha_retiro)  : null,
-    data.fecha_escuela ? '🏫 *Fecha máx. entrega escuela:* ' + formatearFecha(data.fecha_escuela) : null,
-    data.lugar         ? '📍 *Dirección:* '                  + data.lugar                         : null,
-    data.norden        ? '📋 *N° Orden:* '                   + data.norden                        : null,
-    '',
-    '📦 *Productos a retirar:*',
-    lineasProds || '(ver detalle en el link)',
+    '📦 *Proveedor:* '  + data.proveedor,
+    '🛍️ *Producto:* '   + data.producto,
   ];
-  if (data.notas)             lineas.push('📝 *Notas:* ' + data.notas);
-  if (data.comentarios_retiro) lineas.push('💬 *Comentarios:* ' + data.comentarios_retiro);
+  if (data.cantidad) lineas.push('📏 *Cantidad:* ' + data.cantidad + (data.unidad ? ' ' + data.unidad : ''));
+  lineas.push(
+    '📍 *Lugar de retiro:* ' + (data.lugar || 'A confirmar'),
+    '📅 *Fecha de retiro:* ' + formatearFecha(data.fecha_retiro),
+    '🏫 *Entregar en escuela:* ' + (data.fecha_escuela ? formatearFecha(data.fecha_escuela) : 'A confirmar')
+  );
+  if (data.norden) lineas.push('📋 *N° Orden:* ' + data.norden);
+  if (data.notas)  lineas.push('📝 *Notas:* '    + data.notas);
   lineas.push(
     '━━━━━━━━━━━━━━━━',
     '',
-    '📲 *Cuando retires la mercadería, actualizá el estado acá:*',
-    'https://escuela-dandelion.github.io/Comision-Recursos/pedidos.html?id=' + (data.norden || ''),
-    '',
-    '¡Gracias por tu ayuda! Cualquier inconveniente coordiná con *' + fgpNombre + '*' + (fgpTel ? ' al +' + fgpTel : '') + '.'
+    '¡Gracias por tu ayuda! 🙏',
+    'Coordiná con *' + fgpNombre + '*' + (fgpTel ? ' al +' + fgpTel : '') + '.'
   );
   return lineas.join('\n');
-}
-
-// ── PARSEAR PRODUCTOS ──────────────────────────────────────
-function parseProductos(str) {
-  if (!str) return [];
-  return str.split('\n').map(function(line) {
-    line = line.trim(); if (!line) return null;
-    var sku = '';
-    var skuMatch = line.match(/\[([^\]]+)\]\s*$/);
-    if (skuMatch) { sku = skuMatch[1]; line = line.slice(0, skuMatch.index).trim(); }
-    var m = line.match(/^(.+?)\s+x(\d+(?:[.,]\d+)?)\s*(Unidades|Kg|Cajas|unidades|kg|cajas)?(?:\s+\(\$([0-9.,]+)\))?$/i);
-    if (m) return { nombre: m[1].trim(), cantidad: m[2], unidad: m[3] || 'Unidades', precio: m[4] || '', sku: sku };
-    m = line.match(/^(.+?)\s+\(\$([0-9.,]+)\)$/);
-    if (m) return { nombre: m[1].trim(), cantidad: '', unidad: '', precio: m[2], sku: sku };
-    return { nombre: line, cantidad: '', unidad: '', precio: '', sku: sku };
-  }).filter(Boolean);
-}
-
-function renderTablaProductos(str) {
-  var rows = parseProductos(str).filter(function(r) { return r.nombre; });
-  var cont = document.getElementById('productos-tabla');
-  if (!rows.length) { cont.textContent = 'Sin productos indicados.'; return; }
-  var cell = 'padding:6px 8px;font-size:12px;color:#374151;border-bottom:1px solid #e5e7eb;';
-  var th   = 'padding:6px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;background:#f0fdf4;border-bottom:2px solid #c8e6c9;';
-  cont.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
-    '<thead><tr>' +
-    '<th style="' + th + 'text-align:left">Producto</th>' +
-    '<th style="' + th + 'text-align:left;width:60px">Cant.</th>' +
-    '<th style="' + th + 'text-align:left;width:70px">Unid.</th>' +
-    '<th style="' + th + 'text-align:left;width:80px">Precio</th>' +
-    '</tr></thead><tbody>' +
-    rows.map(function(r) {
-      return '<tr>' +
-        '<td style="' + cell + '">' + r.nombre + '</td>' +
-        '<td style="' + cell + '">' + (r.cantidad || '—') + '</td>' +
-        '<td style="' + cell + '">' + (r.unidad || '—') + '</td>' +
-        '<td style="' + cell + '">' + (r.precio ? '$ ' + r.precio : '—') + '</td>' +
-      '</tr>';
-    }).join('') +
-    '</tbody></table>';
 }
 
 // ── PRE-LLENADO POR URL ─────────────────────────────────────
@@ -301,60 +254,16 @@ function renderTablaProductos(str) {
   const p = new URLSearchParams(window.location.search);
   const set = (id, val) => { if (val) document.getElementById(id).value = val; };
 
-  function poblarFormulario(pedido) {
-    set('proveedor',    pedido.proveedor);
-    set('norden',       pedido.norden);
-    set('lugar',        pedido.lugar || '');
-    set('fecha_retiro', pedido.fecha_retiro || '');
-    set('fecha_escuela',pedido.fecha_escuela || '');
-    // Notas del pedido — read-only
-    if (pedido.notas) {
-      document.getElementById('notas-pedido-texto').textContent = pedido.notas;
-      document.getElementById('notas-pedido-wrap').style.display = '';
-      document.getElementById('notas').value = pedido.notas;
-    }
-    set('fgp',          pedido.fgp || '');
-    if (pedido.quien) {
-      const sel = document.getElementById('retira');
-      for (let i = 0; i < sel.options.length; i++) {
-        if (sel.options[i].text === pedido.quien) { sel.selectedIndex = i; break; }
-      }
-    }
-    const productoStr = pedido.productos || pedido.producto || '';
-    document.getElementById('producto').value = productoStr;
-    renderTablaProductos(productoStr);
-  }
-
-  const id = p.get('id');
-  if (id) {
-    // Cargar pedido desde GAS por ID
-    document.getElementById('productos-tabla').textContent = 'Cargando pedido…';
-    fetch(SCRIPT_URL + '?action=getPedido&id=' + encodeURIComponent(id))
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.ok && data.pedido) {
-          poblarFormulario(data.pedido.pedido || data.pedido);
-        } else {
-          document.getElementById('productos-tabla').textContent = 'No se encontró el pedido.';
-        }
-      })
-      .catch(function() {
-        document.getElementById('productos-tabla').textContent = 'Error al cargar. Recargá la página.';
-      });
-    return;
-  }
-
-  // Fallback: params individuales (retrocompatibilidad)
   set('proveedor',    p.get('proveedor'));
+  set('producto',     p.get('producto'));
+  set('cantidad',     p.get('cantidad'));
+  set('unidad',       p.get('unidad'));
   set('norden',       p.get('norden'));
   set('lugar',        p.get('lugar'));
   set('fecha_retiro', p.get('fecha_retiro'));
   set('fecha_escuela',p.get('fecha_escuela'));
   set('notas',        p.get('notas'));
   set('fgp',          p.get('fgp'));
-  const productoStr = p.get('producto') || '';
-  document.getElementById('producto').value = productoStr;
-  renderTablaProductos(productoStr);
 
   // Seleccionar "retira" si viene por URL
   const retira = p.get('retira');
@@ -381,10 +290,11 @@ document.getElementById('formRetiro').addEventListener('submit', async function(
     lugar:         document.getElementById('lugar').value.trim(),
     fecha_retiro:  document.getElementById('fecha_retiro').value,
     fecha_escuela: document.getElementById('fecha_escuela').value,
-    norden:        document.getElementById('norden').value.trim(),
-    notas:              document.getElementById('notas').value.trim(),
-    comentarios_retiro: document.getElementById('comentarios_retiro').value.trim(),
-    fgp:                document.getElementById('fgp').value.trim(),
+    cantidad:        document.getElementById('cantidad').value.trim(),
+    unidad:          document.getElementById('unidad').value.trim(),
+    norden:          document.getElementById('norden').value.trim(),
+    notas:           document.getElementById('notas').value.trim(),
+    fgp:             document.getElementById('fgp').value.trim(),
     telefono_manual: document.getElementById('telefono_manual').value.trim()
   };
 
