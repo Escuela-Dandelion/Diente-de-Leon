@@ -1363,7 +1363,8 @@ var AUTH_EMAILS = {
   'karytramitesescolares@gmail.com': { role: 'referente', name: 'Karina' },    // 7mo
   'dominguezgabydl@gmail.com':       { role: 'referente', name: 'Gaby' },      // 5to
   'yaninafuentes33@gmail.com':       { role: 'referente', name: 'Yana' },      // 5to
-  'ariasgibertsabina@gmail.com':     { role: 'referente', name: 'Sabi' }       // 9no
+  'ariasgibertsabina@gmail.com':     { role: 'referente', name: 'Sabi' },      // 9no
+  'dolo.dominguez@dandelion.edu.ar': { role: 'referente', name: 'Dolo' }       // 2do
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
 
