@@ -1359,7 +1359,8 @@ var AUTH_EMAILS = {
   'paola@bodegatres.com.ar':         { role: 'referente', name: 'Paola' },   // 2do grado
   'monicachesta@gmail.com':          { role: 'referente', name: 'Monica' },
   'delfinasalvettilarrea@gmail.com': { role: 'referente', name: 'Delfina' },  // 6to / 10mo
-  'jdiaz.elencuentro@gmail.com':     { role: 'referente', name: 'Juan' }       // 8vo
+  'jdiaz.elencuentro@gmail.com':     { role: 'referente', name: 'Juan' },      // 8vo
+  'karytramitesescolares@gmail.com': { role: 'referente', name: 'Karina' }     // 7mo
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
 
