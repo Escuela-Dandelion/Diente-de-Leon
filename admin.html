@@ -403,7 +403,6 @@
           <div style="font-size:20px;font-weight:800;color:#166534" id="qr-pedido-numero"></div>
           <div style="font-size:14px;color:#374151;margin-top:4px" id="qr-pedido-nombre"></div>
           <div style="font-size:13px;color:#6b7280;margin-top:8px" id="qr-pedido-productos"></div>
-          <div style="font-size:16px;font-weight:700;color:#2d5a27;margin-top:8px" id="qr-pedido-total"></div>
         </div>
         <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#374151">
           Entregando como: <strong id="qr-quien-label">—</strong>
@@ -1396,7 +1395,6 @@ function onQRScanned(url) {
       document.getElementById('qr-pedido-numero').textContent = 'Pedido #' + d.order.number;
       document.getElementById('qr-pedido-nombre').textContent = d.order.contact_name;
       document.getElementById('qr-pedido-productos').innerHTML = (d.order.products||[]).map(function(p){ return p.quantity + 'x <strong>' + p.name + '</strong>'; }).join('<br>');
-      document.getElementById('qr-pedido-total').textContent = fmtPesosAR(d.order.total);
       document.getElementById('qr-quien-label').textContent = _qrUser ? _qrUser.name : '—';
       document.getElementById('qr-pedido-wrap').style.display = 'block';
     })
