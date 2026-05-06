@@ -319,9 +319,9 @@ function getSheet() {
   var sheet = ss.getSheetByName('Retiros');
   if (!sheet) {
     sheet = ss.insertSheet('Retiros');
-    sheet.appendRow(['ID interno','Pedido #','Nombre','Email','Productos','Total','Fecha','Estado']);
+    sheet.appendRow(['ID interno','Pedido #','Nombre','Email','Productos','Total','Fecha','Estado','Staff','Notas','Grado']);
     sheet.setFrozenRows(1);
-    sheet.getRange(1,1,1,8).setFontWeight('bold');
+    sheet.getRange(1,1,1,11).setFontWeight('bold');
   }
   return sheet;
 }
@@ -340,7 +340,10 @@ function registrarEnSheet(order, token) {
     productos,
     order.total,
     new Date(),
-    'PENDIENTE'
+    'PENDIENTE',
+    '',  // col 9: Staff (se completa al entregar)
+    '',  // col 10: Notas (se completa al entregar)
+    String(order.note || order.notes || '').trim()  // col 11: Grado (nota del comprador en TN)
   ]);
 }
 
@@ -1488,7 +1491,8 @@ function getRetirosData(estadoFiltro, diasFiltro) {
     var estado        = String(row[7] || '');
     var entregado     = estado.indexOf('ENTREGADO') !== -1;
     var fechaEntrega  = entregado ? estado.replace('ENTREGADO ✓ — ', '').trim() : '';
-    var staff         = String(row[8] || '').replace('.', ' ').trim();
+    var staffRaw      = String(row[8] || '').trim();                   // 'Juan.Diaz' — para lookup de grado
+    var staff         = staffRaw.replace('.', ' ');                    // 'Juan Diaz' — para mostrar
     var fechaPedido   = '';
     try { fechaPedido = row[6] ? Utilities.formatDate(new Date(row[6]), 'America/Argentina/Cordoba', 'dd/MM/yyyy') : ''; } catch(e) {}
     // Filtro por estado
@@ -1516,7 +1520,7 @@ function getRetirosData(estadoFiltro, diasFiltro) {
       estado:       entregado ? 'Entregado' : 'Pendiente',
       fechaEntrega: fechaEntrega,
       staff:        staff,
-      grado:        staffToGrado(staff),
+      grado:        staffToGrado(staffRaw) || String(row[10] || '').trim(),
       notas:        String(row[9] || '')
     });
   }
