@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agendamiento de Retiro — Diente de León</title>
+<script src="https://accounts.google.com/gsi/client" defer></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; color: #2d2d2d; background: #f9fafb; padding: 20px 16px; max-width: 800px; margin: 0 auto; }
@@ -72,6 +73,18 @@
 </style>
 </head>
 <body>
+
+<!-- ── AUTH OVERLAY ── -->
+<div id="auth-overlay" style="position:fixed;inset:0;background:#f9fafb;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:20px;padding:40px 32px;max-width:360px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08);text-align:center">
+    <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" style="max-width:110px;margin-bottom:20px" alt="Diente de León">
+    <h2 style="font-size:17px;color:#1a1a2e;margin-bottom:6px">Agendamiento de Retiro</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:24px">Iniciá sesión con tu cuenta Google autorizada</p>
+    <div id="g_id_signin" style="display:flex;justify-content:center"></div>
+    <p id="auth-error" style="color:#e63946;font-size:13px;margin-top:14px;display:none"></p>
+    <p style="font-size:11px;color:#ccc;margin-top:20px">Solo Comisión de Recursos / FGP</p>
+  </div>
+</div>
 
 <a href="pedidos.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#3a7d44;text-decoration:none;margin-bottom:10px">← Pedidos</a>
 
@@ -184,6 +197,51 @@
 </div>
 
 <script>
+// ── AUTH (Google Sign-In) ──────────────────────────────────
+var AUTH_GAS_URL     = 'https://script.google.com/macros/s/AKfycbwt8mRYjjFZtsmFPw0JYcMpCkZcOt9J7ALFVkPByqQ8NM2NvCaYF1onagU_ag0a2ziksg/exec';
+var AUTH_CLIENT_ID   = '308208183848-mcirv9g7cttetoa4eb1k6gt9p8chcr16.apps.googleusercontent.com';
+var AUTH_SESSION_KEY = 'ddl_gmail_session';
+var AUTH_SESSION_TTL = 8 * 60 * 60 * 1000;
+
+function authSave(email, role, name) {
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ email: email, role: role, name: name, ts: Date.now() }));
+}
+function authRead() {
+  try { var s = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) || 'null'); return s && (Date.now()-s.ts) < AUTH_SESSION_TTL ? s : null; } catch(e) { return null; }
+}
+function authHandleCredential(resp) {
+  var payload = JSON.parse(atob(resp.credential.split('.')[1]));
+  authVerify(payload.email);
+}
+function authVerify(email) {
+  var errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  fetch(AUTH_GAS_URL + '?action=api_auth&email=' + encodeURIComponent(email), { redirect: 'follow' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok && ['ADMIN','FGP'].indexOf(d.role) !== -1) {
+        authSave(email, d.role, d.name);
+        document.getElementById('auth-overlay').style.display = 'none';
+        onAuthReady(d);
+      } else {
+        errEl.textContent = d.error || 'Sin acceso a esta sección.';
+        errEl.style.display = 'block';
+      }
+    })
+    .catch(function() { errEl.textContent = 'Error de conexión.'; errEl.style.display = 'block'; });
+}
+function onAuthReady(user) { /* página lista, sin init adicional */ }
+window.addEventListener('load', function() {
+  var s = authRead();
+  if (s && ['ADMIN','FGP'].indexOf(s.role) !== -1) {
+    document.getElementById('auth-overlay').style.display = 'none';
+    onAuthReady(s);
+    return;
+  }
+  google.accounts.id.initialize({ client_id: AUTH_CLIENT_ID, callback: authHandleCredential });
+  google.accounts.id.renderButton(document.getElementById('g_id_signin'), { theme: 'outline', size: 'large', locale: 'es' });
+});
+
 // ── TELÉFONO MANUAL ─────────────────────────────────────────
 function onRetiraChange() {
   const retira = document.getElementById('retira').value;

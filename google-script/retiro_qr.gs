@@ -10,7 +10,7 @@ var CONFIG = {
     'Yuliana.Longhi ':   'PYL26',   // Jardín
     'Maria.Martini ':    'PMM26',   // Jardín
     'Ines.Robertson':    'PIR26',   // 4to
-    'Delfina.Salvetti':  'PDS26',   // 6to
+    'Delfina.Salvetti':  'PDS26',   // 6to / 10mo
     'Dolo.Dominguez':    'PDD26',   // 2do
     'Gaby.Dominguez':    'PGD26',   // 5to
     'Juan.Diaz':         'PJD26',   // 8vo
@@ -29,7 +29,7 @@ var CONFIG = {
     'PYL26',  // Yuliana Longhi   — Jardín
     'PMM26',  // Maria Martini    — Jardín
     'PIR26',  // Ines Robertson   — 4to
-    'PDS26',  // Delfina Salvetti — 6to
+    'PDS26',  // Delfina Salvetti — 6to / 10mo
     'PDD26',  // Dolo Dominguez   — 2do
     'PGD26',  // Gaby Dominguez   — 5to
     'PJD26',  // Juan Diaz        — 8vo
@@ -52,6 +52,22 @@ var CONFIG = {
     'Anabella.Gargiulo':   'PAG26',   // Comisión de Recursos — sin acceso QR
     'Hector.Larrea':       'PHL26'    // Prof. Héctor Larrea — solo Dashboard General
   },
+
+  // Solo Dashboard Referentes — no pueden ver Dashboard General ni Pedidos
+  REFERENTE_PINS: [
+    'PJD26',  // Juan Diaz        — 8vo
+    'PK26',   // Karina           — 7mo
+    'PDD26',  // Dolo Dominguez   — 2do
+    'PGD26',  // Gaby Dominguez   — 5to
+    'PDS26',  // Delfina Salvetti — 6to / 10mo
+    'PP26',   // Paola            — 2do
+    'PMC26',  // Monica Chesta    — —
+    'PPI26',  // Pia              — 11vo
+    'PSA26',  // Sabi             — 9no
+    'PYA26',  // Yana             — 5to
+    'PEL26',  // Elina            — 3ro
+    'PCL26'   // Claudio          — Tiendita
+  ]
 
 };
 
@@ -155,6 +171,11 @@ function doGetInterno(e) {
     var retiros = getRetirosData(estadoFiltro, diasFiltro);
     return ContentService.createTextOutput(JSON.stringify({ ok: true, retiros: retiros }))
       .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'api_auth') {
+    var res = apiAuthEmail(e.parameter.email || '');
+    return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
   }
 
   if (action === 'api_dashboard') {
@@ -1105,7 +1126,7 @@ function enviarPinsReferentes() {
     { nombre: 'Ines',    grado: '4to',    pin: 'PIR26',  tel: '5493512112050' },
     { nombre: 'Yuliana', grado: 'Jardín', pin: 'PYL26',  tel: '5493513645612' },
     { nombre: 'Maria',   grado: 'Jardín', pin: 'PMM26',  tel: '5493516865078' },
-    { nombre: 'Delfina', grado: '6to',    pin: 'PDS26',  tel: '5493543512538' },
+    { nombre: 'Delfina', grado: '6to / 10mo', pin: 'PDS26',  tel: '5493543512538' },
     { nombre: 'Dolo',    grado: '2do',    pin: 'PDD26',  tel: '5493516523262' },
     { nombre: 'Gaby',    grado: '5to',    pin: 'PGD26',  tel: '5493517076221' },
     { nombre: 'Juan',    grado: '8vo',    pin: 'PJD26',  tel: '5493515514893' },
@@ -1209,16 +1230,28 @@ function _enviarPinDashboard(nombre, pin, tel) {
 }
 
 // ──────────────────────────────────────────────────────────
+// AUTH API — validación liviana por email (sin cargar datos)
+// ──────────────────────────────────────────────────────────
+
+function apiAuthEmail(email) {
+  if (!email) return { ok: false, error: 'Email requerido.' };
+  var user = AUTH_EMAILS[email.toLowerCase().trim()];
+  if (!user) return { ok: false, error: 'Email no autorizado.' };
+  return { ok: true, role: user.role, name: user.name };
+}
+
+// ──────────────────────────────────────────────────────────
 // DASHBOARD API
 // ──────────────────────────────────────────────────────────
 
 function apiDashboard(pin, email) {
   var pinValido = false;
+  var userRole  = 'staff';
 
   // Bypass por email (sesión Google del admin)
   if (email) {
     var authUser = AUTH_EMAILS[email.toLowerCase().trim()];
-    if (authUser) pinValido = true;
+    if (authUser) { pinValido = true; userRole = authUser.role || 'staff'; }
   }
 
   // Validar PIN contra STAFF_PINS y DASHBOARD_PINS
@@ -1227,7 +1260,11 @@ function apiDashboard(pin, email) {
     for (var g = 0; g < allPins.length; g++) {
       var keys = Object.keys(allPins[g]);
       for (var i = 0; i < keys.length; i++) {
-        if (allPins[g][keys[i]] === pin) { pinValido = true; break; }
+        if (allPins[g][keys[i]] === pin) {
+          pinValido = true;
+          if (CONFIG.REFERENTE_PINS.indexOf(pin) !== -1) userRole = 'referente';
+          break;
+        }
       }
       if (pinValido) break;
     }
@@ -1290,6 +1327,7 @@ function apiDashboard(pin, email) {
 
   return {
     ok:            true,
+    role:          userRole,
     rows:          rows,
     meses_todos:   Object.keys(mesesSet).sort(),
     total_pedidos: Object.keys(pedidosSet).length,
@@ -1314,7 +1352,11 @@ var AUTH_EMAILS = {
   'avilaclaudio1905@gmail.com':      { role: 'referente', name: 'Claudio' },
   'pialucarno@gmail.com':            { role: 'referente', name: 'Pia' },
   'beluravaza@gmail.com':            { role: 'ADMIN',     name: 'Belén' },
-  'elinapipino8@gmail.com':          { role: 'referente', name: 'Elina' }
+  'elinapipino8@gmail.com':          { role: 'referente', name: 'Elina' },
+  'paola@bodegatres.com.ar':         { role: 'referente', name: 'Paola' },   // 2do grado
+  'monicachesta@gmail.com':          { role: 'referente', name: 'Monica' },
+  'delfinasalvettilarrea@gmail.com': { role: 'referente', name: 'Delfina' },  // 6to / 10mo
+  'jdiaz.elencuentro@gmail.com':     { role: 'referente', name: 'Juan' }       // 8vo
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
 

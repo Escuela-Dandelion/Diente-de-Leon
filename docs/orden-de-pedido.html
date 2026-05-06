@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orden de Pedido — Escuela Dandelion / Diente de León</title>
+<script src="https://accounts.google.com/gsi/client" defer></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; color: #2d2d2d; background: #f9fafb; padding: 20px 16px; max-width: 800px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #fff; border-radius: 10px; border-bottom: 3px solid #3a7d44; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .logo img { max-height: 60px; width: auto; object-fit: contain; display: block; }
+  .header-right { text-align: right; flex: 1; padding-left: 12px; }
+  .header-right h1 { font-size: 20px; font-weight: 800; color: #3a7d44; letter-spacing: 0.5px; }
+  .header-right p { font-size: 11px; color: #6b7280; margin-top: 4px; }
+
+  /* SECCIÓN */
+  .section { margin-bottom: 16px; background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3a7d44; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #c8e6c9; }
+
+  /* GRILLA CAMPOS */
+  .grid { display: grid; gap: 12px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field label { display: block; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .field input, .field textarea, .field select {
+    width: 100%; border: 1px solid #d1d5db; border-radius: 8px;
+    padding: 10px 12px; font-size: 15px; font-family: inherit;
+    background: #f9fafb; color: #2d2d2d;
+    -webkit-appearance: none; appearance: none;
+    min-height: 44px; box-sizing: border-box;
+  }
+  .field input:focus, .field textarea:focus {
+    outline: none; border-color: #3a7d44; background: #fff;
+    box-shadow: 0 0 0 3px rgba(58,125,68,0.12);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field .line { border-bottom: 1px solid #9ca3af; min-height: 22px; }
+
+  /* TABLA DE PRODUCTOS */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }
+  .prod-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 13px; }
+  .prod-table th { background: #e8f5e9; color: #3a7d44; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 6px; text-align: left; border: 1px solid #c8e6c9; white-space: nowrap; }
+  .prod-table td { padding: 0; border: 1px solid #e0e0e0; vertical-align: top; }
+  .prod-table td input { width: 100%; border: none; background: transparent; padding: 8px 6px; font-size: 13px; font-family: inherit; color: #2d2d2d; white-space: normal; word-break: break-word; }
+  .prod-table td.col-producto input { min-height: 38px; height: auto; word-break: break-word; }
+  .prod-table td input:focus { outline: none; background: #f0fdf4; }
+  .prod-table tr:nth-child(even) td { background: #fafafa; }
+
+  /* FIRMAS */
+  .firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+  .firma-box { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 2px solid #3a7d44; text-align: center; font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; min-height: 80px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; }
+
+  /* FOOTER */
+  .footer { margin-top: 32px; padding-top: 12px; border-top: 1px solid #e0e0e0; text-align: center; font-size: 10px; color: #9ca3af; }
+
+  /* MOBILE */
+  @media (max-width: 600px) {
+    body { padding: 12px 10px; font-size: 15px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .header-right { text-align: left; padding-left: 0; }
+    .header-right h1 { font-size: 16px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .firmas { grid-template-columns: 1fr; }
+    .logo img { max-height: 50px; }
+  }
+  /* PRINT */
+  @media print {
+    body { background: #fff; padding: 20px 28px; font-size: 12px; }
+    .section, .firmas, .firma-box { box-shadow: none; border-radius: 0; }
+    @page { margin: 1.5cm; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── AUTH OVERLAY ── -->
+<div id="auth-overlay" style="position:fixed;inset:0;background:#f9fafb;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:20px;padding:40px 32px;max-width:360px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08);text-align:center">
+    <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" style="max-width:110px;margin-bottom:20px" alt="Diente de León">
+    <h2 style="font-size:17px;color:#1a1a2e;margin-bottom:6px">Orden de Pedido</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:24px">Iniciá sesión con tu cuenta Google autorizada</p>
+    <div id="g_id_signin" style="display:flex;justify-content:center"></div>
+    <p id="auth-error" style="color:#e63946;font-size:13px;margin-top:14px;display:none"></p>
+    <p style="font-size:11px;color:#ccc;margin-top:20px">Solo Comisión de Recursos / FGP</p>
+  </div>
+</div>
+
+  <a href="pedidos.html" style="display:inline-flex !important;align-items:center;gap:6px;font-size:13px !important;font-weight:700 !important;color:#3a7d44 !important;text-decoration:none !important;margin-bottom:10px;opacity:1 !important;visibility:visible !important">&larr; Pedidos</a>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Escuela Dandelión">
+    </div>
+    <div class="header-right">
+      <h1>Orden de Pedido</h1>
+      <p>Escuela Dandelion / Diente de León</p>
+      <p>dientedeleon-admin@googlegroups.com</p>
+    </div>
+  </div>
+
+  <!-- DATOS GENERALES -->
+  <div class="section">
+    <div class="section-title">Datos del Pedido</div>
+    <div class="grid grid-3">
+      <div class="field"><label>Fecha del pedido</label><input id="f-fecha" type="date"></div>
+      <div class="field"><label>Fecha de entrega solicitada</label><input id="f-entrega" type="date"></div>
+      <div class="field"><label>N° de Orden</label><input id="f-norden" type="text" placeholder="Generando…" readonly style="background:#f0fdf4;color:#3a7d44;font-weight:700;cursor:default"></div>
+    </div>
+  </div>
+
+  <!-- PROVEEDOR Y FGP -->
+  <div class="section">
+    <div class="section-title">Proveedor y Responsable</div>
+    <div class="grid grid-2">
+      <div class="field"><label>Proveedor</label><input id="f-proveedor" type="text"></div>
+      <div class="field"><label>Responsable (FGP)</label><input id="f-fgp" type="text"></div>
+      <div class="field"><label>Teléfono del proveedor</label><input id="f-tel" type="tel" inputmode="numeric"></div>
+      <div class="field"><label>Forma de pago acordada</label><input id="f-pago" type="text"></div>
+    </div>
+  </div>
+
+  <!-- PRODUCTOS -->
+  <div class="section">
+    <div class="section-title">Productos Solicitados</div>
+    <div class="table-wrap">
+    <table class="prod-table">
+      <thead>
+        <tr>
+          <th style="width:50%">Producto</th>
+          <th style="width:12%">Unid.</th>
+          <th style="width:12%">Cant.</th>
+          <th style="width:26%">Precio</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-productos">
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+        <tr><td class="col-producto"><input class="p-nombre" type="text" placeholder="Producto"></td><td><input class="p-unid" type="text" placeholder="Unid."></td><td><input class="p-cant" type="text" placeholder="Cant." inputmode="numeric"></td><td><input class="p-precio" type="text" placeholder="$ precio"></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div style="display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:10px; padding:4px 2px;">
+      <span style="font-size:12px; font-weight:700; color:#3a7d44; text-transform:uppercase; letter-spacing:0.5px;">Total estimado</span>
+      <input id="f-total" type="text" readonly placeholder="$0" style="width:160px; border:1px solid #c8e6c9; border-radius:8px; padding:10px 12px; font-size:16px; font-weight:800; color:#3a7d44; background:#f0fdf4; text-align:right; cursor:default;">
+    </div>
+  </div>
+
+  <!-- OBSERVACIONES -->
+  <div class="section">
+    <div class="section-title">Observaciones</div>
+    <div class="field"><textarea id="f-obs" rows="3" placeholder="Notas, aclaraciones, condiciones especiales..."></textarea></div>
+  </div>
+
+  <!-- BOTÓN WHATSAPP -->
+  <div style="margin: 20px 0 8px; display:flex; justify-content:center;">
+    <button onclick="enviarPedido()" style="
+      background: #25d366; color: #fff; border: none; border-radius: 12px;
+      padding: 16px 32px; font-size: 17px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 10px; box-shadow: 0 3px 12px rgba(37,211,102,.35);
+      width: 100%; justify-content: center; max-width: 400px; margin: 0 auto;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviar pedido al proveedor
+    </button>
+  </div>
+
+  <!-- FIRMAS -->
+  <div class="firmas">
+    <div class="firma-box">Firma Responsable (FGP)</div>
+    <div class="firma-box">Firma Proveedor</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Diente de León · Escuela Dandelión Pedagogía Waldorf · Córdoba, Argentina
+  </div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+
+  // ── TOTAL AUTO-CALCULADO ────────────────────────────────────────────────────
+  function parsePrecio(str) {
+    // Formato argentino: 1.500 o 1.500,50 → punto = miles, coma = decimal
+    const limpio = str.replace(/[^\d.,]/g, '');
+    return parseFloat(limpio.replace(/\./g, '').replace(',', '.')) || 0;
+  }
+
+  function recalcularTotal() {
+    let total = 0;
+    document.querySelectorAll('#tbody-productos tr').forEach(function(fila) {
+      const c  = parseFloat(fila.querySelector('.p-cant').value)  || 0;
+      const pr = parsePrecio(fila.querySelector('.p-precio').value);
+      total += c * pr;
+    });
+    const campo = document.getElementById('f-total');
+    campo.value = total > 0 ? '$ ' + total.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : '';
+    return total;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.p-cant, .p-precio').forEach(function(input) {
+      input.addEventListener('input', recalcularTotal);
+    });
+  });
+
+  // ── PRE-LLENADO DESDE URL PARAMS ──────────────────────────────────────────
+  (function() {
+    const p = new URLSearchParams(window.location.search);
+
+    // Fecha de hoy por defecto
+    document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
+
+    if (p.get('proveedor')) document.getElementById('f-proveedor').value = p.get('proveedor');
+    if (p.get('tel'))       document.getElementById('f-tel').value       = p.get('tel');
+    if (p.get('fgp'))       document.getElementById('f-fgp').value       = p.get('fgp');
+    if (p.get('pago'))      document.getElementById('f-pago').value      = p.get('pago');
+    if (p.get('norden'))    document.getElementById('f-norden').value    = p.get('norden');
+    if (p.get('obs'))       document.getElementById('f-obs').value       = p.get('obs');
+
+    // Productos de la URL → una fila por producto (separados por |)
+    const nombres    = p.get('producto') ? p.get('producto').split('|') : [];
+    const cantidades = p.get('cantidad') ? p.get('cantidad').split('|') : [];
+    const precios    = p.get('precio')   ? p.get('precio').split('|')   : [];
+    const unidades   = p.get('unidad')   ? p.get('unidad').split('|')   : [];
+
+    const filasProd  = document.querySelectorAll('.p-nombre');
+    nombres.forEach(function(nombre, i) {
+      if (i >= filasProd.length) return;
+      document.querySelectorAll('.p-nombre')[i].value = nombre || '';
+      document.querySelectorAll('.p-unid')[i].value   = unidades[i] || '';
+      document.querySelectorAll('.p-cant')[i].value   = '';  // FGP define la cantidad a pedir
+      document.querySelectorAll('.p-precio')[i].value = precios[i]  || '';
+    });
+    recalcularTotal();
+  })();
+
+  // ── GENERAR WHATSAPP ───────────────────────────────────────────────────────
+  function enviarPedido() {
+    const tel       = document.getElementById('f-tel').value.trim().replace(/\D/g, '');
+    const proveedor = document.getElementById('f-proveedor').value.trim();
+    const fgp       = document.getElementById('f-fgp').value.trim();
+    const fecha     = document.getElementById('f-fecha').value;
+    const norden    = document.getElementById('f-norden').value.trim();
+    const pago      = document.getElementById('f-pago').value.trim();
+    const obs       = document.getElementById('f-obs').value.trim();
+
+    if (!tel) { alert('Completá el teléfono del proveedor antes de enviar.'); return; }
+
+    // Armar líneas de productos
+    let lineasProd = '';
+    const filas = document.querySelectorAll('#tbody-productos tr');
+    filas.forEach(function(fila) {
+      const n  = fila.querySelector('.p-nombre').value.trim();
+      if (!n) return;
+      const u  = fila.querySelector('.p-unid').value.trim();
+      const c  = fila.querySelector('.p-cant').value.trim();
+      const pr = fila.querySelector('.p-precio').value.trim();
+      const detalle = [c ? '📦 Cant: ' + c : null, pr ? '💲 $' + pr : null].filter(Boolean).join('  ·  ');
+      lineasProd += `• *${n}*${u ? ' (' + u + ')' : ''}\n${detalle ? '   ' + detalle + '\n' : ''}`;
+    });
+
+    if (!lineasProd) { alert('Agregá al menos un producto antes de enviar.'); return; }
+
+    // Formatear fecha dd/mm/aaaa
+    const fechaFmt = fecha ? fecha.split('-').reverse().join('/') : fecha;
+
+    recalcularTotal(); // asegura que f-total esté actualizado
+    const totalCampo = document.getElementById('f-total').value;
+    const total      = parseFloat(totalCampo.replace(/[^\d.,]/g, '').replace(/\./g,'').replace(',','.')) || 0;
+    const totalStr   = totalCampo ? totalCampo : null;
+
+    const partes = [
+      `🌼 *Orden de Pedido — Diente de León*`,
+      `━━━━━━━━━━━━━━━━━━━`,
+      norden    ? `🔢 N° ${norden}` : null,
+      `📅 Fecha: ${fechaFmt}`,
+      proveedor ? `🏪 Proveedor: ${proveedor}` : null,
+      ``,
+      `📦 *Productos solicitados:*`,
+      lineasProd.trimEnd(),
+      totalStr  ? `💰 *Total: ${totalStr}*` : null,
+      pago      ? `\n💳 Forma de pago: ${pago}` : null,
+      obs       ? `📝 ${obs}` : null,
+      `━━━━━━━━━━━━━━━━━━━`,
+      `✍️ Responsable: ${fgp || 'FGP Diente de León'}`,
+      `🌻 Escuela Dandelion · Waldorf · Córdoba`
+    ].filter(function(l) { return l !== null; }).join('\n');
+
+    const numFinal = tel.startsWith('549') ? tel : '549' + tel;
+    window.open('https://wa.me/' + numFinal + '?text=' + encodeURIComponent(partes), '_blank');
+
+    // Registrar en Sheet (silent — no bloquea si falla)
+    const filasValidas = Array.from(document.querySelectorAll('#tbody-productos tr')).map(function(fila) {
+      const n = fila.querySelector('.p-nombre').value.trim();
+      if (!n) return null;
+      return {
+        nombre:   n,
+        cantidad: fila.querySelector('.p-cant').value.trim(),
+        unidad:   fila.querySelector('.p-unid').value.trim(),
+        precio:   String(parsePrecio(fila.querySelector('.p-precio').value))
+      };
+    }).filter(Boolean);
+
+    const productosStr = filasValidas.map(function(r) {
+      return r.nombre + (r.cantidad ? ' x' + r.cantidad : '') + (r.unidad ? ' ' + r.unidad : '') + (r.precio ? ' ($' + r.precio + ')' : '');
+    }).join(' | ');
+
+    // Si hay un único producto, mandamos cantidad/unidad/precio separados (para fórmula en Sheet)
+    const esSolo   = filasValidas.length === 1;
+    const soloCant = esSolo ? filasValidas[0].cantidad : '';
+    const soloUnid = esSolo ? filasValidas[0].unidad   : '';
+    const soloPrEC = esSolo ? filasValidas[0].precio    : '';
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action:    'registrarPedido',
+        norden:    norden,
+        fecha:     fechaFmt,
+        proveedor: proveedor,
+        fgp:       fgp,
+        productos: productosStr,
+        cantidad:  soloCant,
+        unidad:    soloUnid,
+        precio:    soloPrEC,
+        total:     total > 0 ? String(total) : '',
+        notas:     obs
+      })
+    }).catch(function() {});
+  }
+// ── CORRELATIVO AUTOMÁTICO ──────────────────────────────────
+  (async function generarCorrelativo() {
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1NmjnYWllrXrFpJI8GYJOjkGz90lPtvvDi0IQEYZl7-I/export?format=csv&gid=857535467';
+    const input = document.getElementById('f-norden');
+    try {
+      const resp = await fetch(SHEET_CSV + '&t=' + Date.now());
+      const text = await resp.text();
+      const lineas = text.trim().split('\n').slice(1);
+      const anio = new Date().getFullYear();
+      let max = 0;
+      lineas.forEach(function(l) {
+        const col = l.split(',')[0].replace(/"/g, '').trim();
+        const m = col.match(/^ORD-(\d{4})-(\d+)$/);
+        if (m && parseInt(m[1]) === anio) max = Math.max(max, parseInt(m[2]));
+      });
+      input.value = 'ORD-' + anio + '-' + String(max + 1).padStart(3, '0');
+    } catch(e) {
+      input.value = 'ORD-' + new Date().getFullYear() + '-???';
+      input.placeholder = 'Error al leer el Sheet';
+    }
+  })();
+
+// ── AUTH (Google Sign-In) ──────────────────────────────────
+var AUTH_GAS_URL     = 'https://script.google.com/macros/s/AKfycbwt8mRYjjFZtsmFPw0JYcMpCkZcOt9J7ALFVkPByqQ8NM2NvCaYF1onagU_ag0a2ziksg/exec';
+var AUTH_CLIENT_ID   = '308208183848-mcirv9g7cttetoa4eb1k6gt9p8chcr16.apps.googleusercontent.com';
+var AUTH_SESSION_KEY = 'ddl_gmail_session';
+var AUTH_SESSION_TTL = 8 * 60 * 60 * 1000;
+
+function authSave(email, role, name) {
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ email: email, role: role, name: name, ts: Date.now() }));
+}
+function authRead() {
+  try { var s = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) || 'null'); return s && (Date.now()-s.ts) < AUTH_SESSION_TTL ? s : null; } catch(e) { return null; }
+}
+function authHandleCredential(resp) {
+  var payload = JSON.parse(atob(resp.credential.split('.')[1]));
+  authVerify(payload.email);
+}
+function authVerify(email) {
+  var errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  fetch(AUTH_GAS_URL + '?action=api_auth&email=' + encodeURIComponent(email), { redirect: 'follow' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok && ['ADMIN','FGP'].indexOf(d.role) !== -1) {
+        authSave(email, d.role, d.name);
+        document.getElementById('auth-overlay').style.display = 'none';
+      } else {
+        errEl.textContent = d.error || 'Sin acceso a esta sección.';
+        errEl.style.display = 'block';
+      }
+    })
+    .catch(function() { errEl.textContent = 'Error de conexión.'; errEl.style.display = 'block'; });
+}
+window.addEventListener('load', function() {
+  var s = authRead();
+  if (s && ['ADMIN','FGP'].indexOf(s.role) !== -1) {
+    document.getElementById('auth-overlay').style.display = 'none';
+    return;
+  }
+  google.accounts.id.initialize({ client_id: AUTH_CLIENT_ID, callback: authHandleCredential });
+  google.accounts.id.renderButton(document.getElementById('g_id_signin'), { theme: 'outline', size: 'large', locale: 'es' });
+});
+</script>
+
+</body>
+</html>
