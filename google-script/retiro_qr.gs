@@ -1361,7 +1361,8 @@ var AUTH_EMAILS = {
   'delfinasalvettilarrea@gmail.com': { role: 'referente', name: 'Delfina' },  // 6to / 10mo
   'jdiaz.elencuentro@gmail.com':     { role: 'referente', name: 'Juan' },      // 8vo
   'karytramitesescolares@gmail.com': { role: 'referente', name: 'Karina' },    // 7mo
-  'dominguezgabydl@gmail.com':       { role: 'referente', name: 'Gaby' }       // 5to
+  'dominguezgabydl@gmail.com':       { role: 'referente', name: 'Gaby' },      // 5to
+  'yaninafuentes33@gmail.com':       { role: 'referente', name: 'Yana' }       // 5to
   // Agregar más emails de Staff acá con role: 'STAFF'
 };
 
