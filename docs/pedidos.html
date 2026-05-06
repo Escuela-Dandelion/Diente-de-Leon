@@ -544,6 +544,12 @@ function parseFechaSheet(str) {
   return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
 }
 
+// Parsea YYYY-MM-DD (input type=date) como fecha local para evitar desfase UTC
+function parseFechaFiltro(str) {
+  const [y, m, d] = str.split('-');
+  return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+}
+
 function aplicarFiltros() {
   let resultado = todosLosPedidos;
 
@@ -557,15 +563,15 @@ function aplicarFiltros() {
   const hasta = document.getElementById('fechaHasta').value;
 
   if (desde) {
-    const d = new Date(desde);
+    const d = parseFechaFiltro(desde);
     resultado = resultado.filter(p => {
       const f = parseFechaSheet(p.fecha);
       return f && f >= d;
     });
   }
   if (hasta) {
-    const h = new Date(hasta);
-    h.setHours(23,59,59);
+    const h = parseFechaFiltro(hasta);
+    h.setHours(23,59,59,999);
     resultado = resultado.filter(p => {
       const f = parseFechaSheet(p.fecha);
       return f && f <= h;
