@@ -1395,7 +1395,7 @@ function onQRScanned(url) {
       _qrData = { id: id, token: token, order: d.order };
       document.getElementById('qr-pedido-numero').textContent = 'Pedido #' + d.order.number;
       document.getElementById('qr-pedido-nombre').textContent = d.order.contact_name;
-      document.getElementById('qr-pedido-productos').textContent = (d.order.products||[]).map(function(p){ return p.quantity + 'x ' + p.name; }).join(' · ');
+      document.getElementById('qr-pedido-productos').innerHTML = (d.order.products||[]).map(function(p){ return p.quantity + 'x <strong>' + p.name + '</strong>'; }).join('<br>');
       document.getElementById('qr-pedido-total').textContent = fmtPesosAR(d.order.total);
       document.getElementById('qr-quien-label').textContent = _qrUser ? _qrUser.name : '—';
       document.getElementById('qr-pedido-wrap').style.display = 'block';
