@@ -469,7 +469,7 @@ window.addEventListener('load', function(){
   if (pin) { _doLogin(pin, false); return; }
   // Mostrar botón Google
   if (typeof google !== 'undefined') {
-    google.accounts.id.initialize({ client_id: '308208183848-61d09u9u2vlb6852hqi1rspevi2r2qbk.apps.googleusercontent.com', callback: onGoogleLoginDash });
+    google.accounts.id.initialize({ client_id: '308208183848-mcirv9g7cttetoa4eb1k6gt9p8chcr16.apps.googleusercontent.com', callback: onGoogleLoginDash });
     google.accounts.id.renderButton(document.getElementById('google-btn-dash'),
       { theme: 'outline', size: 'large', width: 280, text: 'signin_with', locale: 'es' });
   }

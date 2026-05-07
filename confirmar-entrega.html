@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmar Entrega — Diente de León</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f6f9; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .card {
+      background: #fff; border-radius: 20px; padding: 40px 32px;
+      width: 100%; max-width: 360px; text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+    .card img { max-width: 120px; margin-bottom: 24px; }
+    .icon { font-size: 56px; margin-bottom: 16px; }
+    h2 { font-size: 20px; color: #1a1a6e; margin-bottom: 8px; }
+    p  { font-size: 14px; color: #888; line-height: 1.5; }
+    .norden { font-size: 13px; color: #aaa; margin-top: 16px; }
+    .spinner {
+      width: 40px; height: 40px; border: 4px solid #e0e0e0;
+      border-top-color: #2e7d32; border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="card">
+  <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Diente de León">
+  <div id="estado-cargando">
+    <div class="spinner"></div>
+    <p>Registrando entrega…</p>
+  </div>
+  <div id="estado-ok" style="display:none">
+    <div class="icon">✅</div>
+    <h2>¡Entrega confirmada!</h2>
+    <p>La mercadería fue registrada como entregada en la escuela.</p>
+    <p class="norden" id="txt-norden"></p>
+  </div>
+  <div id="estado-error" style="display:none">
+    <div class="icon">❌</div>
+    <h2>Algo salió mal</h2>
+    <p id="txt-error">No se pudo registrar la entrega.</p>
+    <p style="margin-top:12px;font-size:13px;color:#aaa">Avisale a la FGP para que lo actualice manualmente.</p>
+  </div>
+</div>
+
+<script>
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbz-SRI6_udFy4ktEoE4lABW8RbDNDZAQ8cfC6ZjGKonSI2BY6R_fQZMeVIAU5tEQlzGBQ/exec';
+
+var params  = new URLSearchParams(window.location.search);
+var norden  = params.get('norden') || '';
+var quien   = params.get('quien')  || '';
+
+if (!norden) {
+  mostrarError('Link inválido: falta el N° de orden.');
+} else {
+  var url = GAS_URL
+    + '?action=updateEstado'
+    + '&norden='  + encodeURIComponent(norden)
+    + '&estado='  + encodeURIComponent('Entregado en Escuela')
+    + '&quien='   + encodeURIComponent(quien);
+
+  fetch(url, { redirect: 'follow' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        mostrarOk();
+      } else {
+        mostrarError(d.error || 'Error desconocido.');
+      }
+    })
+    .catch(function() {
+      mostrarError('Error de conexión. Intentá de nuevo.');
+    });
+}
+
+function mostrarOk() {
+  document.getElementById('estado-cargando').style.display = 'none';
+  document.getElementById('estado-ok').style.display = 'block';
+  if (norden) document.getElementById('txt-norden').textContent = 'N° Orden: ' + norden;
+}
+
+function mostrarError(msg) {
+  document.getElementById('estado-cargando').style.display = 'none';
+  document.getElementById('txt-error').textContent = msg;
+  document.getElementById('estado-error').style.display = 'block';
+}
+</script>
+</body>
+</html>

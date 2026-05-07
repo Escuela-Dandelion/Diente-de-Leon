@@ -248,8 +248,8 @@ function armarMensaje(data) {
   lineas.push(
     '━━━━━━━━━━━━━━━━',
     '',
-    '📲 *Cuando retires la mercadería, actualizá el estado acá:*',
-    'https://escuela-dandelion.github.io/Comision-Recursos/pedidos.html?id=' + (data.norden || ''),
+    '✅ *Cuando entregues la mercadería en la escuela, confirmalo tocando este link:*',
+    'https://escuela-dandelion.github.io/Comision-Recursos/confirmar-entrega.html?norden=' + encodeURIComponent(data.norden || '') + '&quien=' + encodeURIComponent(data.retira || ''),
     '',
     '¡Gracias por tu ayuda! Cualquier inconveniente coordiná con *' + fgpNombre + '*' + (fgpTel ? ' al +' + fgpTel : '') + '.'
   );
