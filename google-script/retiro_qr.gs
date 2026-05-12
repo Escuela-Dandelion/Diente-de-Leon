@@ -338,7 +338,7 @@ function registrarEnSheet(order, token) {
     order.contact_name,
     order.contact_email,
     productos,
-    order.total,
+    parseFloat(order.total) || 0,
     new Date(),
     'PENDIENTE',
     '',  // col 9: Staff (se completa al entregar)

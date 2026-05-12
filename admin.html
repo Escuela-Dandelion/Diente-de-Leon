@@ -945,7 +945,15 @@ function confirmarEntregaDesdeListado() {
 }
 
 function fmtPesosAR(val) {
-  var n = parseFloat(String(val).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+  var s = String(val).trim().replace(/[^\d.,]/g, '');
+  var n;
+  if (s.indexOf(',') !== -1) {
+    // coma = decimal, puntos = miles
+    n = parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
+  } else {
+    // punto = decimal (o no hay separador)
+    n = parseFloat(s) || 0;
+  }
   var rounded = Math.round(n * 100) / 100;
   var parts = rounded.toFixed(2).split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
