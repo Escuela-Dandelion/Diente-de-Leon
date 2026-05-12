@@ -1,0 +1,21 @@
+admin.html
+  s_6d7336085298b8::t_38502635857815 948-956
+google-script/retiro_qr.gs
+  s_6d7336085298b8::t_9cb61f3eb7a02c 341
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "ce4c7cf09434f315e33536d40a4fa8ce90d52369",
+  "prompts": {},
+  "sessions": {
+    "s_6d7336085298b8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ff7fc10-5f68-4328-b824-40f416304de9",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Ines Robertson <robertson.ine@gmail.com>"
+    }
+  }
+}
