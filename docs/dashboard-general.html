@@ -791,10 +791,11 @@ function renderTablaRentabilidad(rows) {
   var map = {};
   rows.forEach(function(r){
     var k = r.producto;
-    if (!map[k]) map[k] = { nombre:k, marca: r.marca||'', unidades:0, ingresos:0, costo:0 };
-    map[k].unidades += (r.cantidad||0);
-    map[k].ingresos += (r.total_pagado_linea||r.total_linea||0);
-    map[k].costo    += (r.costo_linea||0);
+    if (!map[k]) map[k] = { nombre:k, marca: r.marca||'', unidades:0, ingresos:0, costo:0, descuentos:0 };
+    map[k].unidades   += (r.cantidad||0);
+    map[k].ingresos   += (r.total_pagado_linea||r.total_linea||0);
+    map[k].costo      += (r.costo_linea||0);
+    map[k].descuentos += Math.max(0, (r.total_linea||0) - (r.total_pagado_linea||r.total_linea||0));
   });
   var arr = Object.values(map).map(function(p){
     var margen = p.ingresos - p.costo - comision(p.ingresos);
@@ -817,7 +818,9 @@ function renderTablaRentabilidad(rows) {
         (p.marca ? '<span class="marca-chip">' + esc(p.marca) + '</span>' : '') +
       '</td>' +
       '<td class="num">' + Math.round(p.unidades).toLocaleString('es-AR') + '</td>' +
-      '<td class="num">' + pesos(p.ingresos) + '</td>' +
+      '<td class="num">' + pesos(p.ingresos) +
+        (p.descuentos > 0.01 ? ' <span style="color:#e63946;font-size:10px;font-weight:600;background:#ffeef0;padding:1px 6px;border-radius:10px;white-space:nowrap">–'+pesos(p.descuentos)+'</span>' : '') +
+      '</td>' +
       '<td class="num">' + pesos(p.costo)    + '</td>' +
       '<td class="num">' + pesos(p.margen)   + '</td>' +
       '<td>' +
