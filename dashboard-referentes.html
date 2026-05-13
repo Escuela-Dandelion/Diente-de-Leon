@@ -720,11 +720,12 @@ function renderProductos(rows){
     productos[p].total+=(r.total_pagado_linea||r.total_linea||0);
     productos[p].unidades+=(r.cantidad||0);
     var f=r.familia||'Sin nombre';
-    if(!productos[p].familias[f]) productos[p].familias[f]={email:r.email||'',cantidad:0,subtotal_bruto:0,total_pagado:0,neto:0,pedido:r.pedido,fecha:r.fecha};
+    if(!productos[p].familias[f]) productos[p].familias[f]={email:r.email||'',cantidad:0,subtotal_bruto:0,total_pagado:0,neto:0,pedidos:[]};
     productos[p].familias[f].cantidad+=(r.cantidad||0);
     productos[p].familias[f].subtotal_bruto+=(r.total_linea||0);
     productos[p].familias[f].total_pagado+=(r.total_pagado_linea||r.total_linea||0);
     productos[p].familias[f].neto+=(r.neto_linea||r.total_pagado_linea||r.total_linea||0);
+    if(r.pedido && productos[p].familias[f].pedidos.indexOf(r.pedido)===-1) productos[p].familias[f].pedidos.push(r.pedido);
   });
   var prodArr=Object.values(productos).sort(function(a,b){ return b.unidades-a.unidades; });
 
@@ -762,8 +763,8 @@ function renderProductos(rows){
         '<td class="num" style="color:#999">'+pesos(f.subtotal_bruto)+'</td>'+
         '<td class="num"><strong>'+pesos(f.total_pagado)+'</strong></td>'+
         '<td class="num">'+pesos(f.neto)+'</td>'+
-        '<td><span class="txt-sm">#'+esc(f.pedido||'—')+'</span></td>'+
-        '<td><span class="txt-sm">'+esc(f.fecha||'—')+'</span></td>'+
+        '<td><span class="txt-sm">'+(f.pedidos.length===1?'#'+f.pedidos[0]:f.pedidos.length+' pedidos')+'</span></td>'+
+        '<td></td>'+
       '</tr>';
     });
     html+='</tbody></table></div>';
