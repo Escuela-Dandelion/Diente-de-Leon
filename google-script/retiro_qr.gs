@@ -27,7 +27,8 @@ var CONFIG = {
     'Sabi':              'PSA26',   // 9no
     'Yana':              'PYA26',   // 5to
     'Elina':             'PEL26',   // 3ro
-    'Claudio':           'PCL26'    // Tiendita
+    'Claudio':           'PCL26',   // Tiendita
+    'Ines.Vasquez':      'PIV26'    // Punto de Retiro
   },
 
   // PINs con permiso para confirmar entregas (Retiro Mercadería)
@@ -46,7 +47,8 @@ var CONFIG = {
     'PSA26',  // Sabi             — 9no
     'PYA26',  // Yana             — 5to
     'PEL26',  // Elina            — 3ro
-    'PCL26'   // Claudio          — Tiendita
+    'PCL26',  // Claudio          — Tiendita
+    'PIV26'   // Ines Vasquez     — Punto de Retiro
   ],
 
   // Solo dashboard — no pueden confirmar entregas
@@ -72,7 +74,8 @@ var CONFIG = {
     'PSA26',  // Sabi             — 9no
     'PYA26',  // Yana             — 5to
     'PEL26',  // Elina            — 3ro
-    'PCL26'   // Claudio          — Tiendita
+    'PCL26',  // Claudio          — Tiendita
+    'PIV26'   // Ines Vasquez     — Punto de Retiro
   ]
 
 };
@@ -1161,7 +1164,8 @@ function enviarPinsReferentes() {
     { nombre: 'Sabi',    grado: '9no',    pin: 'PSA26',  tel: '5493517888479' },
     { nombre: 'Yana',    grado: '5to',    pin: 'PYA26',  tel: '5493512114209' },
     { nombre: 'Elina',   grado: '3ro',    pin: 'PEL26',  tel: '5493512032487' },
-    { nombre: 'Claudio', grado: null,     pin: 'PCL26',  tel: '5493516319266' }
+    { nombre: 'Claudio', grado: null,     pin: 'PCL26',  tel: '5493516319266' },
+    { nombre: 'Inés',   grado: null,     pin: 'PIV26',  tel: '' }  // completar tel cuando se tenga
   ];
 
   referentes.forEach(function(r) {
@@ -1382,6 +1386,7 @@ var AUTH_EMAILS = {
   'lourdelcastillo@gmail.com':       { role: 'FGP',   name: 'Luli' },
   'belen.ravaza@dandelion.edu.ar':   { role: 'FGP',   name: 'Belén' },
   'avilaclaudio1905@gmail.com':      { role: 'referente', name: 'Claudio' },
+  'inesitavasquezoliva@gmail.com':   { role: 'referente', name: 'Inés' },
   'pialucarno@gmail.com':            { role: 'referente', name: 'Pia' },
   'beluravaza@gmail.com':            { role: 'ADMIN',     name: 'Belén' },
   'elinapipino8@gmail.com':          { role: 'referente', name: 'Elina' },
