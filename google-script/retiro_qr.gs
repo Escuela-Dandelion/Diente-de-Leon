@@ -415,7 +415,7 @@ function fetchMarcaDeProducto(productId) {
 function registrarEnVentas(order) {
   try {
     var sheet  = getVentasSheet();
-    var fecha  = new Date();
+    var fecha  = order.created_at ? new Date(order.created_at) : new Date();
     var nota   = order.note || order.notes || '';
 
     // Subtotal bruto del pedido (suma de precio × qty de todos los productos)
@@ -1041,7 +1041,15 @@ function reprocesarVentas() {
   // Diagnóstico: loguear el primer pedido para ver la estructura de precios
   if (orders.length > 0) {
     var sample = orders[0];
-    Logger.log('SAMPLE pedido #' + sample.number + ' total=' + sample.total + ' subtotal=' + sample.subtotal);
+    Logger.log('SAMPLE pedido #' + sample.number + ' total=' + sample.total + ' subtotal=' + sample.subtotal + ' gateway_cost=' + sample.gateway_cost + ' discount=' + sample.discount);
+    Logger.log('SAMPLE payment fields: ' + JSON.stringify({
+      gateway: sample.gateway,
+      gateway_cost: sample.gateway_cost,
+      payment_status: sample.payment_status,
+      total: sample.total,
+      subtotal: sample.subtotal,
+      discount: sample.discount
+    }));
     (sample.products || []).forEach(function(p, i) {
       Logger.log('  producto[' + i + ']: price=' + p.price + ' unit_price=' + p.unit_price + ' qty=' + p.quantity + ' name=' + JSON.stringify(p.name));
     });
