@@ -6,6 +6,12 @@ var CONFIG = {
   STAFF_TOKEN:     'test',
   VENTAS_SHEET_ID: '1-57n6RmTFQjwNFVYxNPzll8MMuV4NvXXx5v0wTvR_6g',
 
+  // Tasas de costo de procesamiento por método de pago (TiendaNube no las expone en la API)
+  // Actualizar aquí cuando cambien las tarifas
+  GATEWAY_FEES: {
+    'wire_transfer': 0.01815,  // Transferencia bancaria vía Pago Nube: 1.815%
+  },
+
   STAFF_PINS: {
     'Yuliana.Longhi ':   'PYL26',   // Jardín
     'Maria.Martini ':    'PMM26',   // Jardín
@@ -422,9 +428,11 @@ function registrarEnVentas(order) {
     var subtotalBruto = (order.products || []).reduce(function(sum, p) {
       return sum + parseFloat(p.price || 0) * (p.quantity || 1);
     }, 0);
-    var orderTotal  = parseFloat(order.total || 0);
-    var gatewayCost = parseFloat(order.gateway_cost || 0);
-    var orderNeto   = orderTotal - gatewayCost;
+    var orderTotal      = parseFloat(order.total || 0);
+    var paymentMethod   = (order.payment_details && order.payment_details.method) || '';
+    var gatewayFee      = CONFIG.GATEWAY_FEES[paymentMethod] || 0;
+    var gatewayCost     = orderTotal * gatewayFee;
+    var orderNeto       = orderTotal - gatewayCost;
 
     order.products.forEach(function(p) {
       var nombre = (typeof p.name === 'object')
@@ -1039,18 +1047,6 @@ function reprocesarVentas() {
   Logger.log('Total pedidos pagados: ' + orders.length);
 
   // Diagnóstico: loguear el primer pedido individual para ver si trae gateway_cost
-  if (orders.length > 0) {
-    var sampleFull = fetchOrder(String(orders[0].id));
-    if (sampleFull) {
-      Logger.log('SAMPLE financial: total=' + sampleFull.total +
-        ' total_paid=' + sampleFull.total_paid +
-        ' subtotal=' + sampleFull.subtotal +
-        ' discount=' + sampleFull.discount +
-        ' discount_gateway=' + sampleFull.discount_gateway +
-        ' promotional_discount=' + JSON.stringify(sampleFull.promotional_discount));
-      Logger.log('SAMPLE payment_details: ' + JSON.stringify(sampleFull.payment_details));
-    }
-  }
 
   var registrados = 0;
   orders.forEach(function(order) {
