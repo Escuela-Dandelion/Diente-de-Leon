@@ -1,0 +1,28 @@
+docs/dashboard-general.html
+  s_fabe9ef4d4370e::t_c25ce0fa0752bb 251
+  s_fabe9ef4d4370e::t_42eac3c50c33ba 514,516
+  s_fabe9ef4d4370e::t_db8b1c53a21c08 525-526
+  s_fabe9ef4d4370e::t_de9e7a36e318b2 252-253
+dashboard-general.html
+  s_fabe9ef4d4370e::t_76bc8d9e490cb4 572
+  s_fabe9ef4d4370e::t_d22c39c3938706 263
+  s_fabe9ef4d4370e::t_985a1f41537d6f 264-267
+  s_fabe9ef4d4370e::t_f11dcda7d56b7c 569,571
+  s_fabe9ef4d4370e::t_e0d0a604e3fccc 578-581
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "4d7aa705815098830f850a33c33c1df807b45a2f",
+  "prompts": {},
+  "sessions": {
+    "s_fabe9ef4d4370e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fd401070-e0fb-4b9e-b1db-b821a26f9e8c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Ines Robertson <robertson.ine@gmail.com>"
+    }
+  }
+}
