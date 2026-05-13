@@ -360,10 +360,11 @@ function getVentasSheet() {
     sheet = ss.insertSheet('Ventas');
     sheet.appendRow([
       'Fecha','Pedido #','ID Interno','Nombre','Email',
-      'Producto','SKU','Cantidad','Precio Unit.','Total Línea','Total Pedido','Comentarios','Marca'
+      'Producto','SKU','Cantidad','Precio Unit.','Subtotal Bruto','Total Pedido','Comentarios','Marca','Costo Unit.',
+      'Total Pagado Línea','Neto Línea','Fee Procesamiento','Método Pago'
     ]);
     sheet.setFrozenRows(1);
-    sheet.getRange(1, 1, 1, 13).setFontWeight('bold');
+    sheet.getRange(1, 1, 1, 18).setFontWeight('bold');
   }
   return sheet;
 }
@@ -463,7 +464,9 @@ function registrarEnVentas(order) {
         datos.marca,
         datos.costo,
         totalPagadoLinea,      // col O (índice 14): monto pagado proporcional (con descuento)
-        netoLinea              // col P (índice 15): monto neto proporcional (post costo procesamiento)
+        netoLinea,             // col P (índice 15): monto neto proporcional (post costo procesamiento)
+        gatewayCost,           // col Q (índice 16): fee total del pedido (para auditoría)
+        paymentMethod          // col R (índice 17): método de pago
       ]);
     });
     Logger.log('Ventas: ' + order.products.length + ' fila(s) para pedido #' + order.number);
