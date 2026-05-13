@@ -1042,15 +1042,13 @@ function reprocesarVentas() {
   if (orders.length > 0) {
     var sampleFull = fetchOrder(String(orders[0].id));
     if (sampleFull) {
-      Logger.log('SAMPLE keys: ' + Object.keys(sampleFull).join(', '));
-      Logger.log('SAMPLE payments: ' + JSON.stringify(sampleFull.payments));
-      Logger.log('SAMPLE financial: gateway=' + sampleFull.gateway +
-        ' gateway_cost=' + sampleFull.gateway_cost +
-        ' checkout_total=' + sampleFull.checkout_total +
-        ' total=' + sampleFull.total +
+      Logger.log('SAMPLE financial: total=' + sampleFull.total +
+        ' total_paid=' + sampleFull.total_paid +
         ' subtotal=' + sampleFull.subtotal +
         ' discount=' + sampleFull.discount +
-        ' shipping_cost=' + sampleFull.shipping_cost);
+        ' discount_gateway=' + sampleFull.discount_gateway +
+        ' promotional_discount=' + JSON.stringify(sampleFull.promotional_discount));
+      Logger.log('SAMPLE payment_details: ' + JSON.stringify(sampleFull.payment_details));
     }
   }
 
