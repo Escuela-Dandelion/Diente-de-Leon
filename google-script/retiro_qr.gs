@@ -466,7 +466,8 @@ function registrarEnVentas(order) {
         totalPagadoLinea,                    // col O (índice 14): monto pagado proporcional (con descuento)
         netoLinea,                           // col P (índice 15): monto neto proporcional
         totalPagadoLinea - netoLinea,        // col Q (índice 16): fee procesamiento proporcional a esta línea
-        paymentMethod                        // col R (índice 17): método de pago
+        paymentMethod,                       // col R (índice 17): método de pago
+        parseFloat(order.discount || 0)      // col S (índice 18): descuento total del pedido
       ]);
     });
     Logger.log('Ventas: ' + order.products.length + ' fila(s) para pedido #' + order.number);
@@ -1319,9 +1320,10 @@ function apiDashboard(pin, email) {
     var totalPedido         = parseFloat(row[10]) || 0;
     var comentario          = String(row[11] || '').trim();
     var marca               = String(row[12] || '');
-    var totalPagadoLinea    = parseFloat(row[14]) || subtotalBrutoLinea;  // fallback para filas antiguas
+    var totalPagadoLinea    = parseFloat(row[14]) || subtotalBrutoLinea;
     var netoLinea           = parseFloat(row[15]) || totalPagadoLinea;
     var feeProcesamiento    = parseFloat(row[16]) || 0;
+    var orderDiscount       = parseFloat(row[18]) || 0;
     var mes         = fecha ? (fecha.getFullYear() + '-' + ('0' + (fecha.getMonth()+1)).slice(-2)) : '';
     var grado       = comentario || '(Sin observaciones)';
 
@@ -1348,6 +1350,7 @@ function apiDashboard(pin, email) {
       total_pagado_linea:  Math.round(totalPagadoLinea * 100) / 100,
       neto_linea:          Math.round(netoLinea * 100) / 100,
       fee_procesamiento:   Math.round(feeProcesamiento * 100) / 100,
+      order_discount:      Math.round(orderDiscount * 100) / 100,
       costo_linea:         Math.round(costoLinea * 100) / 100,
       grado:               grado
     });
