@@ -404,7 +404,7 @@ function sortGrados(arr) {
     return ai !== bi ? ai - bi : String(a).localeCompare(String(b),'es');
   });
 }
-function pesos(n) { return '$ ' + Math.round(n||0).toLocaleString('es-AR'); }
+function pesos(n) { return '$ ' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 function pesosCard(n) {
   var v = Math.round(n||0);
   if (v >= 1000000) return '$ ' + (v/1000000).toLocaleString('es-AR', {minimumFractionDigits:1, maximumFractionDigits:1}) + 'M';
