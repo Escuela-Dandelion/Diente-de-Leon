@@ -262,8 +262,12 @@
             <div class="card-value" id="c-descuentos">—</div>
           </div>
           <div class="card gray">
-            <div class="card-label">Costo total</div>
+            <div class="card-label">Costo mercadería</div>
             <div class="card-value" id="c-costo">—</div>
+          </div>
+          <div class="card gray">
+            <div class="card-label">Costo procesamiento <span class="info-tip" data-tip="Comisión cobrada por TiendaNube/Mercado Pago. Actualmente pendiente de configurar.">ℹ</span></div>
+            <div class="card-value" id="c-procesamiento">—</div>
           </div>
           <div class="card green">
             <div class="card-label">Ganancia escuela</div>
@@ -532,9 +536,11 @@ function updateCards(rows) {
   });
   var ganancia = totalNeto - totalCosto;
   var pctMargen = totalNeto > 0 ? (ganancia/totalNeto*100).toFixed(1) + '%' : '—';
-  document.getElementById('c-vendido').textContent    = pesosCard(totalVendido);
-  document.getElementById('c-pesos').textContent      = pesosCard(totalNeto);
-  document.getElementById('c-descuentos').textContent = pesosCard(totalDescuentos);
+  var totalProcesamiento = totalVendido - totalNeto;
+  document.getElementById('c-vendido').textContent       = pesosCard(totalVendido);
+  document.getElementById('c-pesos').textContent         = pesosCard(totalNeto);
+  document.getElementById('c-descuentos').textContent    = pesosCard(totalDescuentos);
+  document.getElementById('c-procesamiento').textContent = pesosCard(totalProcesamiento);
   document.getElementById('c-costo').textContent      = pesosCard(totalCosto);
   document.getElementById('c-ganancia').textContent   = pesosCard(ganancia);
   document.getElementById('c-ganancia-pct').textContent = 'ingresos – costo';
