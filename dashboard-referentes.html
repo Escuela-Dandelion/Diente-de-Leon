@@ -324,7 +324,7 @@
 <body>
 
 <!-- LOGIN -->
-<div id="login">
+<div id="login" style="display:none">
   <div class="login-card">
     <img src="https://escuela-dandelion.github.io/Comision-Recursos/Logo_Diente_de_Leon.png" alt="Diente de León">
     <h2>Dashboard Referentes</h2>
@@ -488,7 +488,8 @@ window.addEventListener('load', function(){
   // Fallback: PIN session
   var pin=leerSesion();
   if(pin){ _doLogin(pin, false); return; }
-  // Mostrar botón Google
+  // Sin sesión — mostrar pantalla de login
+  document.getElementById('login').style.display='flex';
   if (typeof google !== 'undefined') {
     google.accounts.id.initialize({ client_id: '308208183848-mcirv9g7cttetoa4eb1k6gt9p8chcr16.apps.googleusercontent.com', callback: onGoogleLoginDash });
     google.accounts.id.renderButton(document.getElementById('google-btn-dash'),
