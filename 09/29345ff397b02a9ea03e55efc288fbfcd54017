@@ -1,0 +1,23 @@
+dashboard-referentes.html
+  s_fabe9ef4d4370e::t_6db4712217cbd7 755,762-764
+  s_fabe9ef4d4370e::t_311d27d734bee0 723,725-727
+docs/dashboard-referentes.html
+  s_fabe9ef4d4370e::t_1bb365c125c3db 663,665-667
+  s_fabe9ef4d4370e::t_a2c92b220d025c 695,702-704
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "0929345ff397b02a9ea03e55efc288fbfcd54017",
+  "prompts": {},
+  "sessions": {
+    "s_fabe9ef4d4370e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fd401070-e0fb-4b9e-b1db-b821a26f9e8c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Ines Robertson <robertson.ine@gmail.com>"
+    }
+  }
+}
