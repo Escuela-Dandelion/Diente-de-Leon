@@ -1,0 +1,9 @@
+docs/admin.html
+  ai_agent 1-1535
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "918069c682d4694b6876269aab82481f6c8cbe2e",
+  "prompts": {}
+}
