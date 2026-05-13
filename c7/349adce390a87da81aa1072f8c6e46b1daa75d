@@ -1,0 +1,21 @@
+google-script/retiro_qr.gs
+  s_fabe9ef4d4370e::t_0a64a8f5443998 355-357
+  s_fabe9ef4d4370e::t_42f6e5c1585661 361-379
+  s_fabe9ef4d4370e::t_b48fc9cf8574f7 424-463
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "c7349adce390a87da81aa1072f8c6e46b1daa75d",
+  "prompts": {},
+  "sessions": {
+    "s_fabe9ef4d4370e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fd401070-e0fb-4b9e-b1db-b821a26f9e8c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Ines Robertson <robertson.ine@gmail.com>"
+    }
+  }
+}
