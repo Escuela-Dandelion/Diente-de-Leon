@@ -185,7 +185,7 @@
     }
     table.tbl-inner th.num { text-align:right; padding-left:8px; }
     table.tbl-inner td { padding:10px 14px 10px 48px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
-    table.tbl-inner td.num { text-align:right; padding-left:8px; font-variant-numeric:tabular-nums; }
+    table.tbl-inner td.num { text-align:right; padding-left:8px; font-variant-numeric:tabular-nums; white-space:nowrap; }
     table.tbl-inner tr:last-child td { border-bottom:none; }
     table.tbl-inner tr:hover td { background:#fafafa; }
     .chip { background:#f0f2ff; color:#1a1a6e; border-radius:8px; padding:2px 7px; font-size:10px; }
@@ -699,15 +699,18 @@ function renderFamilias(rows){
       '<table class="tbl-inner"><thead><tr>'+
         '<th>Producto</th><th class="num">Cant.</th><th class="num">Bruto</th><th class="num">Pagado</th><th class="num">Neto</th><th>Pedido</th><th>Fecha</th>'+
       '</tr></thead><tbody>';
+    var pedidosConDescuento={};
     Object.values(prodMap).forEach(function(p){
+      var mostrarPill = p.order_discount > 0.01 && !pedidosConDescuento[p.pedido];
+      if(mostrarPill) pedidosConDescuento[p.pedido]=true;
       html+='<tr>'+
         '<td>'+esc(p.nombre)+(p.marca?' <span class="chip">'+esc(p.marca)+'</span>':'')+' </td>'+
         '<td class="num">'+Math.round(p.cantidad)+'</td>'+
         '<td class="num" style="color:#999">'+pesos(p.subtotal_bruto)+'</td>'+
         '<td class="num"><strong>'+pesos(p.total_pagado)+'</strong></td>'+
         '<td class="num">'+pesos(p.neto)+'</td>'+
-        '<td><span class="txt-sm">#'+esc(p.pedido||'—')+'</span>'+
-          (p.order_discount > 0.01 ? ' <span style="color:#e63946;font-size:10px;font-weight:600;background:#ffeef0;padding:1px 6px;border-radius:10px;white-space:nowrap">–'+pesos(p.order_discount)+'</span>' : '')+
+        '<td style="white-space:nowrap"><span class="txt-sm">#'+esc(p.pedido||'—')+'</span>'+
+          (mostrarPill ? ' <span style="color:#e63946;font-size:10px;font-weight:600;background:#ffeef0;padding:1px 6px;border-radius:10px;white-space:nowrap">–'+pesos(p.order_discount)+'</span>' : '')+
         '</td>'+
         '<td><span class="txt-sm">'+esc(p.fecha||'—')+'</span></td>'+
       '</tr>';
