@@ -248,7 +248,7 @@
         <!-- KPIs -->
         <div class="cards">
           <div class="card teal">
-            <div class="card-label">Total recaudado</div>
+            <div class="card-label">Neto recibido</div>
             <div class="card-value" id="c-pesos">—</div>
           </div>
           <div class="card gray">
@@ -507,17 +507,18 @@ function render() {
 
 // ── CARDS ──
 function updateCards(rows) {
-  var totalPesos=0, totalCosto=0, totalUnidades=0, pedidosSet={}, familiasSet={};
+  var totalPesos=0, totalNeto=0, totalCosto=0, totalUnidades=0, pedidosSet={}, familiasSet={};
   rows.forEach(function(r){
-    totalPesos    += (r.total_linea||0);
+    totalPesos    += (r.total_pagado_linea||r.total_linea||0);
+    totalNeto     += (r.neto_linea||r.total_pagado_linea||r.total_linea||0);
     totalCosto    += (r.costo_linea||0);
     totalUnidades += (r.cantidad||0);
     if (r.pedido)  pedidosSet[r.pedido]   = true;
     if (r.familia) familiasSet[r.familia] = true;
   });
-  var ganancia = totalPesos - totalCosto - comision(totalPesos);
-  var pctMargen = totalPesos > 0 ? (ganancia/totalPesos*100).toFixed(1) + '%' : '—';
-  document.getElementById('c-pesos').textContent      = pesosCard(totalPesos);
+  var ganancia = totalNeto - totalCosto;
+  var pctMargen = totalNeto > 0 ? (ganancia/totalNeto*100).toFixed(1) + '%' : '—';
+  document.getElementById('c-pesos').textContent      = pesosCard(totalNeto);
   document.getElementById('c-costo').textContent      = pesosCard(totalCosto);
   document.getElementById('c-ganancia').textContent   = pesosCard(ganancia);
   document.getElementById('c-ganancia-pct').textContent = 'ingresos – costo';
@@ -538,8 +539,8 @@ function renderEvolucion(rows) {
   rows.forEach(function(r){
     if (unidMap[r.mes] !== undefined) {
       unidMap[r.mes]   += (r.cantidad||0);
-      ingresMap[r.mes] += (r.total_linea||0);
-      margenMap[r.mes] += (r.total_linea||0) - (r.costo_linea||0) - comision(r.total_linea||0);
+      ingresMap[r.mes] += (r.neto_linea||r.total_pagado_linea||r.total_linea||0);
+      margenMap[r.mes] += (r.neto_linea||r.total_pagado_linea||r.total_linea||0) - (r.costo_linea||0);
     }
   });
 
@@ -660,7 +661,7 @@ function renderTopProductos(rows) {
   rows.forEach(function(r){
     if (!map[r.producto]) map[r.producto] = { unidades:0, ingresos:0, costo:0 };
     map[r.producto].unidades += (r.cantidad||0);
-    map[r.producto].ingresos += (r.total_linea||0);
+    map[r.producto].ingresos += (r.total_pagado_linea||r.total_linea||0);
     map[r.producto].costo    += (r.costo_linea||0);
   });
   var arr = Object.keys(map).map(function(p){
@@ -703,7 +704,7 @@ function renderGrados(rows) {
   var map = {};
   rows.forEach(function(r){
     if (!map[r.grado]) map[r.grado] = { ingresos:0, unidades:0 };
-    map[r.grado].ingresos += (r.total_linea||0);
+    map[r.grado].ingresos += (r.total_pagado_linea||r.total_linea||0);
     map[r.grado].unidades += (r.cantidad||0);
   });
   var arr = Object.keys(map).map(function(g){ return { grado:g, ingresos:map[g].ingresos, unidades:map[g].unidades }; });
@@ -774,7 +775,7 @@ function renderTablaRentabilidad(rows) {
     var k = r.producto;
     if (!map[k]) map[k] = { nombre:k, marca: r.marca||'', unidades:0, ingresos:0, costo:0 };
     map[k].unidades += (r.cantidad||0);
-    map[k].ingresos += (r.total_linea||0);
+    map[k].ingresos += (r.total_pagado_linea||r.total_linea||0);
     map[k].costo    += (r.costo_linea||0);
   });
   var arr = Object.values(map).map(function(p){
