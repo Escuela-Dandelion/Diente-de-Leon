@@ -461,21 +461,19 @@ function normalizarGradoGAS(g) {
   return s; // devuelve original si no se reconoce
 }
 
-// Retorna el descuento total del pedido sumando cupón + descuentos promocionales (volumen, etc.)
+// Retorna el descuento total del pedido (order.discount ya incluye cupones y DxC)
 function getOrderDiscount(order) {
-  var coupon = parseFloat(order.discount || 0);
-  var promo  = parseFloat((order.promotional_discount && order.promotional_discount.total_discount_amount) || 0);
-  return coupon + promo;
+  return parseFloat(order.discount || 0);
 }
 
-// Retorna el tipo de descuento para mostrar en el UI
+// Retorna el tipo de descuento: usa promotional_discount para clasificar
 function getDiscountType(order) {
-  var coupon = parseFloat(order.discount || 0);
-  var promo  = parseFloat((order.promotional_discount && order.promotional_discount.total_discount_amount) || 0);
-  if (coupon > 0 && promo > 0) return 'Cupón + DxC';
-  if (coupon > 0) return 'Cupón';
-  if (promo  > 0) return 'DxC';
-  return '';
+  var total = parseFloat(order.discount || 0);
+  if (total <= 0) return '';
+  var promo = parseFloat((order.promotional_discount && order.promotional_discount.total_discount_amount) || 0);
+  if (promo > 0 && (total - promo) > 0.01) return 'Cupón + DxC';
+  if (promo > 0) return 'DxC';
+  return 'Cupón';
 }
 
 function fetchDatosDeProducto(productId, variantId) {
