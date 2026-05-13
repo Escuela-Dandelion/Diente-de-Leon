@@ -1165,7 +1165,7 @@ function enviarPinsReferentes() {
     { nombre: 'Yana',    grado: '5to',    pin: 'PYA26',  tel: '5493512114209' },
     { nombre: 'Elina',   grado: '3ro',    pin: 'PEL26',  tel: '5493512032487' },
     { nombre: 'Claudio', grado: null,     pin: 'PCL26',  tel: '5493516319266' },
-    { nombre: 'Inés',   grado: null,     pin: 'PIV26',  tel: '' }  // completar tel cuando se tenga
+    { nombre: 'Inés',   grado: null,     pin: 'PIV26',  tel: '5493512343534' }
   ];
 
   referentes.forEach(function(r) {
