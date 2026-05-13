@@ -1,0 +1,37 @@
+docs/dashboard-general.html
+  s_fabe9ef4d4370e::t_bd7bcaa75cb004 250,253,276,278-283,285-287,289-291
+  s_fabe9ef4d4370e::t_d67c6f06b4e4d1 535-537
+  s_fabe9ef4d4370e::t_ce7ecf93e29eca 260-263
+  s_fabe9ef4d4370e::t_9208068ca3bf84 84-85
+  s_fabe9ef4d4370e::t_7d0e06f71a3760 523,525-527
+dashboard-referentes.html
+  s_fabe9ef4d4370e::t_8849c1b5b249f3 628
+  s_fabe9ef4d4370e::t_431615350b4c7a 605,607-610
+  s_fabe9ef4d4370e::t_a3663cc7b6a995 633-635,638
+dashboard-general.html
+  s_fabe9ef4d4370e::t_3f6e40526e78be 579,581-584
+  s_fabe9ef4d4370e::t_a0accbdda7d5e2 273-276
+  s_fabe9ef4d4370e::t_a1582fa7824f9b 84-85
+  s_fabe9ef4d4370e::t_34d29ff8d3daa6 593
+  s_fabe9ef4d4370e::t_0bc0e938a7d8d9 263,266,289,291-296,298-300,302-304
+docs/dashboard-referentes.html
+  s_fabe9ef4d4370e::t_4aec4a1be4309c 605,607-610
+  s_fabe9ef4d4370e::t_b49134fa1d578d 628
+  s_fabe9ef4d4370e::t_07959dfecc58ff 633-635,638
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "9a987f1d73cd07f66025eb78a8ef79c817829992",
+  "prompts": {},
+  "sessions": {
+    "s_fabe9ef4d4370e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fd401070-e0fb-4b9e-b1db-b821a26f9e8c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Ines Robertson <robertson.ine@gmail.com>"
+    }
+  }
+}
