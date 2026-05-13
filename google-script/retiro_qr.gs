@@ -1038,27 +1038,20 @@ function reprocesarVentas() {
   var orders = fetchAllPaidOrders();
   Logger.log('Total pedidos pagados: ' + orders.length);
 
-  // Diagnóstico: loguear el primer pedido para ver la estructura de precios
+  // Diagnóstico: loguear el primer pedido individual para ver si trae gateway_cost
   if (orders.length > 0) {
-    var sample = orders[0];
-    Logger.log('SAMPLE pedido #' + sample.number + ' total=' + sample.total + ' subtotal=' + sample.subtotal + ' gateway_cost=' + sample.gateway_cost + ' discount=' + sample.discount);
-    Logger.log('SAMPLE payment fields: ' + JSON.stringify({
-      gateway: sample.gateway,
-      gateway_cost: sample.gateway_cost,
-      payment_status: sample.payment_status,
-      total: sample.total,
-      subtotal: sample.subtotal,
-      discount: sample.discount
-    }));
-    (sample.products || []).forEach(function(p, i) {
-      Logger.log('  producto[' + i + ']: price=' + p.price + ' unit_price=' + p.unit_price + ' qty=' + p.quantity + ' name=' + JSON.stringify(p.name));
-    });
+    var sampleFull = fetchOrder(String(orders[0].id));
+    if (sampleFull) {
+      Logger.log('SAMPLE individual pedido #' + sampleFull.number + ' gateway_cost=' + sampleFull.gateway_cost + ' total=' + sampleFull.total);
+    }
   }
 
   var registrados = 0;
   orders.forEach(function(order) {
     if (order.status === 'cancelled') return;
-    registrarEnVentas(order);
+    // Fetch individual para obtener gateway_cost (no disponible en endpoint de lista)
+    var fullOrder = fetchOrder(String(order.id));
+    registrarEnVentas(fullOrder || order);
     registrados++;
   });
 
