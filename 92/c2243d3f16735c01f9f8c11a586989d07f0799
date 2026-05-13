@@ -1,0 +1,41 @@
+dashboard-referentes.html
+  s_fabe9ef4d4370e::t_2b1bb38a21dca8 605
+  s_fabe9ef4d4370e::t_c0cb49276223bf 720
+  s_fabe9ef4d4370e::t_e89c4a6c760845 890
+  s_fabe9ef4d4370e::t_30411112a842e9 655
+  s_fabe9ef4d4370e::t_d60edd297563bb 794,798,807
+  s_fabe9ef4d4370e::t_4aeac7abfc00fb 813
+  s_fabe9ef4d4370e::t_da431f8de93088 684,686-688,693,699-701
+  s_fabe9ef4d4370e::t_d172cfdebd543c 725
+google-script/retiro_qr.gs
+  s_fabe9ef4d4370e::t_7ee73873241f7e 452-453,457-458
+  s_fabe9ef4d4370e::t_9355292474d5a1 1332-1344
+  s_fabe9ef4d4370e::t_0d1915b10f0849 456
+  s_fabe9ef4d4370e::t_3e71eb2635dbb8 421-428,436-439
+  s_fabe9ef4d4370e::t_ef7af935b8b89c 1297
+  s_fabe9ef4d4370e::t_0b77b123a96459 1312-1317
+docs/dashboard-referentes.html
+  s_fabe9ef4d4370e::t_6a572c66827375 545
+  s_fabe9ef4d4370e::t_b09026d59215e5 734,738
+  s_fabe9ef4d4370e::t_da3c71a9240dea 665
+  s_fabe9ef4d4370e::t_96aa4a37ed98c6 660
+  s_fabe9ef4d4370e::t_81a9d6266cd7a5 595
+  s_fabe9ef4d4370e::t_0b544ac575c839 747,753
+  s_fabe9ef4d4370e::t_1f251c1b243fc0 624,626-628,633,639-641
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "92c2243d3f16735c01f9f8c11a586989d07f0799",
+  "prompts": {},
+  "sessions": {
+    "s_fabe9ef4d4370e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fd401070-e0fb-4b9e-b1db-b821a26f9e8c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Ines Robertson <robertson.ine@gmail.com>"
+    }
+  }
+}
