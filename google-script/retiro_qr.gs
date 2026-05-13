@@ -357,6 +357,30 @@ function registrarEnSheet(order, token) {
   ]);
 }
 
+// Rellena col 12 (Descuento) en filas de Retiros que no la tienen aún
+function migrarDescuentosRetiros() {
+  var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
+  var sheet = ss.getSheetByName('Retiros');
+  if (!sheet) { Logger.log('No existe hoja Retiros'); return; }
+
+  var data = sheet.getDataRange().getValues();
+  var actualizados = 0;
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    if (row[11] !== '' && row[11] !== null && row[11] !== undefined) continue; // ya tiene discount
+    var orderId = String(row[0]);
+    if (!orderId) continue;
+    var order = fetchOrder(orderId);
+    if (!order) continue;
+    var discount = parseFloat(order.discount || 0);
+    sheet.getRange(i + 1, 12).setValue(discount);
+    actualizados++;
+    Logger.log('Retiro fila ' + (i+1) + ' pedido #' + row[1] + ' discount=' + discount);
+  }
+  Logger.log('Migración completa. ' + actualizados + ' filas actualizadas.');
+}
+
 function getVentasSheet() {
   var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
   var sheet = ss.getSheetByName('Ventas');
