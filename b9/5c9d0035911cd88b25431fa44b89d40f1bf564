@@ -1,0 +1,19 @@
+admin.html
+  s_fabe9ef4d4370e::t_aee23fb05633c1 1192
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.6",
+  "base_commit_sha": "b95c9d0035911cd88b25431fa44b89d40f1bf564",
+  "prompts": {},
+  "sessions": {
+    "s_fabe9ef4d4370e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fd401070-e0fb-4b9e-b1db-b821a26f9e8c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Ines Robertson <robertson.ine@gmail.com>"
+    }
+  }
+}
