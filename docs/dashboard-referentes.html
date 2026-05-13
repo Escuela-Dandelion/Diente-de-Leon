@@ -688,7 +688,7 @@ function renderFamilias(rows){
     var prodMap={};
     fam.items.forEach(function(item){
       var key=item.producto+'||'+item.pedido;
-      if(!prodMap[key]) prodMap[key]={nombre:item.producto,marca:item.marca||'',cantidad:0,subtotal_bruto:0,total_pagado:0,neto:0,pedido:item.pedido,fecha:item.fecha};
+      if(!prodMap[key]) prodMap[key]={nombre:item.producto,marca:item.marca||'',cantidad:0,subtotal_bruto:0,total_pagado:0,neto:0,pedido:item.pedido,fecha:item.fecha,order_discount:item.order_discount||0};
       prodMap[key].cantidad+=(item.cantidad||0);
       prodMap[key].subtotal_bruto+=(item.total_linea||0);
       prodMap[key].total_pagado+=(item.total_pagado_linea||item.total_linea||0);
@@ -703,12 +703,12 @@ function renderFamilias(rows){
       html+='<tr>'+
         '<td>'+esc(p.nombre)+(p.marca?' <span class="chip">'+esc(p.marca)+'</span>':'')+' </td>'+
         '<td class="num">'+Math.round(p.cantidad)+'</td>'+
-        '<td class="num" style="color:#999">'+pesos(p.subtotal_bruto)+
-          (p.subtotal_bruto > p.total_pagado + 0.01 ? ' <span style="color:#e63946;font-size:10px;font-weight:600;background:#ffeef0;padding:1px 6px;border-radius:10px;white-space:nowrap">–'+pesos(p.subtotal_bruto - p.total_pagado)+'</span>' : '')+
-        '</td>'+
+        '<td class="num" style="color:#999">'+pesos(p.subtotal_bruto)+'</td>'+
         '<td class="num"><strong>'+pesos(p.total_pagado)+'</strong></td>'+
         '<td class="num">'+pesos(p.neto)+'</td>'+
-        '<td><span class="txt-sm">#'+esc(p.pedido||'—')+'</span></td>'+
+        '<td><span class="txt-sm">#'+esc(p.pedido||'—')+'</span>'+
+          (p.order_discount > 0.01 ? ' <span style="color:#e63946;font-size:10px;font-weight:600;background:#ffeef0;padding:1px 6px;border-radius:10px;white-space:nowrap">–'+pesos(p.order_discount)+'</span>' : '')+
+        '</td>'+
         '<td><span class="txt-sm">'+esc(p.fecha||'—')+'</span></td>'+
       '</tr>';
     });

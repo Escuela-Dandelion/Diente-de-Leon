@@ -1172,7 +1172,9 @@ function renderVentas(rows) {
         '<td><strong style="color:#2d5a27">#' + v.numero + '</strong><div style="font-size:10px;color:#9ca3af;margin-top:2px">' + v.fecha + '</div></td>' +
         '<td>' + v.nombre + '</td>' +
         '<td><button style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#2d5a27;padding:0">' + resumen + '</button></td>' +
-        '<td style="font-weight:700;color:#2d5a27;white-space:nowrap">' + fmtPesosAR(v.total) + '</td>' +
+        '<td style="font-weight:700;color:#2d5a27;white-space:nowrap">' + fmtPesosAR(v.total) +
+          (v.discount > 0 ? ' <span style="color:#e63946;font-size:10px;font-weight:600;background:#ffeef0;padding:1px 6px;border-radius:10px;white-space:nowrap">–' + fmtPesosAR(v.discount) + '</span>' : '') +
+        '</td>' +
         '<td>' + pill + (entregado && v.fechaEntrega ? '<div style="font-size:10px;color:#9ca3af;margin-top:3px">' + v.fechaEntrega + '</div>' : '') + '</td>' +
         '<td style="font-size:12px;color:#6b7280">' + (v.grado || '—') + '</td>' +
         '<td>' + (v.staff || '—') + '</td>' +

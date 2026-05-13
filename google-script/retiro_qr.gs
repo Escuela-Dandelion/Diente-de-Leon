@@ -325,7 +325,7 @@ function getSheet() {
   var sheet = ss.getSheetByName('Retiros');
   if (!sheet) {
     sheet = ss.insertSheet('Retiros');
-    sheet.appendRow(['ID interno','Pedido #','Nombre','Email','Productos','Total','Fecha','Estado','Staff','Notas','Grado']);
+    sheet.appendRow(['ID interno','Pedido #','Nombre','Email','Productos','Total','Fecha','Estado','Staff','Notas','Grado','Descuento']);
     sheet.setFrozenRows(1);
     sheet.getRange(1,1,1,11).setFontWeight('bold');
   }
@@ -349,7 +349,8 @@ function registrarEnSheet(order, token) {
     'PENDIENTE',
     '',  // col 9: Staff (se completa al entregar)
     '',  // col 10: Notas (se completa al entregar)
-    String(order.note || order.notes || '').trim()  // col 11: Grado (nota del comprador en TN)
+    String(order.note || order.notes || '').trim(), // col 11: Grado
+    parseFloat(order.discount || 0)                 // col 12: Descuento total del pedido
   ]);
 }
 
@@ -1554,7 +1555,8 @@ function getRetirosData(estadoFiltro, diasFiltro) {
       fechaEntrega: fechaEntrega,
       staff:        staff,
       grado:        staffToGrado(staffRaw) || String(row[10] || '').trim(),
-      notas:        String(row[9] || '')
+      notas:        String(row[9] || ''),
+      discount:     parseFloat(row[11] || 0)
     });
   }
   return rows.reverse();
