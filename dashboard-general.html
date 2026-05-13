@@ -81,6 +81,8 @@
     .card-label { font-size:9px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
     .card-value { font-size:20px; font-weight:700; color:#333; line-height:1; }
     .card-sub   { font-size:10px; color:#aaa; margin-top:4px; }
+    .info-tip   { cursor:help; font-size:11px; color:#aaa; font-weight:400; position:relative; }
+    .info-tip:hover::after { content:attr(data-tip); position:absolute; left:0; top:16px; background:#333; color:#fff; font-size:11px; font-weight:400; padding:6px 10px; border-radius:8px; white-space:normal; width:220px; z-index:10; line-height:1.4; }
 
     .card.purple { border-left-color:#7c3aed; background:#faf5ff; }
     .card.purple .card-label { color:#7c3aed; }
@@ -258,14 +260,19 @@
       <div id="contenido" style="display:none">
 
         <!-- KPIs -->
+        <!-- KPIs financieros -->
         <div class="cards">
           <div class="card teal">
-            <div class="card-label">Total vendido <span title="Suma de lo que pagaron los clientes, con descuentos y cupones aplicados. Sin descontar el costo de procesamiento." style="cursor:help;font-size:11px;color:#888;font-weight:400">ℹ</span></div>
+            <div class="card-label">Total vendido <span class="info-tip" data-tip="Lo que pagaron los clientes, con descuentos aplicados. Sin descontar costo de procesamiento.">ℹ</span></div>
             <div class="card-value" id="c-vendido">—</div>
           </div>
           <div class="card teal">
             <div class="card-label">Neto recibido</div>
             <div class="card-value" id="c-pesos">—</div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">Descuentos otorgados</div>
+            <div class="card-value" id="c-descuentos">—</div>
           </div>
           <div class="card gray">
             <div class="card-label">Costo total</div>
@@ -279,19 +286,22 @@
           <div class="card orange">
             <div class="card-label">Margen %</div>
             <div class="card-value" id="c-margen-pct">—</div>
-            <div class="card-sub">sobre precio de venta</div>
+            <div class="card-sub">sobre neto recibido</div>
           </div>
-          <div class="card purple">
-            <div class="card-label">Pedidos</div>
-            <div class="card-value" id="c-pedidos">—</div>
+        </div>
+        <!-- KPIs operativos (más chicos) -->
+        <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:-8px;margin-bottom:24px">
+          <div class="card purple" style="padding:10px 14px">
+            <div class="card-label" style="font-size:8px">Pedidos</div>
+            <div class="card-value" style="font-size:16px" id="c-pedidos">—</div>
           </div>
-          <div class="card teal">
-            <div class="card-label">Familias</div>
-            <div class="card-value" id="c-familias">—</div>
+          <div class="card teal" style="padding:10px 14px">
+            <div class="card-label" style="font-size:8px">Familias</div>
+            <div class="card-value" style="font-size:16px" id="c-familias">—</div>
           </div>
-          <div class="card purple">
-            <div class="card-label">Unidades vendidas</div>
-            <div class="card-value" id="c-unidades">—</div>
+          <div class="card purple" style="padding:10px 14px">
+            <div class="card-label" style="font-size:8px">Unidades vendidas</div>
+            <div class="card-value" style="font-size:16px" id="c-unidades">—</div>
           </div>
         </div>
 
@@ -566,11 +576,12 @@ function render() {
 
 // ── CARDS ──
 function updateCards(rows) {
-  var totalVendido=0, totalNeto=0, totalCosto=0, totalUnidades=0, pedidosSet={}, familiasSet={};
+  var totalVendido=0, totalNeto=0, totalDescuentos=0, totalCosto=0, totalUnidades=0, pedidosSet={}, familiasSet={};
   rows.forEach(function(r){
-    totalVendido  += (r.total_pagado_linea||r.total_linea||0);
-    totalNeto     += (r.neto_linea||r.total_pagado_linea||r.total_linea||0);
-    totalCosto    += (r.costo_linea||0);
+    totalVendido    += (r.total_pagado_linea||r.total_linea||0);
+    totalNeto       += (r.neto_linea||r.total_pagado_linea||r.total_linea||0);
+    totalDescuentos += Math.max(0, (r.total_linea||0) - (r.total_pagado_linea||r.total_linea||0));
+    totalCosto      += (r.costo_linea||0);
     totalUnidades += (r.cantidad||0);
     if (r.pedido)  pedidosSet[r.pedido]   = true;
     if (r.familia) familiasSet[r.familia] = true;
@@ -579,6 +590,7 @@ function updateCards(rows) {
   var pctMargen = totalNeto > 0 ? (ganancia/totalNeto*100).toFixed(1) + '%' : '—';
   document.getElementById('c-vendido').textContent    = pesosCard(totalVendido);
   document.getElementById('c-pesos').textContent      = pesosCard(totalNeto);
+  document.getElementById('c-descuentos').textContent = pesosCard(totalDescuentos);
   document.getElementById('c-costo').textContent      = pesosCard(totalCosto);
   document.getElementById('c-ganancia').textContent   = pesosCard(ganancia);
   document.getElementById('c-ganancia-pct').textContent = 'ingresos – costo';

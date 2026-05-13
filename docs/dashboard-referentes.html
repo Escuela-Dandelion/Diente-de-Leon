@@ -602,9 +602,12 @@ function render(){
   btnPdf.style.display='inline-flex';
 
   // KPIs
-  var totalPesos=0,totalUnidades=0,pedidosSet={},familiasSet={};
+  var totalVendido=0,totalNeto=0,totalDescuentos=0,totalUnidades=0,pedidosSet={},familiasSet={};
   rows.forEach(function(r){
-    totalPesos+=(r.total_pagado_linea||r.total_linea||0); totalUnidades+=(r.cantidad||0);
+    totalVendido    +=(r.total_pagado_linea||r.total_linea||0);
+    totalNeto       +=(r.neto_linea||r.total_pagado_linea||r.total_linea||0);
+    totalDescuentos +=Math.max(0,(r.total_linea||0)-(r.total_pagado_linea||r.total_linea||0));
+    totalUnidades   +=(r.cantidad||0);
     if(r.pedido) pedidosSet[r.pedido]=true;
     if(r.familia) familiasSet[r.familia]=true;
   });
@@ -622,15 +625,17 @@ function render(){
       '<div class="grado-titulo">'+esc(gradoTexto)+'</div>'+
       '<div class="grado-subtitulo">'+mesTexto+' · '+nFam+' '+(nFam===1?'familia':'familias')+' · '+nPed+' pedido'+(nPed!==1?'s':'')+'</div>'+
     '</div>'+
-    '<div class="grado-total">'+pesos(totalPesos)+'</div>'+
+    '<div class="grado-total">'+pesos(totalVendido)+'</div>'+
   '</div>';
 
   // Cards KPI
   html+='<div class="cards">'+
-    '<div class="card green"><div class="card-label">Total recaudado</div><div class="card-value">'+pesosCard(totalPesos)+'</div></div>'+
+    '<div class="card green"><div class="card-label">Total vendido</div><div class="card-value">'+pesosCard(totalVendido)+'</div></div>'+
+    '<div class="card teal"><div class="card-label">Neto recibido</div><div class="card-value">'+pesosCard(totalNeto)+'</div></div>'+
+    '<div class="card orange"><div class="card-label">Descuentos</div><div class="card-value">'+pesosCard(totalDescuentos)+'</div></div>'+
     '<div class="card purple"><div class="card-label">Pedidos</div><div class="card-value">'+nPed+'</div></div>'+
     '<div class="card teal"><div class="card-label">Familias</div><div class="card-value">'+nFam+'</div></div>'+
-    '<div class="card orange"><div class="card-label">Unidades</div><div class="card-value">'+Math.round(totalUnidades).toLocaleString('es-AR')+'</div></div>'+
+    '<div class="card purple"><div class="card-label">Unidades</div><div class="card-value">'+Math.round(totalUnidades).toLocaleString('es-AR')+'</div></div>'+
   '</div>';
 
   // Toggle de vista
