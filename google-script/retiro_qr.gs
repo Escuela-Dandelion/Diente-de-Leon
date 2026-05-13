@@ -353,7 +353,8 @@ function registrarEnSheet(order, token) {
     '',  // col 9: Staff (se completa al entregar)
     '',  // col 10: Notas (se completa al entregar)
     String(order.note || order.notes || '').trim(), // col 11: Grado
-    parseFloat(order.discount || 0)                 // col 12: Descuento total del pedido
+    getOrderDiscount(order),                         // col 12: Descuento total del pedido
+    getDiscountType(order)                           // col 13: Tipo de descuento (Cupón / DxC / Cupón+DxC)
   ]);
 }
 
@@ -368,15 +369,16 @@ function migrarDescuentosRetiros() {
 
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
-    if (row[11] !== '' && row[11] !== null && row[11] !== undefined) continue; // ya tiene discount
     var orderId = String(row[0]);
     if (!orderId) continue;
     var order = fetchOrder(orderId);
     if (!order) continue;
-    var discount = parseFloat(order.discount || 0);
+    var discount     = getOrderDiscount(order);
+    var discountType = getDiscountType(order);
     sheet.getRange(i + 1, 12).setValue(discount);
+    sheet.getRange(i + 1, 13).setValue(discountType);
     actualizados++;
-    Logger.log('Retiro fila ' + (i+1) + ' pedido #' + row[1] + ' discount=' + discount);
+    Logger.log('Retiro fila ' + (i+1) + ' pedido #' + row[1] + ' discount=' + discount + ' type=' + discountType);
   }
   Logger.log('Migración completa. ' + actualizados + ' filas actualizadas.');
 }
@@ -399,6 +401,23 @@ function getVentasSheet() {
 
 // Cache por "productId:variantId" → { marca, costo }
 var _prodCache = {};
+
+// Retorna el descuento total del pedido sumando cupón + descuentos promocionales (volumen, etc.)
+function getOrderDiscount(order) {
+  var coupon = parseFloat(order.discount || 0);
+  var promo  = parseFloat((order.promotional_discount && order.promotional_discount.total_discount_amount) || 0);
+  return coupon + promo;
+}
+
+// Retorna el tipo de descuento para mostrar en el UI
+function getDiscountType(order) {
+  var coupon = parseFloat(order.discount || 0);
+  var promo  = parseFloat((order.promotional_discount && order.promotional_discount.total_discount_amount) || 0);
+  if (coupon > 0 && promo > 0) return 'Cupón + DxC';
+  if (coupon > 0) return 'Cupón';
+  if (promo  > 0) return 'DxC';
+  return '';
+}
 
 function fetchDatosDeProducto(productId, variantId) {
   if (!productId) return { marca: '', costo: 0 };
@@ -495,7 +514,8 @@ function registrarEnVentas(order) {
         netoLinea,                           // col P (índice 15): monto neto proporcional
         totalPagadoLinea - netoLinea,        // col Q (índice 16): fee procesamiento proporcional a esta línea
         paymentMethod,                       // col R (índice 17): método de pago
-        parseFloat(order.discount || 0)      // col S (índice 18): descuento total del pedido
+        getOrderDiscount(order),             // col S (índice 18): descuento total del pedido
+        getDiscountType(order)               // col T (índice 19): tipo de descuento
       ]);
     });
     Logger.log('Ventas: ' + order.products.length + ' fila(s) para pedido #' + order.number);
@@ -1583,9 +1603,10 @@ function getRetirosData(estadoFiltro, diasFiltro) {
       estado:       entregado ? 'Entregado' : 'Pendiente',
       fechaEntrega: fechaEntrega,
       staff:        staff,
-      grado:        staffToGrado(staffRaw) || String(row[10] || '').trim(),
-      notas:        String(row[9] || ''),
-      discount:     parseFloat(row[11] || 0)
+      grado:         staffToGrado(staffRaw) || String(row[10] || '').trim(),
+      notas:         String(row[9] || ''),
+      discount:      parseFloat(row[11] || 0),
+      discount_type: String(row[12] || '')
     });
   }
   return rows.reverse();
