@@ -602,7 +602,7 @@ function render(){
   // KPIs
   var totalPesos=0,totalUnidades=0,pedidosSet={},familiasSet={};
   rows.forEach(function(r){
-    totalPesos+=(r.total_linea||0); totalUnidades+=(r.cantidad||0);
+    totalPesos+=(r.total_pagado_linea||r.total_linea||0); totalUnidades+=(r.cantidad||0);
     if(r.pedido) pedidosSet[r.pedido]=true;
     if(r.familia) familiasSet[r.familia]=true;
   });
@@ -652,7 +652,7 @@ function renderFamilias(rows){
   rows.forEach(function(r){
     var f=r.familia||'Sin nombre';
     if(!familias[f]) familias[f]={email:r.email||'',total:0,unidades:0,items:[]};
-    familias[f].total+=(r.total_linea||0);
+    familias[f].total+=(r.total_pagado_linea||r.total_linea||0);
     familias[f].unidades+=(r.cantidad||0);
     familias[f].items.push(r);
   });
@@ -681,20 +681,24 @@ function renderFamilias(rows){
     var prodMap={};
     fam.items.forEach(function(item){
       var key=item.producto+'||'+item.pedido;
-      if(!prodMap[key]) prodMap[key]={nombre:item.producto,marca:item.marca||'',cantidad:0,subtotal:0,pedido:item.pedido,fecha:item.fecha};
+      if(!prodMap[key]) prodMap[key]={nombre:item.producto,marca:item.marca||'',cantidad:0,subtotal_bruto:0,total_pagado:0,neto:0,pedido:item.pedido,fecha:item.fecha};
       prodMap[key].cantidad+=(item.cantidad||0);
-      prodMap[key].subtotal+=(item.total_linea||0);
+      prodMap[key].subtotal_bruto+=(item.total_linea||0);
+      prodMap[key].total_pagado+=(item.total_pagado_linea||item.total_linea||0);
+      prodMap[key].neto+=(item.neto_linea||item.total_pagado_linea||item.total_linea||0);
     });
 
     html+='<div class="fam-body" id="fam-'+fi+'">'+
       '<table class="tbl-inner"><thead><tr>'+
-        '<th>Producto</th><th class="num">Cant.</th><th class="num">Subtotal</th><th>Pedido</th><th>Fecha</th>'+
+        '<th>Producto</th><th class="num">Cant.</th><th class="num">Bruto</th><th class="num">Pagado</th><th class="num">Neto</th><th>Pedido</th><th>Fecha</th>'+
       '</tr></thead><tbody>';
     Object.values(prodMap).forEach(function(p){
       html+='<tr>'+
         '<td>'+esc(p.nombre)+(p.marca?' <span class="chip">'+esc(p.marca)+'</span>':'')+' </td>'+
         '<td class="num">'+Math.round(p.cantidad)+'</td>'+
-        '<td class="num">'+pesos(p.subtotal)+'</td>'+
+        '<td class="num" style="color:#999">'+pesos(p.subtotal_bruto)+'</td>'+
+        '<td class="num"><strong>'+pesos(p.total_pagado)+'</strong></td>'+
+        '<td class="num">'+pesos(p.neto)+'</td>'+
         '<td><span class="txt-sm">#'+esc(p.pedido||'—')+'</span></td>'+
         '<td><span class="txt-sm">'+esc(p.fecha||'—')+'</span></td>'+
       '</tr>';
@@ -713,12 +717,12 @@ function renderProductos(rows){
   rows.forEach(function(r){
     var p=r.producto||'Sin nombre';
     if(!productos[p]) productos[p]={nombre:p,marca:r.marca||'',total:0,unidades:0,familias:{}};
-    productos[p].total+=(r.total_linea||0);
+    productos[p].total+=(r.total_pagado_linea||r.total_linea||0);
     productos[p].unidades+=(r.cantidad||0);
     var f=r.familia||'Sin nombre';
     if(!productos[p].familias[f]) productos[p].familias[f]={email:r.email||'',cantidad:0,subtotal:0,pedido:r.pedido,fecha:r.fecha};
     productos[p].familias[f].cantidad+=(r.cantidad||0);
-    productos[p].familias[f].subtotal+=(r.total_linea||0);
+    productos[p].familias[f].subtotal+=(r.total_pagado_linea||r.total_linea||0);
   });
   var prodArr=Object.values(productos).sort(function(a,b){ return b.unidades-a.unidades; });
 
@@ -787,11 +791,11 @@ function exportarPDF(){
     var p=r.producto||'Sin nombre';
     if(!productos[p]) productos[p]={nombre:p,marca:r.marca||'',unidades:0,total:0,familias:{}};
     productos[p].unidades+=(r.cantidad||0);
-    productos[p].total+=(r.total_linea||0);
+    productos[p].total+=(r.total_pagado_linea||r.total_linea||0);
     var f=r.familia||'Sin nombre';
     if(!productos[p].familias[f]) productos[p].familias[f]={cantidad:0,subtotal:0,pedido:r.pedido,fecha:r.fecha,email:r.email||''};
     productos[p].familias[f].cantidad+=(r.cantidad||0);
-    productos[p].familias[f].subtotal+=(r.total_linea||0);
+    productos[p].familias[f].subtotal+=(r.total_pagado_linea||r.total_linea||0);
   });
   var prodArr=Object.values(productos).sort(function(a,b){ return b.unidades-a.unidades; });
 
@@ -800,13 +804,13 @@ function exportarPDF(){
   rows.forEach(function(r){
     var f=r.familia||'Sin nombre';
     if(!familias[f]) familias[f]={email:r.email||'',total:0,unidades:0,items:[]};
-    familias[f].total+=(r.total_linea||0);
+    familias[f].total+=(r.total_pagado_linea||r.total_linea||0);
     familias[f].unidades+=(r.cantidad||0);
     familias[f].items.push(r);
   });
   var famArr=Object.keys(familias).sort(function(a,b){ return familias[b].total-familias[a].total; });
 
-  var totalPesos=rows.reduce(function(s,r){ return s+(r.total_linea||0); },0);
+  var totalPesos=rows.reduce(function(s,r){ return s+(r.total_pagado_linea||r.total_linea||0); },0);
   var totalUnidades=rows.reduce(function(s,r){ return s+(r.cantidad||0); },0);
 
   var html='';
@@ -883,7 +887,7 @@ function exportarPDF(){
       var key=item.producto;
       if(!prodMap[key]) prodMap[key]={nombre:item.producto,marca:item.marca||'',cantidad:0,subtotal:0};
       prodMap[key].cantidad+=(item.cantidad||0);
-      prodMap[key].subtotal+=(item.total_linea||0);
+      prodMap[key].subtotal+=(item.total_pagado_linea||item.total_linea||0);
     });
     html+='<div style="margin-bottom:14px">'+
       '<div style="font-weight:700;font-size:12px;color:#1a1a6e;margin-bottom:4px">'+

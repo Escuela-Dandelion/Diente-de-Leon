@@ -418,6 +418,14 @@ function registrarEnVentas(order) {
     var fecha  = new Date();
     var nota   = order.note || order.notes || '';
 
+    // Subtotal bruto del pedido (suma de precio × qty de todos los productos)
+    var subtotalBruto = (order.products || []).reduce(function(sum, p) {
+      return sum + parseFloat(p.price || 0) * (p.quantity || 1);
+    }, 0);
+    var orderTotal  = parseFloat(order.total || 0);
+    var gatewayCost = parseFloat(order.gateway_cost || 0);
+    var orderNeto   = orderTotal - gatewayCost;
+
     order.products.forEach(function(p) {
       var nombre = (typeof p.name === 'object')
         ? (p.name.es || p.name.pt || Object.values(p.name)[0] || '')
@@ -425,7 +433,10 @@ function registrarEnVentas(order) {
       var sku        = p.sku || '';
       var qty        = p.quantity || 1;
       var precioUnit = parseFloat(p.price || 0);
-      var totalLinea = precioUnit * qty;
+      var totalLinea = precioUnit * qty;  // subtotal bruto de esta línea
+      var proporcion = subtotalBruto > 0 ? totalLinea / subtotalBruto : (1 / (order.products.length || 1));
+      var totalPagadoLinea = proporcion * orderTotal;
+      var netoLinea        = proporcion * orderNeto;
       var datos      = fetchDatosDeProducto(p.product_id || '', p.variant_id || '');
 
       sheet.appendRow([
@@ -438,11 +449,13 @@ function registrarEnVentas(order) {
         sku,
         qty,
         precioUnit,
-        totalLinea,
-        parseFloat(order.total || 0),
+        totalLinea,            // col J (índice 9):  subtotal bruto (precio × qty)
+        parseFloat(order.total || 0),  // col K (índice 10): total del pedido
         nota,
         datos.marca,
-        datos.costo
+        datos.costo,
+        totalPagadoLinea,      // col O (índice 14): monto pagado proporcional (con descuento)
+        netoLinea              // col P (índice 15): monto neto proporcional (post costo procesamiento)
       ]);
     });
     Logger.log('Ventas: ' + order.products.length + ' fila(s) para pedido #' + order.number);
@@ -1281,7 +1294,7 @@ function apiDashboard(pin, email) {
     return { ok: true, rows: [], meses_todos: [], total_pedidos: 0, total_pesos: 0, total_costo: 0, actualizado: new Date().toLocaleString('es-AR') };
   }
 
-  // Columnas: 0=Fecha,1=Pedido#,2=IDInt,3=Nombre,4=Email,5=Producto,6=SKU,7=Cantidad,8=PrecioU,9=TotLinea,10=TotPedido,11=Comentarios,12=Marca,13=CostoUnitario
+  // Columnas: 0=Fecha,1=Pedido#,2=IDInt,3=Nombre,4=Email,5=Producto,6=SKU,7=Cantidad,8=PrecioU,9=SubtotalBruto,10=TotPedido,11=Comentarios,12=Marca,13=CostoUnitario,14=TotalPagadoLinea,15=NetoLinea
   var rows       = [];
   var mesesSet   = {};
   var pedidosSet = {};
@@ -1296,10 +1309,12 @@ function apiDashboard(pin, email) {
     var email      = String(row[4] || '');
     var producto   = String(row[5] || '');
     var cantidad   = parseInt(row[7]) || 1;
-    var totalLinea  = parseFloat(row[9])  || 0;
-    var totalPedido = parseFloat(row[10]) || 0;
-    var comentario  = String(row[11] || '').trim();
-    var marca       = String(row[12] || '');
+    var subtotalBrutoLinea  = parseFloat(row[9])  || 0;
+    var totalPedido         = parseFloat(row[10]) || 0;
+    var comentario          = String(row[11] || '').trim();
+    var marca               = String(row[12] || '');
+    var totalPagadoLinea    = parseFloat(row[14]) || subtotalBrutoLinea;  // fallback para filas antiguas
+    var netoLinea           = parseFloat(row[15]) || totalPagadoLinea;
     var mes         = fecha ? (fecha.getFullYear() + '-' + ('0' + (fecha.getMonth()+1)).slice(-2)) : '';
     var grado       = comentario || '(Sin observaciones)';
 
@@ -1314,17 +1329,19 @@ function apiDashboard(pin, email) {
     if (pedido) pedidosSet[pedido] = true;
 
     rows.push({
-      fecha:       fecha ? fecha.toLocaleDateString('es-AR') : '',
-      mes:         mes,
-      pedido:      pedido,
-      familia:     nombre,
-      email:       email,
-      producto:    producto,
-      marca:       marca,
-      cantidad:    cantidad,
-      total_linea: Math.round(totalLinea * 100) / 100,
-      costo_linea: Math.round(costoLinea * 100) / 100,
-      grado:       grado
+      fecha:               fecha ? fecha.toLocaleDateString('es-AR') : '',
+      mes:                 mes,
+      pedido:              pedido,
+      familia:             nombre,
+      email:               email,
+      producto:            producto,
+      marca:               marca,
+      cantidad:            cantidad,
+      total_linea:         Math.round(subtotalBrutoLinea * 100) / 100,   // subtotal bruto (sin descuentos)
+      total_pagado_linea:  Math.round(totalPagadoLinea * 100) / 100,     // monto pagado proporcional
+      neto_linea:          Math.round(netoLinea * 100) / 100,            // neto post costo procesamiento
+      costo_linea:         Math.round(costoLinea * 100) / 100,
+      grado:               grado
     });
   }
 
