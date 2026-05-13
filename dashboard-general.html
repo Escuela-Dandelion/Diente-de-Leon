@@ -531,6 +531,7 @@ function initDashboard(d) {
   ALL_MESES.forEach(function(m){ aniosSet[m.split('-')[0]] = true; });
   var anios = Object.keys(aniosSet).sort();
   var selA = document.getElementById('filtro-anio');
+  while(selA.options.length > 1) selA.remove(1);
   anios.forEach(function(a){
     var opt = document.createElement('option');
     opt.value = a; opt.textContent = a;
