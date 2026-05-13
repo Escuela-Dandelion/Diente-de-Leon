@@ -1321,6 +1321,7 @@ function apiDashboard(pin, email) {
     var marca               = String(row[12] || '');
     var totalPagadoLinea    = parseFloat(row[14]) || subtotalBrutoLinea;  // fallback para filas antiguas
     var netoLinea           = parseFloat(row[15]) || totalPagadoLinea;
+    var feeProcesamiento    = parseFloat(row[16]) || 0;
     var mes         = fecha ? (fecha.getFullYear() + '-' + ('0' + (fecha.getMonth()+1)).slice(-2)) : '';
     var grado       = comentario || '(Sin observaciones)';
 
@@ -1343,9 +1344,10 @@ function apiDashboard(pin, email) {
       producto:            producto,
       marca:               marca,
       cantidad:            cantidad,
-      total_linea:         Math.round(subtotalBrutoLinea * 100) / 100,   // subtotal bruto (sin descuentos)
-      total_pagado_linea:  Math.round(totalPagadoLinea * 100) / 100,     // monto pagado proporcional
-      neto_linea:          Math.round(netoLinea * 100) / 100,            // neto post costo procesamiento
+      total_linea:         Math.round(subtotalBrutoLinea * 100) / 100,
+      total_pagado_linea:  Math.round(totalPagadoLinea * 100) / 100,
+      neto_linea:          Math.round(netoLinea * 100) / 100,
+      fee_procesamiento:   Math.round(feeProcesamiento * 100) / 100,
       costo_linea:         Math.round(costoLinea * 100) / 100,
       grado:               grado
     });

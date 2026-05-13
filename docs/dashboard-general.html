@@ -525,11 +525,12 @@ function render() {
 
 // ── CARDS ──
 function updateCards(rows) {
-  var totalVendido=0, totalNeto=0, totalDescuentos=0, totalCosto=0, totalUnidades=0, pedidosSet={}, familiasSet={};
+  var totalVendido=0, totalNeto=0, totalDescuentos=0, totalProcesamiento=0, totalCosto=0, totalUnidades=0, pedidosSet={}, familiasSet={};
   rows.forEach(function(r){
-    totalVendido    += (r.total_pagado_linea||r.total_linea||0);
-    totalNeto       += (r.neto_linea||r.total_pagado_linea||r.total_linea||0);
-    totalDescuentos += Math.max(0, (r.total_linea||0) - (r.total_pagado_linea||r.total_linea||0));
+    totalVendido        += (r.total_pagado_linea||r.total_linea||0);
+    totalNeto           += (r.neto_linea||r.total_pagado_linea||r.total_linea||0);
+    totalDescuentos     += Math.max(0, (r.total_linea||0) - (r.total_pagado_linea||r.total_linea||0));
+    totalProcesamiento  += (r.fee_procesamiento||0);
     totalCosto    += (r.costo_linea||0);
     totalUnidades += (r.cantidad||0);
     if (r.pedido)  pedidosSet[r.pedido]   = true;
@@ -537,7 +538,6 @@ function updateCards(rows) {
   });
   var ganancia = totalNeto - totalCosto;
   var pctMargen = totalNeto > 0 ? (ganancia/totalNeto*100).toFixed(1) + '%' : '—';
-  var totalProcesamiento = totalVendido - totalNeto;
   document.getElementById('c-vendido').textContent       = pesosCard(totalVendido);
   document.getElementById('c-pesos').textContent         = pesosCard(totalNeto);
   document.getElementById('c-descuentos').textContent    = pesosCard(totalDescuentos);
