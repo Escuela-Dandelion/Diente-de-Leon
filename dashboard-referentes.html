@@ -529,6 +529,7 @@ function initDashboard(d){
   ALL_MESES = d.meses_todos||[];
 
   var sel=document.getElementById('filtro-mes');
+  while(sel.options.length > 1) sel.remove(1); // limpiar opciones previas (evita duplicados)
   ALL_MESES.forEach(function(m){
     var opt=document.createElement('option');
     opt.value=m; opt.textContent=mesLabel(m);
