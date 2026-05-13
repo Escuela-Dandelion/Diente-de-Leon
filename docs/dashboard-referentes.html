@@ -660,9 +660,11 @@ function renderProductos(rows){
     productos[p].total+=(r.total_pagado_linea||r.total_linea||0);
     productos[p].unidades+=(r.cantidad||0);
     var f=r.familia||'Sin nombre';
-    if(!productos[p].familias[f]) productos[p].familias[f]={email:r.email||'',cantidad:0,subtotal:0,pedido:r.pedido,fecha:r.fecha};
+    if(!productos[p].familias[f]) productos[p].familias[f]={email:r.email||'',cantidad:0,subtotal_bruto:0,total_pagado:0,neto:0,pedido:r.pedido,fecha:r.fecha};
     productos[p].familias[f].cantidad+=(r.cantidad||0);
-    productos[p].familias[f].subtotal+=(r.total_pagado_linea||r.total_linea||0);
+    productos[p].familias[f].subtotal_bruto+=(r.total_linea||0);
+    productos[p].familias[f].total_pagado+=(r.total_pagado_linea||r.total_linea||0);
+    productos[p].familias[f].neto+=(r.neto_linea||r.total_pagado_linea||r.total_linea||0);
   });
   var prodArr=Object.values(productos).sort(function(a,b){ return b.unidades-a.unidades; });
 
@@ -690,14 +692,16 @@ function renderProductos(rows){
 
     html+='<div class="prod-body" id="prod-'+pi+'">'+
       '<table class="tbl-inner"><thead><tr>'+
-        '<th>Familia</th><th class="num">Cant.</th><th class="num">Subtotal</th><th>Pedido</th><th>Fecha</th>'+
+        '<th>Familia</th><th class="num">Cant.</th><th class="num">Bruto</th><th class="num">Pagado</th><th class="num">Neto</th><th>Pedido</th><th>Fecha</th>'+
       '</tr></thead><tbody>';
     famArr.forEach(function(fname){
       var f=prod.familias[fname];
       html+='<tr>'+
         '<td><strong>'+esc(fname)+'</strong>'+(f.email?' <span class="txt-sm">'+esc(f.email)+'</span>':'')+' </td>'+
         '<td class="num"><span class="chip-g">'+Math.round(f.cantidad)+'</span></td>'+
-        '<td class="num">'+pesos(f.subtotal)+'</td>'+
+        '<td class="num" style="color:#999">'+pesos(f.subtotal_bruto)+'</td>'+
+        '<td class="num"><strong>'+pesos(f.total_pagado)+'</strong></td>'+
+        '<td class="num">'+pesos(f.neto)+'</td>'+
         '<td><span class="txt-sm">#'+esc(f.pedido||'—')+'</span></td>'+
         '<td><span class="txt-sm">'+esc(f.fecha||'—')+'</span></td>'+
       '</tr>';
