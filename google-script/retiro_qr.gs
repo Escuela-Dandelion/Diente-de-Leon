@@ -352,10 +352,29 @@ function registrarEnSheet(order, token) {
     'PENDIENTE',
     '',  // col 9: Staff (se completa al entregar)
     '',  // col 10: Notas (se completa al entregar)
-    String(order.note || order.notes || '').trim(), // col 11: Grado
-    getOrderDiscount(order),                         // col 12: Descuento total del pedido
-    getDiscountType(order)                           // col 13: Tipo de descuento (Cupón / DxC / Cupón+DxC)
+    normalizarGradoGAS(order.note || order.notes || ''), // col 11: Grado (normalizado)
+    getOrderDiscount(order),                             // col 12: Descuento total del pedido
+    getDiscountType(order)                               // col 13: Tipo de descuento (Cupón / DxC / Cupón+DxC)
   ]);
+}
+
+// Normaliza col 11 (Grado) en todas las filas del sheet Retiros
+function migrarGradosRetiros() {
+  var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
+  var sheet = ss.getSheetByName('Retiros');
+  if (!sheet) { Logger.log('No existe hoja Retiros'); return; }
+  var data = sheet.getDataRange().getValues();
+  var actualizados = 0;
+  for (var i = 1; i < data.length; i++) {
+    var raw  = String(data[i][10] || '');
+    var norm = normalizarGradoGAS(raw);
+    if (norm !== raw) {
+      sheet.getRange(i + 1, 11).setValue(norm);
+      actualizados++;
+      Logger.log('Fila ' + (i+1) + ': "' + raw + '" → "' + norm + '"');
+    }
+  }
+  Logger.log('Grados normalizados: ' + actualizados + ' filas.');
 }
 
 // Rellena col 12 (Descuento) en filas de Retiros que no la tienen aún
@@ -401,6 +420,46 @@ function getVentasSheet() {
 
 // Cache por "productId:variantId" → { marca, costo }
 var _prodCache = {};
+
+// Normaliza el grado escrito libremente por el comprador
+function normalizarGradoGAS(g) {
+  var s = String(g || '').trim();
+  if (!s) return '';
+  var l = s.toLowerCase()
+    .replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i')
+    .replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n');
+
+  // Jardín
+  if (l.indexOf('jard') !== -1 || l.indexOf('inic') !== -1 || l === 'j') return 'J';
+
+  // Palabras → número
+  var PALABRAS = {
+    'primer':1,'primero':1,'primerito':1,'1er':1,'1ro':1,
+    'segundo':2,'2do':2,'2 grado':2,
+    'tercer':3,'tercero':3,'3ro':3,'3er':3,
+    'cuarto':4,'4to':4,
+    'quinto':5,'5to':5,
+    'sexto':6,'6to':6,
+    'septimo':7,'setimo':7,'7mo':7,
+    'octavo':8,'8vo':8,
+    'noveno':9,'9no':9,
+    'decimo':10,'10mo':10,
+    'undecimo':11,'decimoprimero':11,'11vo':11,
+    'duodecimo':12,'decimosegundo':12,'12vo':12
+  };
+  for (var k in PALABRAS) {
+    if (l.indexOf(k) !== -1) return String(PALABRAS[k]);
+  }
+
+  // Número directo al inicio
+  var m = l.match(/^(\d+)/);
+  if (m) {
+    var n = parseInt(m[1]);
+    if (n >= 1 && n <= 12) return String(n);
+  }
+
+  return s; // devuelve original si no se reconoce
+}
 
 // Retorna el descuento total del pedido sumando cupón + descuentos promocionales (volumen, etc.)
 function getOrderDiscount(order) {
