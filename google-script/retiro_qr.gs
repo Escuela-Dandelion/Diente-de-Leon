@@ -463,10 +463,10 @@ function registrarEnVentas(order) {
         nota,
         datos.marca,
         datos.costo,
-        totalPagadoLinea,      // col O (índice 14): monto pagado proporcional (con descuento)
-        netoLinea,             // col P (índice 15): monto neto proporcional (post costo procesamiento)
-        gatewayCost,           // col Q (índice 16): fee total del pedido (para auditoría)
-        paymentMethod          // col R (índice 17): método de pago
+        totalPagadoLinea,                    // col O (índice 14): monto pagado proporcional (con descuento)
+        netoLinea,                           // col P (índice 15): monto neto proporcional
+        totalPagadoLinea - netoLinea,        // col Q (índice 16): fee procesamiento proporcional a esta línea
+        paymentMethod                        // col R (índice 17): método de pago
       ]);
     });
     Logger.log('Ventas: ' + order.products.length + ' fila(s) para pedido #' + order.number);
