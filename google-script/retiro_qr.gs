@@ -1042,7 +1042,15 @@ function reprocesarVentas() {
   if (orders.length > 0) {
     var sampleFull = fetchOrder(String(orders[0].id));
     if (sampleFull) {
-      Logger.log('SAMPLE individual pedido #' + sampleFull.number + ' gateway_cost=' + sampleFull.gateway_cost + ' total=' + sampleFull.total);
+      Logger.log('SAMPLE keys: ' + Object.keys(sampleFull).join(', '));
+      Logger.log('SAMPLE payments: ' + JSON.stringify(sampleFull.payments));
+      Logger.log('SAMPLE financial: gateway=' + sampleFull.gateway +
+        ' gateway_cost=' + sampleFull.gateway_cost +
+        ' checkout_total=' + sampleFull.checkout_total +
+        ' total=' + sampleFull.total +
+        ' subtotal=' + sampleFull.subtotal +
+        ' discount=' + sampleFull.discount +
+        ' shipping_cost=' + sampleFull.shipping_cost);
     }
   }
 
