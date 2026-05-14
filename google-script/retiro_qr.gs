@@ -1622,6 +1622,23 @@ function staffToGrado(staffKey) {
 // ── RETIROS CON ESTADO ENTREGADO/PENDIENTE ───────────────────
 function getRetirosData(estadoFiltro, diasFiltro) {
   var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
+
+  // Construir mapa pedido# → set de marcas desde el sheet Ventas
+  var marcasMap = {};
+  try {
+    var ventasSheet = ss.getSheetByName('Ventas');
+    if (ventasSheet) {
+      var vData = ventasSheet.getDataRange().getValues();
+      for (var v = 1; v < vData.length; v++) {
+        var pedNum = String(vData[v][1] || '');
+        var marca  = String(vData[v][12] || '').trim();
+        if (!pedNum || !marca) continue;
+        if (!marcasMap[pedNum]) marcasMap[pedNum] = {};
+        marcasMap[pedNum][marca] = true;
+      }
+    }
+  } catch(e) {}
+
   var sheet = ss.getSheetByName('Retiros');
   if (!sheet) return [];
   var data = sheet.getDataRange().getValues();
@@ -1664,7 +1681,8 @@ function getRetirosData(estadoFiltro, diasFiltro) {
       grado:         staffToGrado(staffRaw) || String(row[10] || '').trim(),
       notas:         String(row[9] || ''),
       discount:      parseFloat(row[11] || 0),
-      discount_type: String(row[12] || '')
+      discount_type: String(row[12] || ''),
+      marcas:        Object.keys(marcasMap[String(row[1] || '')] || {})
     });
   }
   return rows.reverse();
