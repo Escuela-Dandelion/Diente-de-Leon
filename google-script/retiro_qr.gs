@@ -391,13 +391,14 @@ function migrarDescuentosRetiros() {
     var orderId = String(row[0]);
     if (!orderId) continue;
     var order = fetchOrder(orderId);
-    if (!order) continue;
+    if (!order) { Utilities.sleep(2000); continue; } // pausa extra si hay error
     var discount     = getOrderDiscount(order);
     var discountType = getDiscountType(order);
     sheet.getRange(i + 1, 12).setValue(discount);
     sheet.getRange(i + 1, 13).setValue(discountType);
     actualizados++;
     Logger.log('Retiro fila ' + (i+1) + ' pedido #' + row[1] + ' discount=' + discount + ' type=' + discountType);
+    Utilities.sleep(400); // ~150 pedidos × 400ms = ~60 segundos, dentro del límite
   }
   Logger.log('Migración completa. ' + actualizados + ' filas actualizadas.');
 }
