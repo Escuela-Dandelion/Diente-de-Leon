@@ -392,6 +392,11 @@ function migrarDescuentosRetiros() {
     if (!orderId) continue;
     var order = fetchOrder(orderId);
     if (!order) { Utilities.sleep(2000); continue; } // pausa extra si hay error
+    if (String(order.number) === '232') {
+      Logger.log('DEBUG migrar #232: discount=' + order.discount +
+        ' promo=' + JSON.stringify(order.promotional_discount) +
+        ' discount_coupon=' + order.discount_coupon);
+    }
     var discount     = getOrderDiscount(order);
     var discountType = getDiscountType(order);
     sheet.getRange(i + 1, 12).setValue(discount);
