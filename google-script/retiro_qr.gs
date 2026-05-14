@@ -540,6 +540,14 @@ function registrarEnVentas(order) {
     var gatewayCost     = orderTotal * gatewayFee;
     var orderNeto       = orderTotal - gatewayCost;
 
+    // Log de diagnóstico para pedido #232
+    if (String(order.number) === '232') {
+      Logger.log('DEBUG #232: discount=' + order.discount +
+        ' promotional_discount=' + JSON.stringify(order.promotional_discount) +
+        ' discount_coupon=' + order.discount_coupon +
+        ' total=' + order.total);
+    }
+
     order.products.forEach(function(p) {
       var nombre = (typeof p.name === 'object')
         ? (p.name.es || p.name.pt || Object.values(p.name)[0] || '')
