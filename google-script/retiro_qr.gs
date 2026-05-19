@@ -377,6 +377,37 @@ function migrarGradosRetiros() {
   Logger.log('Grados normalizados: ' + actualizados + ' filas.');
 }
 
+// Corrige cols S (índice 18) y T (índice 19) del sheet Ventas con getOrderDiscount() correcto
+function migrarDescuentosVentas() {
+  var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
+  var sheet = ss.getSheetByName('Ventas');
+  if (!sheet) { Logger.log('No existe hoja Ventas'); return; }
+
+  var data = sheet.getDataRange().getValues();
+  // Construir mapa orderId → {discount, type} para no llamar la API varias veces por pedido
+  var cache = {};
+  var actualizados = 0;
+
+  for (var i = 1; i < data.length; i++) {
+    var orderId = String(data[i][2] || ''); // col C = ID interno (TiendaNube)
+    if (!orderId) continue;
+    if (!cache[orderId]) {
+      var order = fetchOrder(orderId);
+      if (!order) { Utilities.sleep(2000); cache[orderId] = { discount: 0, type: '' }; continue; }
+      cache[orderId] = {
+        discount: getOrderDiscount(order),
+        type:     getDiscountType(order)
+      };
+      Utilities.sleep(400);
+    }
+    var d = cache[orderId];
+    sheet.getRange(i + 1, 19).setValue(d.discount); // col S
+    sheet.getRange(i + 1, 20).setValue(d.type);     // col T
+    actualizados++;
+  }
+  Logger.log('migrarDescuentosVentas: ' + actualizados + ' filas actualizadas.');
+}
+
 // Rellena col 12 (Descuento) en filas de Retiros que no la tienen aún
 function migrarDescuentosRetiros() {
   var ss    = SpreadsheetApp.openById(CONFIG.VENTAS_SHEET_ID);
