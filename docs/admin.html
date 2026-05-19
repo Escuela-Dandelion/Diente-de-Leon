@@ -1432,8 +1432,13 @@ function onQRScanned(url) {
       document.getElementById('qr-pedido-numero').textContent = 'Pedido #' + d.order.number;
       document.getElementById('qr-pedido-nombre').textContent = d.order.contact_name;
       document.getElementById('qr-pedido-productos').innerHTML = (d.order.products||[]).map(function(p){ return p.quantity + 'x <strong>' + p.name + '</strong>'; }).join('<br>');
-      document.getElementById('qr-quien-label').textContent = _qrUser ? _qrUser.name : '—';
-      document.getElementById('qr-pedido-wrap').style.display = 'block';
+      if (_qrUser && _qrUser.name) {
+        document.getElementById('qr-quien-label').textContent = _qrUser.name;
+        document.getElementById('qr-pedido-wrap').style.display = 'block';
+      } else {
+        // Sin usuario — pedir login antes de mostrar el pedido
+        document.getElementById('qr-login-wrap').style.display = 'block';
+      }
     })
     .catch(function(){
       document.getElementById('qr-loading').style.display = 'none';
@@ -1449,7 +1454,12 @@ function confirmarEntregaQR() {
   var pin   = _qrUser ? (_qrUser.pin || '') : '';
   var fb    = document.getElementById('qr-confirm-feedback');
   var btn   = document.getElementById('qr-btn-confirmar');
-  if (!staff) { fb.textContent='⚠️ No hay usuario autenticado.'; fb.style.color='#b45309'; fb.style.display='block'; return; }
+  if (!staff) {
+    // Sin usuario — volver a mostrar el login en lugar de un error muerto
+    document.getElementById('qr-pedido-wrap').style.display = 'none';
+    document.getElementById('qr-login-wrap').style.display = 'block';
+    return;
+  }
   btn.disabled = true;
   btn.innerHTML = '<div style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px"></div> Confirmando…';
   fb.style.display = 'none';
