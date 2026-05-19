@@ -1036,11 +1036,11 @@ function apiEntregar(orderId, staffName, pin, adminPass, token, notas, email) {
     if (!orderId || !verificarToken(orderId, token)) return { ok: false, error: 'QR inválido o expirado.' };
   }
   // Validar identidad: email Google O PIN
+  var staffKey = staffName ? staffName.trim() : '';  // siempre inicializar
   var emailValido = email && AUTH_EMAILS[email.toLowerCase().trim()];
   if (!emailValido) {
     // Validar por PIN
     var pins = CONFIG.STAFF_PINS;
-    var staffKey = staffName ? staffName.trim() : '';
     var pinEsperado = null;
     var keys = Object.keys(pins);
     for (var i = 0; i < keys.length; i++) {
